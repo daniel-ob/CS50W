@@ -1,0 +1,45 @@
+.header {
+    text-align: right;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+a:link {
+    color: black;
+    text-decoration: none;
+    margin: 5px;
+}
+
+a:hover {
+  color: black;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: black;
+  text-decoration: none;
+}
+
+.content {
+    text-align: center;
+    margin-top: 100px;
+}
+
+#search-bar {
+    width: 400px;
+    border: 1px solid #EEE4E4;
+    border-radius: 20px;
+    font-size: 15px;
+    font-family: sans-serif;
+    padding: 10px;
+}
+
+.button {
+    border: none;
+    background-color: FAF1F1;
+    border-radius: 5px;
+    font-family: sans-serif;
+    font-size: 15px;
+    padding: 6px;
+    margin: 15px;
+}
