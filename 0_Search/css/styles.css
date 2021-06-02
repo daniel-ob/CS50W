@@ -2,7 +2,7 @@
     text-align: right;
     font-family: sans-serif;
     font-size: 12px;
-    color: #272f37;
+    color: #272727;
 }
 
 a:link {
@@ -31,30 +31,40 @@ a:visited {
 }
 
 #search-bar {
-    width: 400px;
+    width: 520px;
     border: 1px solid #EEE4E4;
-    border-radius: 20px;
+    border-radius: 25px;
     font-size: 15px;
     font-family: sans-serif;
-    padding: 10px;
+    padding: 12px;
+    margin: 5px;
+    text-indent: 30px;
+    background: white url(../img/magnifying-glass.png) left no-repeat;
+    background-size: 30px 15px;
 }
 
 #search-bar:hover {
-    box-shadow: 0 0 2px #26bf47;
+    box-shadow: 0 0 2px #26BF47;
 }
 
 .button {
     border: 1px solid white;
-    color: #65455f;
-    background-color: FAF1F1;
     border-radius: 5px;
+    color: #65455F;
+    background-color: #F8F9FA;
     font-family: sans-serif;
     font-size: 14px;
     padding: 10px;
-    margin: 15px;
+    margin: 10px;
 }
 
 .button:hover {
     border: 1px solid #EEE4E4;
-    background-color: FAF1F1;
+    background-color: #F8F9FA;
+    box-shadow: 0 0 1px #EEEEEE;
+}
+
+.button:active {
+    border: 1px solid #4285f4;
+    background-color: #FAF1F1;
 }
