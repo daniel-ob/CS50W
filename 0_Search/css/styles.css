@@ -1,3 +1,5 @@
+/* common */
+
 .header {
     text-align: right;
     font-family: sans-serif;
@@ -20,6 +22,8 @@ a:visited {
   color: black;
   text-decoration: none;
 }
+
+/* index.html & images.html */
 
 .content {
     text-align: center;
@@ -67,4 +71,64 @@ a:visited {
 .button:active {
     border: 1px solid #4285f4;
     background-color: #FAF1F1;
+}
+
+/* advanced.html */
+
+h1 {
+    margin-top: 60px;
+    margin-left: 34px;
+    font-family: arial, sans-serif;
+    font-size: 20px;
+    font-weight:normal;
+    color: #D93025;
+}
+
+hr {
+    margin: 20px -20px;
+    border: 0;
+    border-top: 1px solid #EBEBEB;
+}
+
+table {
+    margin-top: 30px;
+    margin-left: 34px;
+    font-family: arial, sans-serif;
+    color: #333333;
+    text-align: left;
+}
+
+th {
+    font-size: 16px;
+    font-weight:normal;
+}
+
+td {
+    height: 28px;
+    width: 180px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 13px;
+}
+
+input[type="text"] {
+    width: 570px;
+    min-width: 210px;
+    font-size: inherit;
+}
+
+#td-btn {
+    text-align: right;
+}
+
+#adv-search-btn {
+    height: 28px;
+    border: 1px solid #3079ED;
+    color: white;
+    background-color: #4B8EFA;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 11px;
+    padding-left: 11px;
+    padding-right: 11px;
 }
