@@ -14,7 +14,6 @@ a:link {
 }
 
 a:hover {
-  color: black;
   text-decoration: underline;
 }
 
@@ -26,8 +25,8 @@ a:visited {
 /* index.html & images.html */
 
 .content {
+    margin-top: 140px;
     text-align: center;
-    margin-top: 100px;
 }
 
 #logo {
@@ -35,13 +34,13 @@ a:visited {
 }
 
 #search-bar {
-    width: 520px;
-    border: 1px solid #EEE4E4;
-    border-radius: 25px;
-    font-size: 15px;
-    font-family: sans-serif;
-    padding: 12px;
     margin: 5px;
+    width: 550px;
+    border: 1px solid #DFE1E5;
+    border-radius: 25px;
+    padding: 12px;
+    font-family: sans-serif;
+    font-size: 15px;
     text-indent: 30px;
     background: white url(../img/magnifying-glass.png) left no-repeat;
     background-size: 30px 15px;
@@ -52,25 +51,23 @@ a:visited {
 }
 
 .button {
+    margin: 10px;
     border: 1px solid white;
     border-radius: 5px;
-    color: #65455F;
+    padding: 10px;
     background-color: #F8F9FA;
     font-family: sans-serif;
     font-size: 14px;
-    padding: 10px;
-    margin: 10px;
+    color: #65455F;
 }
 
 .button:hover {
     border: 1px solid #EEE4E4;
-    background-color: #F8F9FA;
     box-shadow: 0 0 1px #EEEEEE;
 }
 
 .button:active {
     border: 1px solid #4285f4;
-    background-color: #FAF1F1;
 }
 
 /* advanced.html */
@@ -91,16 +88,16 @@ hr {
 }
 
 #grid {
-    display: grid;
     margin: 36px;
     max-width: 760px;
+    display: grid;
     grid-row-gap: 12px;
     grid-template-columns: 180px auto;
+    text-align: left;
+    align-items: center;
     font-family: arial, sans-serif;
     font-size: 13px;
     color: #333333;
-    text-align: left;
-    align-items: center;
 }
 
 #grid-title {
@@ -119,11 +116,11 @@ input[type="text"] {
 #adv-search-btn {
     height: 28px;
     border: 1px solid #3079ED;
-    color: white;
+    padding-left: 11px;
+    padding-right: 11px;
     background-color: #4B8EFA;
     font-family: inherit;
     font-weight: bold;
     font-size: 11px;
-    padding-left: 11px;
-    padding-right: 11px;
+    color: white;
 }
