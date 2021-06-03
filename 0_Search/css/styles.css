@@ -77,7 +77,7 @@ a:visited {
 
 h1 {
     margin-top: 60px;
-    margin-left: 34px;
+    margin-left: 36px;
     font-family: arial, sans-serif;
     font-size: 20px;
     font-weight:normal;
@@ -85,39 +85,34 @@ h1 {
 }
 
 hr {
-    margin: 20px -20px;
+    margin: 24px -20px;
     border: 0;
     border-top: 1px solid #EBEBEB;
 }
 
-table {
-    margin-top: 30px;
-    margin-left: 34px;
+#grid {
+    display: grid;
+    margin: 36px;
+    max-width: 760px;
+    grid-row-gap: 12px;
+    grid-template-columns: 180px auto;
     font-family: arial, sans-serif;
+    font-size: 13px;
     color: #333333;
     text-align: left;
+    align-items: center;
 }
 
-th {
+#grid-title {
     font-size: 16px;
-    font-weight:normal;
-}
-
-td {
-    height: 28px;
-    width: 180px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    font-size: 13px;
 }
 
 input[type="text"] {
-    width: 570px;
+    width: calc(100% - 20px);
     min-width: 210px;
-    font-size: inherit;
 }
 
-#td-btn {
+#btn-container {
     text-align: right;
 }
 
