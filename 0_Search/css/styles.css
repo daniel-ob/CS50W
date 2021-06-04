@@ -1,6 +1,14 @@
 /* common */
 
 .header {
+    margin: 12px;
+    height: 32px;
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+}
+
+.header-links {
     text-align: right;
     font-family: sans-serif;
     font-size: 12px;
@@ -29,7 +37,7 @@ a:visited {
     text-align: center;
 }
 
-#logo {
+.logo-big {
     width: 250px;
 }
 
@@ -72,8 +80,18 @@ a:visited {
 
 /* advanced.html */
 
+.header-logo {
+    text-align: left;
+    display: inherit;
+    align-items: center;
+}
+
+.logo-little {
+    height: 26px;
+}
+
 h1 {
-    margin-top: 60px;
+    margin-top: 45px;
     margin-left: 36px;
     font-family: arial, sans-serif;
     font-size: 20px;
@@ -87,7 +105,7 @@ hr {
     border-top: 1px solid #EBEBEB;
 }
 
-#grid {
+.form-grid {
     margin: 36px;
     max-width: 760px;
     display: grid;
@@ -100,7 +118,7 @@ hr {
     color: #333333;
 }
 
-#grid-title {
+.form-title {
     font-size: 16px;
 }
 
