@@ -137,6 +137,7 @@ hr {
 #adv-search-btn {
     height: 28px;
     border: 1px solid #3079ED;
+    border-radius: 3px;
     padding-left: 11px;
     padding-right: 11px;
     background-color: #4B8EFA;
@@ -144,4 +145,12 @@ hr {
     font-weight: bold;
     font-size: 11px;
     color: white;
+}
+
+#adv-search-btn:hover {
+    background-color: #3B7FED;
+}
+
+#adv-search-btn:active {
+    box-shadow: inset 0 0 4px #2F5BB7;
 }
