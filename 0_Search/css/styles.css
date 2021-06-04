@@ -16,18 +16,18 @@
 }
 
 a:link {
-    color: black;
-    text-decoration: none;
     margin: 5px;
+    text-decoration: none;
+    color: black;
 }
 
 a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 a:visited {
-  color: black;
-  text-decoration: none;
+    text-decoration: none;
+    color: black;
 }
 
 /* index.html & images.html */
@@ -41,7 +41,7 @@ a:visited {
     width: 250px;
 }
 
-#search-bar {
+.search-bar {
     margin: 5px;
     width: 550px;
     border: 1px solid #DFE1E5;
@@ -54,7 +54,7 @@ a:visited {
     background-size: 30px 15px;
 }
 
-#search-bar:hover {
+.search-bar:hover {
     box-shadow: 0 0 2px #26BF47;
 }
 
@@ -122,12 +122,12 @@ hr {
     font-size: 16px;
 }
 
-input[type="text"] {
+.form-input {
     width: calc(100% - 20px);
     min-width: 210px;
 }
 
-#btn-container {
+.form-btn-ctnr {
     text-align: right;
 }
 
