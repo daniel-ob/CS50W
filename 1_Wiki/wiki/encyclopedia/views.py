@@ -29,12 +29,14 @@ def index(request):
 def entry(request, title):
     content = util.get_entry(title)
     if not content:
-        content = f"Requested page was not found: {title}"
-
-    return render(request, "encyclopedia/entry.html", {
-        "name": title,
-        "content": content
-    })
+        return render(request, "encyclopedia/notfound.html", {
+            "name": title,
+        })
+    else:
+        return render(request, "encyclopedia/entry.html", {
+            "name": title,
+            "content": content
+        })
 
 
 def create(request):
