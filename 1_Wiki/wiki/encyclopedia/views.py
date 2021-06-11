@@ -35,3 +35,27 @@ def entry(request, title):
         "name": title,
         "content": content
     })
+
+
+def create(request):
+    if request.method == "POST":
+        title = request.POST["title"]
+        content = request.POST["content"]
+        error_message = ""
+        if not (title and content):
+            error_message = "Please enter a title and a content"
+        if util.get_entry(title):
+            error_message = "This page already exists"
+        if error_message:
+            # present error message and keep form content
+            return render(request, "encyclopedia/create.html", {
+                "error_message": error_message,
+                "title": title,
+                "content": content
+            })
+        else:
+            # save entry and redirect user to the new entry's page
+            util.save_entry(title, content)
+            return HttpResponseRedirect(reverse("entry", kwargs={"title": title}))
+    else:
+        return render(request, "encyclopedia/create.html")

@@ -17,6 +17,10 @@ textarea {
     width: 80%;
 }
 
+.error {
+    color: red;
+}
+
 .main {
     padding: 10px;
 }
