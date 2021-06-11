@@ -7,7 +7,7 @@ from . import util
 
 def index(request):
     if request.method == "POST":
-        # coming from search query
+        # coming from sidebar search query
         title = request.POST["q"]
         # if query matches an entry, redirect to that entry page
         if util.get_entry(title):
@@ -61,3 +61,20 @@ def create(request):
             return HttpResponseRedirect(reverse("entry", kwargs={"title": title}))
     else:
         return render(request, "encyclopedia/create.html")
+
+
+def edit(request, title):
+    if request.method == "POST":
+        util.save_entry(title, request.POST["content"])
+        return HttpResponseRedirect(reverse("entry", kwargs={"title": title}))
+    else:
+        content = util.get_entry(title)
+        if not content:
+            return render(request, "encyclopedia/notfound.html", {
+                "name": title,
+            })
+        else:
+            return render(request, "encyclopedia/edit.html", {
+                "name": title,
+                "content": content
+            })

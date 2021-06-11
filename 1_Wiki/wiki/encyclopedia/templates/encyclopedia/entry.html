@@ -5,5 +5,8 @@
 {% endblock %}
 
 {% block body %}
+    <div>
+        <a href="{% url 'edit' title=name %}">Edit</a>
+    </div>
     {{ content }}
 {% endblock %}
