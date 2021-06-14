@@ -19,7 +19,7 @@ def index(request):
             "entries": [entry for entry in util.list_entries() if title.lower() in entry.lower()]
         })
 
-    # list all entries
+    # Request.GET: list all entries
     return render(request, "encyclopedia/index.html", {
         "query": False,
         "entries": util.list_entries()
@@ -30,11 +30,11 @@ def entry(request, title):
     content = util.get_entry(title)
     if not content:
         return render(request, "encyclopedia/notfound.html", {
-            "name": title,
+            "title": title,
         })
     else:
         return render(request, "encyclopedia/entry.html", {
-            "name": title,
+            "title": title,
             "content": content
         })
 
@@ -59,22 +59,24 @@ def create(request):
             # save entry and redirect user to the new entry's page
             util.save_entry(title, content)
             return HttpResponseRedirect(reverse("entry", kwargs={"title": title}))
-    else:
-        return render(request, "encyclopedia/create.html")
+
+    # Request.GET
+    return render(request, "encyclopedia/create.html")
 
 
 def edit(request, title):
     if request.method == "POST":
         util.save_entry(title, request.POST["content"])
         return HttpResponseRedirect(reverse("entry", kwargs={"title": title}))
+
+    # Request.GET
+    content = util.get_entry(title)
+    if not content:
+        return render(request, "encyclopedia/notfound.html", {
+            "title": title,
+        })
     else:
-        content = util.get_entry(title)
-        if not content:
-            return render(request, "encyclopedia/notfound.html", {
-                "name": title,
-            })
-        else:
-            return render(request, "encyclopedia/edit.html", {
-                "name": title,
-                "content": content
-            })
+        return render(request, "encyclopedia/edit.html", {
+            "title": title,
+            "content": content
+        })
