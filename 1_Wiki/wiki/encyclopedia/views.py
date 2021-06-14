@@ -1,3 +1,5 @@
+import random
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -80,3 +82,11 @@ def edit(request, title):
             "title": title,
             "content": content
         })
+
+
+def random_entry(request):
+    entries = util.list_entries()
+    if entries:
+        return HttpResponseRedirect(reverse("entry", kwargs={"title": random.choice(entries)}))
+    else:
+        return render(request, "encyclopedia/notfound.html")
