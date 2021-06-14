@@ -8,5 +8,5 @@
     <div>
         <a href="{% url 'edit' title=title %}">Edit</a>
     </div>
-    {{ content }}
+    {{ content|safe }}
 {% endblock %}

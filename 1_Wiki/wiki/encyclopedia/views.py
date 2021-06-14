@@ -3,6 +3,7 @@ import random
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from markdown2 import Markdown
 
 from . import util
 
@@ -35,9 +36,10 @@ def entry(request, title):
             "title": title,
         })
     else:
+        markdowner = Markdown()
         return render(request, "encyclopedia/entry.html", {
             "title": title,
-            "content": content
+            "content": markdowner.convert(content)
         })
 
 
