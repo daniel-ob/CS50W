@@ -1,5 +1,5 @@
 body {
-    margin: 0;
+    margin-right: 15px;
     background-color: white;
 }
 
@@ -33,7 +33,7 @@ textarea {
 
 .sidebar {
     background-color: #f0f0f0;
-    height: 100vh;
+    height: 95vh;
     padding: 20px;
 }
 
