@@ -1,7 +1,10 @@
 # CS50’s Web Programming with Python and JavaScript
 
-These are the projects I built during the course:
+These are the projects I built during the [course](https://cs50.harvard.edu/web/2020/)
 
-https://cs50.harvard.edu/web/2020/
+0. [**Search**](0_Search/): Front-end for Google Search, Google Image Search, and Google Advanced Search ([video](https://youtu.be/Ctzon7Vx5Zohttps://youtu.be/Ctzon7Vx5Zo))
+
+
+1. [**Wiki**](1_Wiki/wiki): Wikipedia-like online encyclopedia using *Django framework* ([video](https://youtu.be/N8t6avLOqyY))
 
 (:warning: work in progress)
