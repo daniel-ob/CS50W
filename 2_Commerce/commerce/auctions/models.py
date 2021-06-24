@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.forms import ModelForm, Textarea
 
 
 class User(AbstractUser):
@@ -45,3 +46,12 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user} said: \'{self.text}\' on {self.listing}"
+
+
+class NewListingForm(ModelForm):
+    class Meta:
+        model = Listing
+        fields = ["category", "title", "description", "starting_bid_dollars", "image_url"]
+        widgets = {
+            "description": Textarea(attrs={"cols": 54, "rows": 4}),
+        }
