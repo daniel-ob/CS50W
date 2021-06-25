@@ -4,30 +4,32 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-    {% for listing in listings %}
-        <article>
-            <figure>
-                {% if listing.image_url %}
-                    <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
-                {% else %}
-                    {% load static %}
-                    <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+    <div id="index-page">
+        {% for listing in listings %}
+            <article>
+                <figure>
+                    {% if listing.image_url %}
+                        <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
+                    {% else %}
+                        {% load static %}
+                        <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+                    {% endif %}
+                </figure>
+                <h1>{{ listing.title }}</h1>
+                <div class="price">
+                    {% if listing.bids.count %}
+                        ${{ listing.bids.last.amount_dollars }}
+                    {% else %}
+                        ${{listing.starting_bid_dollars}}
+                    {% endif %}
+                </div>
+                {% if listing.description %}
+                    <div class="description">{{ listing.description }}</div>
                 {% endif %}
-            </figure>
-            <h1>{{ listing.title }}</h1>
-            <div class="price">
-                {% if listing.bids.count %}
-                    ${{ listing.bids.last.amount_dollars }}
-                {% else %}
-                    ${{listing.starting_bid_dollars}}
-                {% endif %}
-            </div>
-            {% if listing.description %}
-                <div class="description">{{ listing.description }}</div>
-            {% endif %}
-            <div class="creation_date">Created: {{ listing.creation_date }}</div>
-        </article>
-    {% empty %}
-        <p>No listings found.</p>
-    {% endfor %}
+                <div class="text-muted">Created: {{ listing.creation_date }}</div>
+            </article>
+        {% empty %}
+            <p>No listings found.</p>
+        {% endfor %}
+    </div>
 {% endblock %}

@@ -2,6 +2,56 @@ body {
     padding: 10px;
 }
 
+/* Index */
+
+#index-page {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+article {
+    margin: 20px;
+    padding: 20px;
+    width: 400px;
+    border: 1px solid steelblue;
+    border-radius: 10px;
+    box-shadow: 1px 1px #4ACBBC;
+}
+
+article:hover {
+    border: 2px solid steelblue;
+    box-shadow: 5px 5px 5px grey;
+}
+
+article figure {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+article img {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+article h1 {
+    color: steelblue;
+    font-size: x-large;
+    overflow: auto;
+}
+
+article div {
+    margin-top: 10px;
+    color: black;
+    font-size: medium;
+    overflow: auto;
+}
+
+.text-muted {
+    font-size: small;
+}
+
 /* Create Page */
 
 #create-page {
