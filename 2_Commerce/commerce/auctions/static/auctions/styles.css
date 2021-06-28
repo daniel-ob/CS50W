@@ -1,3 +1,30 @@
 body {
     padding: 10px;
 }
+
+/* Create Page */
+
+#create-page {
+    margin-left: 40px;
+}
+
+#create-page td {
+    padding: 10px;
+    width: 300px;
+}
+
+#id_title, #id_image_url {
+    width: 500px;
+}
+
+#id_description {
+    height: 140px;
+}
+
+#id_starting_bid_dollars {
+    width: 120px;
+}
+
+#create-page .btn {
+    margin-top: 20px;
+}
