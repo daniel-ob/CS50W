@@ -45,6 +45,10 @@ header {
     flex-wrap: wrap;
 }
 
+#index-page a:link {
+    text-decoration: none;
+}
+
 article {
     margin: 20px;
     padding: 20px;

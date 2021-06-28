@@ -1,0 +1,28 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Auctions - {{ listing.title }} {% endblock %}
+
+{% block body %}
+    <div id="listing-page">
+        <h1>{{ listing.title }}</h1>
+        <figure>
+            {% if listing.image_url %}
+                <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
+            {% else %}
+                {% load static %}
+                <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+                <figcaption>(No image has been uploaded for this listing)</figcaption>
+            {% endif %}
+        </figure>
+        {% if listing.description %}
+            <p>{{ listing.description }}</p>
+        {% endif %}
+        <p><strong>
+            {% if listing.bids.last.amount_dollars %}
+                ${{ listing.bids.last.amount_dollars }}
+            {% else %}
+                ${{ listing.starting_bid_dollars }}
+            {% endif %}
+        </strong></p>
+    </div>
+{% endblock %}

@@ -84,3 +84,9 @@ def create(request):
     return render(request, "auctions/create.html", {
         "form": NewListingForm()
     })
+
+
+def listing(request, listing_id):
+    return render(request, "auctions/listing.html", {
+        "listing": Listing.objects.get(pk=listing_id)
+    })
