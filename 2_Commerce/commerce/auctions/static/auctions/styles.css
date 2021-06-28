@@ -2,6 +2,55 @@ body {
     padding: 10px;
 }
 
+/* Layout */
+
+header {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+}
+
+.title {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.title img {
+    padding: 12px;
+    height: 100px;
+}
+
+.title h1 {
+    font-family: URW Bookman L, Arial, sans-serif;
+    color: steelblue;
+}
+
+.user-login {
+    text-align: right;
+}
+
+.user-login p {
+    margin: 0px;
+}
+
+.nav {
+    margin-bottom: 20px;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: gainsboro;
+    text-align: center;
+}
+
+footer p {
+    margin: 0px;
+}
+
 /* Index */
 
 #index-page {
@@ -52,7 +101,7 @@ article div {
     font-size: small;
 }
 
-/* Create Page */
+/* Create */
 
 #create-page {
     margin-left: 40px;
