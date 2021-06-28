@@ -49,6 +49,10 @@ class Comment(models.Model):
 
 
 class NewListingForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(NewListingForm, self).__init__(*args, **kwargs)
+        self.fields["category"].queryset = Category.objects.order_by("name")
+
     class Meta:
         model = Listing
         fields = ["category", "title", "description", "starting_bid_dollars", "image_url"]
