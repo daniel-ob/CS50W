@@ -86,7 +86,7 @@ def create(request):
     })
 
 
-def listing(request, listing_id):
+def listing_view(request, listing_id):
     return render(request, "auctions/listing.html", {
-        "listing": Listing.objects.get(pk=listing_id)
+        "listing": Listing.objects.get(pk=listing_id),
     })

@@ -24,5 +24,34 @@
                 ${{ listing.starting_bid_dollars }}
             {% endif %}
         </strong></p>
+        <div id="auction">
+            {% if listing.is_active %}
+                <p>{{ listing.bids.count }} bid(s) so far.
+                    {% if listing.bids.last.user == user %}
+                        Your bid is the current bid
+                    {% endif %}
+                </p>
+            {% else %}
+                <p><strong>Auction is closed.</strong></p>
+                <p>{{ listing.bids.count }} total bid(s).</p>
+                {% if listing.bids.last.user == user %}
+                    <p class="congrats"><strong>You won the auction.</strong></p>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div id="details">
+            <h2>Details:</h2>
+            <ul>
+                <li><p>Listed by: {{ listing.user.username }}</p></li>
+                <li>
+                    {% if listing.category.name %}
+                        <p>Category: {{ listing.category.name }}</p>
+                    {% else %}
+                        <p>Category: No Category Listed</p>
+                    {% endif %}
+                </li>
+                <li><p>Created: {{ listing.creation_date }}</p></li>
+            </ul>
+        </div>
     </div>
 {% endblock %}
