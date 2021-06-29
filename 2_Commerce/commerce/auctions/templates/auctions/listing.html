@@ -26,6 +26,15 @@
         </strong></p>
         <div id="auction">
             {% if listing.is_active %}
+                <div id="auction-state">
+                    <p>Auction is open.</p>
+                    {% if user == listing.user %}
+                        <form action="{% url 'close' listing.id %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-primary" type="submit" value="Close" />
+                        </form>
+                    {% endif %}
+                </div>
                 <p>{{ listing.bids.count }} bid(s) so far.
                     {% if listing.bids.last.user == user %}
                         Your bid is the current bid

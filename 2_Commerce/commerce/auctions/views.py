@@ -124,3 +124,15 @@ def bid(request, listing_id):
             })
     else:
         return HttpResponseNotAllowed(["POST"])
+
+
+@login_required
+def close(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.get(pk=listing_id)
+        if request.user == listing.user:
+            listing.is_active = False
+            listing.save()
+            return HttpResponseRedirect(reverse("listing", args=(listing.id, )))
+    else:
+        return HttpResponseNotAllowed(["POST"])
