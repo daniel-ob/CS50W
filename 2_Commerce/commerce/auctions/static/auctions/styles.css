@@ -38,19 +38,6 @@ header {
     margin-bottom: 20px;
 }
 
-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: gainsboro;
-    text-align: center;
-}
-
-footer p {
-    margin: 0px;
-}
-
 /* Index */
 
 #index-page {
