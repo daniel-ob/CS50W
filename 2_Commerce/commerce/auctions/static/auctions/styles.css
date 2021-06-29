@@ -118,3 +118,13 @@ article div {
 #create-page .btn {
     margin-top: 20px;
 }
+
+/* Listing */
+
+.error {
+    color: red;
+}
+
+.congrats {
+    color: green;
+}

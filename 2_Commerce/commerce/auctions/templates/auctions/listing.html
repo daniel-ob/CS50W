@@ -31,6 +31,16 @@
                         Your bid is the current bid
                     {% endif %}
                 </p>
+                {% if user.is_authenticated and user != listing.user %}
+                    <form id="bid-form" action="{% url 'bid' listing.id %}" method="post">
+                        {% csrf_token %}
+                        {{ bid_form.as_p }}
+                        <input class="btn btn-primary" type="submit" value="Place Bid" />
+                    </form>
+                    {% if message %}
+                        <p class="error">{{ message }}</p>
+                    {% endif %}
+                {% endif %}
             {% else %}
                 <p><strong>Auction is closed.</strong></p>
                 <p>{{ listing.bids.count }} total bid(s).</p>

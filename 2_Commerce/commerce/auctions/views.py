@@ -1,11 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Listing, NewListingForm
+from .models import User, Listing, NewListingForm, Bid, NewBidForm
 
 
 def index(request):
@@ -89,4 +89,38 @@ def create(request):
 def listing_view(request, listing_id):
     return render(request, "auctions/listing.html", {
         "listing": Listing.objects.get(pk=listing_id),
+        "bid_form": NewBidForm(),
     })
+
+
+@login_required
+def bid(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.get(pk=listing_id)
+
+        bid_form = NewBidForm(request.POST)
+        if bid_form.is_valid():
+            bid_amount = bid_form.cleaned_data["amount_dollars"]
+            current_price = listing.bids.last().amount_dollars if listing.bids.count() else listing.starting_bid_dollars
+            if bid_amount > current_price:
+                # bid is ok. Set user and listing, then save it
+                new_bid = bid_form.save(commit=False)
+                new_bid.user = request.user
+                new_bid.listing = listing
+                new_bid.save()
+                return HttpResponseRedirect(reverse("listing", args=(listing.id,)))
+            else:
+                # bad bid
+                return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    "bid_form": bid_form,
+                    "message": "Bid must be greater than current price"
+                })
+        else:
+            # send form back to the user, it will display the error
+            return render(request, "auctions/listing.html", {
+                "listing": listing,
+                "bid_form": bid_form
+            })
+    else:
+        return HttpResponseNotAllowed(["POST"])

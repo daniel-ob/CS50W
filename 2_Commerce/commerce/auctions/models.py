@@ -59,3 +59,9 @@ class NewListingForm(ModelForm):
         widgets = {
             "description": Textarea(attrs={"cols": 54, "rows": 4}),
         }
+
+
+class NewBidForm(ModelForm):
+    class Meta:
+        model = Bid
+        fields = ["amount_dollars"]
