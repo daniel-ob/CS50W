@@ -4,27 +4,31 @@
 
 {% block body %}
     <div id="listing-page">
-        <h1>{{ listing.title }}</h1>
-        <figure>
-            {% if listing.image_url %}
-                <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
-            {% else %}
-                {% load static %}
-                <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
-                <figcaption>(No image has been uploaded for this listing)</figcaption>
+        <section class="main-info">
+            <h1>{{ listing.title }}</h1>
+            <figure>
+                {% if listing.image_url %}
+                    <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
+                {% else %}
+                    {% load static %}
+                    <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+                    <figcaption>(No image has been uploaded for this listing)</figcaption>
+                {% endif %}
+            </figure>
+            {% if listing.description %}
+                <p class="description">{{ listing.description }}</p>
             {% endif %}
-        </figure>
-        {% if listing.description %}
-            <p>{{ listing.description }}</p>
-        {% endif %}
-        <p><strong>
-            {% if listing.bids.last.amount_dollars %}
-                ${{ listing.bids.last.amount_dollars }}
-            {% else %}
-                ${{ listing.starting_bid_dollars }}
-            {% endif %}
-        </strong></p>
-        <div id="auction">
+            <p class="price">
+                <strong>
+                {% if listing.bids.count %}
+                    ${{ listing.bids.last.amount_dollars }}
+                {% else %}
+                    ${{ listing.starting_bid_dollars }}
+                {% endif %}
+                </strong>
+            </p>
+        </section>
+        <section class="auction">
             {% if listing.is_active %}
                 <div id="auction-state">
                     <p>Auction is open.</p>
@@ -57,20 +61,20 @@
                     <p class="congrats"><strong>You won the auction.</strong></p>
                 {% endif %}
             {% endif %}
-        </div>
-        <div id="details">
+        </section>
+        <section class="details">
             <h2>Details:</h2>
             <ul>
-                <li><p>Listed by: {{ listing.user.username }}</p></li>
-                <li>
+                <li>Listed by: {{ listing.user.username }}</li>
+                <li>Category:
                     {% if listing.category.name %}
-                        <p>Category: {{ listing.category.name }}</p>
+                        {{ listing.category.name }}
                     {% else %}
-                        <p>Category: No Category Listed</p>
+                        No Category Listed
                     {% endif %}
                 </li>
-                <li><p>Created: {{ listing.creation_date }}</p></li>
+                <li>Created: {{ listing.creation_date }}</li>
             </ul>
-        </div>
+        </section>
     </div>
 {% endblock %}
