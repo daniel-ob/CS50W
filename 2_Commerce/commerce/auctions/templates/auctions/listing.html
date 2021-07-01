@@ -76,5 +76,24 @@
                 <li>Created: {{ listing.creation_date }}</li>
             </ul>
         </section>
+        <section class="comments">
+            <h2>Comments:</h2>
+            {% if listing.comments.count %}
+                {% for comment in listing.comments.all %}
+                    <div class="comment">
+                        <p><strong>{{ comment.user }}</strong> <span class="text-muted">{{ comment.date }}</span></p>
+                        <p>{{ comment.text }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments has been made on this listing.</p>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <form id="comment-form" action="{% url 'comment' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {{ comment_form.as_p }}
+                </form>
+            {% endif %}
+        </section>
     </div>
 {% endblock %}

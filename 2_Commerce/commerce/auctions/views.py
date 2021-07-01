@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllow
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Listing, NewListingForm, Bid, NewBidForm
+from .models import *
 
 
 def index(request):
@@ -90,6 +90,7 @@ def listing_view(request, listing_id):
     return render(request, "auctions/listing.html", {
         "listing": Listing.objects.get(pk=listing_id),
         "bid_form": NewBidForm(),
+        "comment_form": NewCommentForm()
     })
 
 
@@ -114,13 +115,15 @@ def bid(request, listing_id):
                 return render(request, "auctions/listing.html", {
                     "listing": listing,
                     "bid_form": bid_form,
-                    "message": "Bid must be greater than current price"
+                    "message": "Bid must be greater than current price",
+                    "comment_form": NewCommentForm()
                 })
         else:
-            # send form back to the user, it will display the error
+            # send bid_form back to the user, it will display the error
             return render(request, "auctions/listing.html", {
                 "listing": listing,
-                "bid_form": bid_form
+                "bid_form": bid_form,
+                "comment_form": NewCommentForm()
             })
     else:
         return HttpResponseNotAllowed(["POST"])
@@ -134,5 +137,26 @@ def close(request, listing_id):
             listing.is_active = False
             listing.save()
             return HttpResponseRedirect(reverse("listing", args=(listing.id, )))
+    else:
+        return HttpResponseNotAllowed(["POST"])
+
+
+@login_required
+def comment(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.get(pk=listing_id)
+        comment_form = NewCommentForm(request.POST)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.user = request.user
+            new_comment.listing = listing
+            new_comment.save()
+            return HttpResponseRedirect(reverse("listing", args=(listing.id, )))
+        else:
+            return render(request, "auctions/listing.html", {
+                "listing": listing,
+                "bid_form": NewBidForm(),
+                "comment_form": comment_form,
+            })
     else:
         return HttpResponseNotAllowed(["POST"])

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.forms import ModelForm, Textarea
+from django.forms import ModelForm, Textarea, TextInput
 
 
 class User(AbstractUser):
@@ -65,3 +65,15 @@ class NewBidForm(ModelForm):
     class Meta:
         model = Bid
         fields = ["amount_dollars"]
+
+
+class NewCommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["text"]
+        labels = {
+            "text": ""
+        }
+        widgets = {
+            "text": TextInput(attrs={"placeholder": "Add a Comment"}),
+        }
