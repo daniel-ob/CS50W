@@ -160,3 +160,22 @@ def comment(request, listing_id):
             })
     else:
         return HttpResponseNotAllowed(["POST"])
+
+
+@login_required
+def watchlist(request):
+    if request.method == "POST":
+        user = request.user
+        listing = Listing.objects.get(pk=request.POST["listing_id"])
+
+        # create user watchlist if it doesn't exists
+        if not hasattr(user, "watchlist"):
+            new_watchlist = Watchlist(user=user)
+            new_watchlist.save()
+
+        if request.POST["watchlist"] == "add":
+            user.watchlist.listings.add(listing)
+        else:  # remove
+            user.watchlist.listings.remove(listing)
+
+        return HttpResponseRedirect(reverse("listing", args=(listing.id, )))

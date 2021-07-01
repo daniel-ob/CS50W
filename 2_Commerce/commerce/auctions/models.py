@@ -48,6 +48,14 @@ class Comment(models.Model):
         return f"{self.user} said: \'{self.text}\' on {self.listing}"
 
 
+class Watchlist(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="watchlist")
+    listings = models.ManyToManyField(Listing, blank=True, related_name="in_watchlists")
+
+    def __str__(self):
+        return f"{self.user}'s"
+
+
 class NewListingForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(NewListingForm, self).__init__(*args, **kwargs)

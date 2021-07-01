@@ -4,6 +4,21 @@
 
 {% block body %}
     <div id="listing-page">
+        {% if user.is_authenticated %}
+            <section class="watchlist">
+                <form action="{% url 'watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                    {% if listing in user.watchlist.listings.all %}
+                        <button type="submit" class="badge bg-primary" title="Remove from watchlist" name="watchlist"
+                                value="remove">Watchlist</button>
+                    {% else %}
+                        <button type="submit" class="badge bg-secondary" title="Add to watchlist" name="watchlist"
+                                value="add">Watchlist</button>
+                    {% endif %}
+                </form>
+            </section>
+        {% endif %}
         <section class="main-info">
             <h1>{{ listing.title }}</h1>
             <figure>
