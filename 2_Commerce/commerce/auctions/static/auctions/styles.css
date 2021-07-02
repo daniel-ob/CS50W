@@ -121,10 +121,70 @@ article div {
 
 /* Listing */
 
+#listing-page figure {
+    text-align: center;
+    background-color: #F7EAEA;
+}
+
+#listing-page img {
+    max-height: 400px;
+    max-width: 100%;
+}
+
+#listing-page .header {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+#listing-page h1 {
+    overflow: auto;
+}
+
+#listing-page .price {
+    font-size: x-large;
+}
+
+#listing-page .description {
+    overflow: auto;
+}
+
+#bid-form {
+    display: flex;
+    height: 40px;
+}
+
+#id_amount_dollars {
+    width: 120px;
+}
+
+#bid-form .btn {
+    margin-left: 10px;
+}
+
 .error {
     color: red;
 }
 
-.congrats {
-    color: green;
+#listing-page h2 {
+    margin-top: 10px;
+}
+
+#listing-page ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.comment {
+    margin-top: 10px;
+}
+
+.comment p {
+    margin: 0;
+}
+
+#id_text {
+    margin-top: 10px;
+    width: 500px;
 }

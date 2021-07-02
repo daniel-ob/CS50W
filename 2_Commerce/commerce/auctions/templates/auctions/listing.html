@@ -3,36 +3,33 @@
 {% block title %}Auctions - {{ listing.title }} {% endblock %}
 
 {% block body %}
-    <div id="listing-page">
-        {% if user.is_authenticated %}
-            <section class="watchlist">
-                <form action="{% url 'watchlist' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                    {% if listing in user.watchlist.listings.all %}
-                        <button type="submit" class="badge bg-primary" title="Remove from watchlist" name="watchlist"
-                                value="remove">Watchlist</button>
-                    {% else %}
-                        <button type="submit" class="badge bg-secondary" title="Add to watchlist" name="watchlist"
-                                value="add">Watchlist</button>
-                    {% endif %}
-                </form>
-            </section>
-        {% endif %}
-        <section class="main-info">
-            <h1>{{ listing.title }}</h1>
+    <div id="listing-page" class="col-md-8 col-sm-10 offset-md-1">
+        <section class="main">
             <figure>
                 {% if listing.image_url %}
-                    <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
+                <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
                 {% else %}
-                    {% load static %}
-                    <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
-                    <figcaption>(No image has been uploaded for this listing)</figcaption>
+                {% load static %}
+                <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+                <figcaption>(No image has been uploaded for this listing)</figcaption>
                 {% endif %}
             </figure>
-            {% if listing.description %}
-                <p class="description">{{ listing.description }}</p>
-            {% endif %}
+            <div class="header">
+                <h1>{{ listing.title }}</h1>
+                {% if user.is_authenticated %}
+                    <form id="watchlist-form" action="{% url 'watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                        {% if listing in user.watchlist.listings.all %}
+                            <button type="submit" class="badge bg-primary" title="Remove from watchlist" name="watchlist"
+                                    value="remove">Watchlist</button>
+                        {% else %}
+                            <button type="submit" class="badge bg-secondary" title="Add to watchlist" name="watchlist"
+                                    value="add">Watchlist</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
             <p class="price">
                 <strong>
                 {% if listing.bids.count %}
@@ -42,23 +39,24 @@
                 {% endif %}
                 </strong>
             </p>
+            {% if listing.description %}
+                <p class="description">{{ listing.description }}</p>
+            {% endif %}
         </section>
+        <hr>
         <section class="auction">
             {% if listing.is_active %}
-                <div id="auction-state">
-                    <p>Auction is open.</p>
-                    {% if user == listing.user %}
-                        <form action="{% url 'close' listing.id %}" method="post">
-                            {% csrf_token %}
-                            <input class="btn btn-primary" type="submit" value="Close" />
-                        </form>
-                    {% endif %}
-                </div>
                 <p>{{ listing.bids.count }} bid(s) so far.
                     {% if listing.bids.last.user == user %}
-                        Your bid is the current bid
+                        <span class="text-success">Your bid is the current bid</span>
                     {% endif %}
                 </p>
+                {% if user == listing.user %}
+                    <form action="{% url 'close' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-primary" type="submit" value="Close Auction" />
+                    </form>
+                {% endif %}
                 {% if user.is_authenticated and user != listing.user %}
                     <form id="bid-form" action="{% url 'bid' listing.id %}" method="post">
                         {% csrf_token %}
@@ -70,10 +68,10 @@
                     {% endif %}
                 {% endif %}
             {% else %}
-                <p><strong>Auction is closed.</strong></p>
                 <p>{{ listing.bids.count }} total bid(s).</p>
+                <p><strong>Auction is closed.</strong></p>
                 {% if listing.bids.last.user == user %}
-                    <p class="congrats"><strong>You won the auction.</strong></p>
+                    <p class="alert alert-success"><strong>You won the auction.</strong></p>
                 {% endif %}
             {% endif %}
         </section>
