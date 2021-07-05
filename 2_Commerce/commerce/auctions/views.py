@@ -9,6 +9,7 @@ from .models import *
 
 
 def index(request):
+    # render list of active listings
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.filter(is_active=True)
     })
@@ -186,3 +187,18 @@ def watchlist(request):
         return render(request, "auctions/watchlist.html", {
             "listings": user.watchlist.listings.all()
         })
+
+
+def categories_index(request):
+    return render(request, "auctions/categories.html", {
+        "categories": Category.objects.all()
+    })
+
+
+def category(request, category_id):
+    c = Category.objects.get(pk=category_id)
+    # render a list of all active listings in the category
+    return render(request, "auctions/index.html", {
+        "category_name": c.name,
+        "listings": c.listings.filter(is_active=True)
+    })

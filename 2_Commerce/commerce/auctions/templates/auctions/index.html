@@ -4,33 +4,38 @@
 
 {% block body %}
     <div id="index-page">
-        {% for listing in listings %}
-            <a href="{% url 'listing' listing.id %}">
-                <article>
-                    <figure>
-                        {% if listing.image_url %}
-                            <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
-                        {% else %}
-                            {% load static %}
-                            <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+        {% if category_name %}
+            <h1>{{ category_name }}</h1>
+        {% endif %}
+        <div id="index-container">
+            {% for listing in listings %}
+                <a href="{% url 'listing' listing.id %}">
+                    <article>
+                        <figure>
+                            {% if listing.image_url %}
+                                <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
+                            {% else %}
+                                {% load static %}
+                                <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+                            {% endif %}
+                        </figure>
+                        <h2>{{ listing.title }}</h2>
+                        <div class="price">
+                            {% if listing.bids.count %}
+                                ${{ listing.bids.last.amount_dollars }}
+                            {% else %}
+                                ${{listing.starting_bid_dollars}}
+                            {% endif %}
+                        </div>
+                        {% if listing.description %}
+                            <div class="description">{{ listing.description }}</div>
                         {% endif %}
-                    </figure>
-                    <h1>{{ listing.title }}</h1>
-                    <div class="price">
-                        {% if listing.bids.count %}
-                            ${{ listing.bids.last.amount_dollars }}
-                        {% else %}
-                            ${{listing.starting_bid_dollars}}
-                        {% endif %}
-                    </div>
-                    {% if listing.description %}
-                        <div class="description">{{ listing.description }}</div>
-                    {% endif %}
-                    <div class="text-muted">Created: {{ listing.creation_date }}</div>
-                </article>
-            </a>
-        {% empty %}
-            <p>No listings found.</p>
-        {% endfor %}
+                        <div class="text-muted">Created: {{ listing.creation_date }}</div>
+                    </article>
+                </a>
+            {% empty %}
+                <p>No listings found.</p>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

@@ -28,10 +28,11 @@
             </div>
         </header>
         <nav>
+            {% url 'index' as index_url %}
+            {% url 'create' as create_url %}
+            {% url 'watchlist' as watchlist_url %}
+            {% url 'categories_index' as categories_url %}
             <ul class="nav nav-tabs">
-                {% url 'index' as index_url %}
-                {% url 'create' as create_url %}
-                {% url 'watchlist' as watchlist_url %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == index_url %} active {% endif %}" href="{{ index_url }}">Active Listings</a>
                 </li>
@@ -43,6 +44,9 @@
                         <a class="nav-link {% if request.path == watchlist_url %} active {% endif %}" href="{{ watchlist_url }}">Watchlist</a>
                     </li>
                 {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if categories_url in request.path %} active {% endif %}" href="{{ categories_url }}">Categories</a>
+                </li>
             </ul>
         </nav>
         {% block body %}

@@ -82,7 +82,7 @@
                 <li>Listed by: {{ listing.user.username }}</li>
                 <li>Category:
                     {% if listing.category.name %}
-                        {{ listing.category.name }}
+                        <a href="{% url 'category' listing.category.id %}">{{ listing.category.name }}</a>
                     {% else %}
                         No Category Listed
                     {% endif %}

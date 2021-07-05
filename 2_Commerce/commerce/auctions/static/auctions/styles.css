@@ -38,7 +38,13 @@ header {
 }
 
 /* Index */
-#index-page {
+#index-page h1 {
+    margin-top: 20px;
+    margin-left: 20px;
+    font-size: x-large;
+}
+
+#index-container {
     display: flex;
     flex-wrap: wrap;
 }
@@ -73,7 +79,7 @@ header {
     max-height: 200px;
 }
 
-#index-page h1 {
+#index-page h2 {
     color: steelblue;
     font-size: x-large;
     overflow: auto;
@@ -90,7 +96,11 @@ header {
     font-size: small;
 }
 
-/* Create */
+#index-page p {
+    margin: 20px;
+}
+
+/* Create Page */
 #create-page {
     margin-left: 40px;
 }
@@ -222,4 +232,9 @@ header {
     position: absolute;
     bottom: 10px;
     right: 30px;
+}
+
+/* Categories */
+#categories-page {
+    margin-left: 20px;
 }
