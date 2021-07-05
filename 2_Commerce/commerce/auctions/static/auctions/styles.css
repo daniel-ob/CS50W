@@ -3,7 +3,6 @@ body {
 }
 
 /* Layout */
-
 header {
     display: grid;
     grid-template-columns: auto auto;
@@ -39,7 +38,6 @@ header {
 }
 
 /* Index */
-
 #index-page {
     display: flex;
     flex-wrap: wrap;
@@ -49,7 +47,7 @@ header {
     text-decoration: none;
 }
 
-article {
+#index-page article {
     margin: 20px;
     padding: 20px;
     width: 400px;
@@ -58,30 +56,30 @@ article {
     box-shadow: 1px 1px #4ACBBC;
 }
 
-article:hover {
+#index-page article:hover {
     border: 2px solid steelblue;
     box-shadow: 5px 5px 5px grey;
 }
 
-article figure {
+#index-page figure {
     height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-article img {
+#index-page img {
     max-width: 200px;
     max-height: 200px;
 }
 
-article h1 {
+#index-page h1 {
     color: steelblue;
     font-size: x-large;
     overflow: auto;
 }
 
-article div {
+#index-page article div {
     margin-top: 10px;
     color: black;
     font-size: medium;
@@ -93,7 +91,6 @@ article div {
 }
 
 /* Create */
-
 #create-page {
     margin-left: 40px;
 }
@@ -120,7 +117,6 @@ article div {
 }
 
 /* Listing */
-
 #listing-page figure {
     text-align: center;
     background-color: #F7EAEA;
@@ -187,4 +183,43 @@ article div {
 #id_text {
     margin-top: 10px;
     width: 500px;
+}
+
+/* Watchlist */
+#watchlist-page a:link {
+    text-decoration: none;
+}
+
+.card {
+    border: 1px solid #4ACBBC;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card:hover {
+    border: 2px solid #4ACBBC;
+    box-shadow: 2px 2px 2px grey;
+}
+
+.card figure {
+    text-align: center;
+}
+
+.card img {
+    min-height: 100%;
+    max-height: 250px;
+}
+
+.card-title {
+    color: steelblue;
+}
+
+.card-subtitle, .card-text {
+    color: black;
+}
+
+#watchlist-page form {
+    position: absolute;
+    bottom: 10px;
+    right: 30px;
 }

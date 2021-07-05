@@ -1,0 +1,52 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}Auctions - Watchlist{% endblock %}
+
+{% block body %}
+{% load static %}
+    <div id="watchlist-page" class="col-lg-8 offset-lg-1">
+        {% for listing in listings %}
+            <!-- using Bootstrap horizontal cards -->
+            <a href="{% url 'listing' listing.id %}">
+                <article class="card mb-3">
+                    <div class="row g-0">
+                        <figure class="col-md-4 mb-0">
+                            {% if listing.image_url %}
+                                <img src="{{ listing.image_url }}" class="img-fluid" alt="{{ listing.title }}" />
+                            {% else %}
+                                <img src="{% static 'auctions/no_image.svg' %}" class="img-fluid" alt="No image" />
+                            {% endif %}
+                        </figure>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h4 class="card-title">{{ listing.title }}</h4>
+                                <h5 class="card-subtitle mb-3">
+                                    {% if listing.bids.count %}
+                                        ${{ listing.bids.last.amount_dollars }}
+                                    {% else %}
+                                        ${{ listing.starting_bid_dollars }}
+                                    {% endif %}
+                                </h5>
+                                {% if listing.description %}
+                                    <p class="card-text">{{ listing.description }}</p>
+                                {% endif %}
+                                <p class="card-text text-muted">Created: {{ listing.creation_date }}</p>
+                                <form class="watchlist-form" action="{% url 'watchlist' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                    <input type="hidden" name="from_url" value="{{ request.path }}">
+                                    <button type="submit" class="btn btn-light" name="watchlist" value="remove"
+                                            title="remove from watchlist">
+                                        <img src="{% static 'auctions/trash-fill.svg' %}" />
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </a>
+        {% empty %}
+            <p>Watchlist is empty</p>
+        {% endfor %}
+    </div>
+{% endblock %}

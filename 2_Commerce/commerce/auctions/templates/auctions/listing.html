@@ -17,9 +17,10 @@
             <div class="header">
                 <h1>{{ listing.title }}</h1>
                 {% if user.is_authenticated %}
-                    <form id="watchlist-form" action="{% url 'watchlist' %}" method="post">
+                    <form class="watchlist-form" action="{% url 'watchlist' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                        <input type="hidden" name="from_url" value="{{ request.path }}">
                         {% if listing in user.watchlist.listings.all %}
                             <button type="submit" class="badge bg-primary" title="Remove from watchlist" name="watchlist"
                                     value="remove">Watchlist</button>

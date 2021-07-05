@@ -165,18 +165,24 @@ def comment(request, listing_id):
 
 @login_required
 def watchlist(request):
+    user = request.user
+    # create user watchlist if it doesn't exists
+    if not hasattr(user, "watchlist"):
+        new_watchlist = Watchlist(user=user)
+        new_watchlist.save()
+
     if request.method == "POST":
-        user = request.user
         listing = Listing.objects.get(pk=request.POST["listing_id"])
 
-        # create user watchlist if it doesn't exists
-        if not hasattr(user, "watchlist"):
-            new_watchlist = Watchlist(user=user)
-            new_watchlist.save()
-
+        # add or remove listing to/from watchlist
         if request.POST["watchlist"] == "add":
             user.watchlist.listings.add(listing)
         else:  # remove
             user.watchlist.listings.remove(listing)
 
-        return HttpResponseRedirect(reverse("listing", args=(listing.id, )))
+        # redirect to original page
+        return HttpResponseRedirect(request.POST["from_url"])
+    else:
+        return render(request, "auctions/watchlist.html", {
+            "listings": user.watchlist.listings.all()
+        })
