@@ -184,7 +184,7 @@ def watchlist(request):
         # redirect to original page
         return HttpResponseRedirect(request.POST["from_url"])
     else:
-        return render(request, "auctions/watchlist.html", {
+        return render(request, "auctions/index.html", {
             "listings": user.watchlist.listings.all()
         })
 

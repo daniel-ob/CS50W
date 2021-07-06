@@ -34,73 +34,54 @@ header {
 }
 
 .nav {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 /* Index */
 #index-page h1 {
-    margin-top: 20px;
-    margin-left: 20px;
     font-size: x-large;
-}
-
-#index-container {
-    display: flex;
-    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 #index-page a:link {
     text-decoration: none;
 }
 
-#index-page article {
-    margin: 20px;
-    padding: 20px;
-    width: 400px;
+.card {
     border: 1px solid steelblue;
     border-radius: 10px;
-    box-shadow: 1px 1px #4ACBBC;
+    overflow: hidden;
 }
 
-#index-page article:hover {
+.card:hover {
     border: 2px solid steelblue;
-    box-shadow: 5px 5px 5px grey;
+    box-shadow: 2px 2px 2px grey;
 }
 
-#index-page figure {
-    height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.card figure {
+    text-align: center;
 }
 
-#index-page img {
-    max-width: 200px;
-    max-height: 200px;
+.card img {
+    min-height: 100%;
+    max-height: 250px;
 }
 
-#index-page h2 {
+.card-title {
     color: steelblue;
-    font-size: x-large;
-    overflow: auto;
 }
 
-#index-page article div {
-    margin-top: 10px;
+.card-subtitle, .card-text {
     color: black;
-    font-size: medium;
-    overflow: auto;
 }
 
-.text-muted {
-    font-size: small;
+#watchlist-trash {
+    position: absolute;
+    bottom: 10px;
+    right: 30px;
 }
 
-#index-page p {
-    margin: 20px;
-}
-
-/* Create Page */
+/* Create */
 #create-page {
     margin-left: 40px;
 }
@@ -193,45 +174,6 @@ header {
 #id_text {
     margin-top: 10px;
     width: 500px;
-}
-
-/* Watchlist */
-#watchlist-page a:link {
-    text-decoration: none;
-}
-
-.card {
-    border: 1px solid #4ACBBC;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.card:hover {
-    border: 2px solid #4ACBBC;
-    box-shadow: 2px 2px 2px grey;
-}
-
-.card figure {
-    text-align: center;
-}
-
-.card img {
-    min-height: 100%;
-    max-height: 250px;
-}
-
-.card-title {
-    color: steelblue;
-}
-
-.card-subtitle, .card-text {
-    color: black;
-}
-
-#watchlist-page form {
-    position: absolute;
-    bottom: 10px;
-    right: 30px;
 }
 
 /* Categories */
