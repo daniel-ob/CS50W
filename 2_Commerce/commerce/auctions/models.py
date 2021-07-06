@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.forms import ModelForm, Textarea, TextInput
+from django.forms import ModelForm, Select, TextInput, Textarea, NumberInput
 
 
 class User(AbstractUser):
@@ -61,6 +61,7 @@ class Watchlist(models.Model):
 
 
 class NewListingForm(ModelForm):
+    # sort categories by name
     def __init__(self, *args, **kwargs):
         super(NewListingForm, self).__init__(*args, **kwargs)
         self.fields["category"].queryset = Category.objects.order_by("name")
@@ -69,7 +70,11 @@ class NewListingForm(ModelForm):
         model = Listing
         fields = ["category", "title", "description", "starting_bid_dollars", "image_url"]
         widgets = {
-            "description": Textarea(attrs={"cols": 54, "rows": 4}),
+            "category": Select(attrs={"class": "form-control"}),
+            "title": TextInput(attrs={"class": "form-control"}),
+            "description": Textarea(attrs={"class": "form-control", "rows": 4}),
+            "starting_bid_dollars": NumberInput(attrs={"class": "form-control"}),
+            "image_url": TextInput(attrs={"class": "form-control"})
         }
 
 
