@@ -6,7 +6,11 @@
     <div id="categories-page">
         <ul>
         {% for category in categories %}
-            <li><a href="{% url 'category' category.id %}">{{ category.name }}</a></li>
+            <li><a href="{% url 'category' category.id %}">{{ category.name }}</a>
+                {% if category.active_listings_count %}
+                    ({{ category.active_listings_count }})
+                {% endif %}
+            </li>
         {% empty %}
             <li>No categories found</li>
         {% endfor %}

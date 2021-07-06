@@ -13,6 +13,10 @@ class Category(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    @property
+    def active_listings_count(self):
+        return self.listings.filter(is_active=True).count()
+
 
 class Listing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
