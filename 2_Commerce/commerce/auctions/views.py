@@ -74,16 +74,17 @@ def create(request):
             new_listing = form.save(commit=False)
             new_listing.user = request.user
             new_listing.save()
+            return HttpResponseRedirect(reverse("listing", args=(new_listing.id,)))
         else:
             # render the same page adding existing form data, so users can see the errors they made
             return render(request, "auctions/create.html", {
                 "form": form
             })
-
-    # Empty form
-    return render(request, "auctions/create.html", {
-        "form": NewListingForm()
-    })
+    else:
+        # Empty form
+        return render(request, "auctions/create.html", {
+            "form": NewListingForm()
+        })
 
 
 def listing_view(request, listing_id):
