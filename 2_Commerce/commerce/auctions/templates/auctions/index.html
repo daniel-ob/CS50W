@@ -48,6 +48,9 @@
                                     {% endif %}
                                     <p class="card-text text-muted">Created: {{ listing.creation_date }}</p>
                                     {% if request.path == watchlist_url %}
+                                        {% if not listing.is_active %}
+                                            <p class="text-info">Closed</p>
+                                        {% endif %}
                                         <form id="watchlist-trash" action="{% url 'watchlist' %}" method="post">
                                             {% csrf_token %}
                                             <input type="hidden" name="listing_id" value="{{ listing.id }}">
