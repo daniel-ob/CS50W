@@ -92,5 +92,5 @@ class NewCommentForm(ModelForm):
             "text": ""
         }
         widgets = {
-            "text": TextInput(attrs={"placeholder": "Add a Comment"}),
+            "text": TextInput(attrs={"class": "form-control", "placeholder": "Add a Comment"})
         }
