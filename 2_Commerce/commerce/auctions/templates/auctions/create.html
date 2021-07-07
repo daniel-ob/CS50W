@@ -3,11 +3,11 @@
 {% block title %}Auctions - Create Listing {% endblock %}
 
 {% block body %}
-    <div id="create-page">
+    <section id="create-page">
         <form action="{% url 'create' %}" method="post">
             {% csrf_token %}
             {{ form.as_p }}
             <input class="btn btn-primary" type="submit" value="Create">
         </form>
-    </div>
+    </section>
 {% endblock %}

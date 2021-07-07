@@ -15,11 +15,11 @@
 
 {% block body %}
     {% url 'watchlist' as watchlist_url %}
-    <div id="index-page">
+    <section id="index-page">
         {% if category_name %}
-            <h1>{{ category_name }}</h1>
+            <h2>{{ category_name }}</h2>
         {% endif %}
-        <div id="index-container">
+        <div class="card-container">
             {% for listing in listings %}
                 <a href="{% url 'listing' listing.id %}">
                     <!-- using Bootstrap horizontal cards -->
@@ -35,14 +35,14 @@
                             </figure>
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h4 class="card-title">{{ listing.title }}</h4>
-                                    <h5 class="card-subtitle mb-3">
+                                    <h3 class="card-title">{{ listing.title }}</h3>
+                                    <h4 class="card-subtitle mb-3">
                                         {% if listing.bids.count %}
                                             ${{ listing.bids.last.amount_dollars }}
                                         {% else %}
                                             ${{ listing.starting_bid_dollars }}
                                         {% endif %}
-                                    </h5>
+                                    </h4>
                                     {% if listing.description %}
                                         <p class="card-text">{{ listing.description }}</p>
                                     {% endif %}
@@ -51,7 +51,7 @@
                                         {% if not listing.is_active %}
                                             <p class="text-info">Closed</p>
                                         {% endif %}
-                                        <form id="watchlist-trash" action="{% url 'watchlist' %}" method="post">
+                                        <form class="watchlist-trash" action="{% url 'watchlist' %}" method="post">
                                             {% csrf_token %}
                                             <input type="hidden" name="listing_id" value="{{ listing.id }}">
                                             <input type="hidden" name="from_url" value="{{ request.path }}">
@@ -74,5 +74,5 @@
                 {% endif %}
             {% endfor %}
         </div>
-    </div>
+    </section>
 {% endblock %}

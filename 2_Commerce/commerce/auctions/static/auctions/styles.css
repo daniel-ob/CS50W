@@ -13,16 +13,13 @@ header {
     display: flex;
     justify-content: left;
     align-items: center;
-}
-
-.title img {
-    padding: 12px;
-    height: 100px;
-}
-
-.title h1 {
     font-family: URW Bookman L, Arial, sans-serif;
     color: steelblue;
+}
+
+.logo {
+    padding: 12px;
+    height: 100px;
 }
 
 .user-login {
@@ -38,12 +35,7 @@ header {
 }
 
 /* Index */
-#index-page h1 {
-    font-size: x-large;
-    margin-bottom: 20px;
-}
-
-#index-page a:link {
+.card-container a:link {
     text-decoration: none;
 }
 
@@ -51,6 +43,7 @@ header {
     border: 1px solid steelblue;
     border-radius: 10px;
     overflow: hidden;
+    color: black;
 }
 
 .card:hover {
@@ -71,23 +64,15 @@ header {
     color: steelblue;
 }
 
-.card-subtitle, .card-text {
-    color: black;
-}
-
-#watchlist-trash {
+.watchlist-trash {
     position: absolute;
     bottom: 10px;
     right: 30px;
 }
 
 /* Create */
-#id_description {
-    height: 140px;
-}
-
-#id_starting_bid_dollars {
-    width: 120px;
+input[type="number"] {
+    width: 140px;
 }
 
 /* Listing */
@@ -108,40 +93,32 @@ header {
     justify-content: space-between;
 }
 
-#listing-page h1 {
+#listing-page h2 {
     overflow: auto;
 }
 
-#listing-page .price {
+.price {
     font-size: x-large;
 }
 
-#listing-page .description {
+.description {
     overflow: auto;
 }
 
-#bid-form {
+.bid-form {
     display: flex;
     height: 40px;
 }
 
-#id_amount_dollars {
-    width: 120px;
-}
-
-#bid-form .btn {
+.bid-form .btn {
     margin-left: 10px;
 }
 
-.error {
-    color: red;
+#listing-page h3 {
+    margin-top: 20px;
 }
 
-#listing-page h2 {
-    margin-top: 10px;
-}
-
-#listing-page ul {
+.details ul {
     list-style-type: none;
     padding: 0;
 }
@@ -154,7 +131,7 @@ header {
     margin: 0;
 }
 
-#id_text {
+.comment-form input {
     margin-top: 10px;
     width: 500px;
 }

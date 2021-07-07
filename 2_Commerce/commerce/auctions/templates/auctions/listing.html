@@ -3,21 +3,21 @@
 {% block title %}Auctions - {{ listing.title }} {% endblock %}
 
 {% block body %}
-    <div id="listing-page">
-        <section class="main">
+    <section id="listing-page">
+        <div class="main">
             <figure>
                 {% if listing.image_url %}
-                <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
+                    <img src="{{ listing.image_url }}" alt="{{ listing.title }}" />
                 {% else %}
                 {% load static %}
-                <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
-                <figcaption>(No image has been uploaded for this listing)</figcaption>
+                    <img src="{% static 'auctions/no_image.svg' %}" alt="No image" />
+                    <figcaption>(No image has been uploaded for this listing)</figcaption>
                 {% endif %}
             </figure>
             <div class="header">
-                <h1>{{ listing.title }}</h1>
+                <h2>{{ listing.title }}</h2>
                 {% if user.is_authenticated %}
-                    <form id="watchlist-form" action="{% url 'watchlist' %}" method="post">
+                    <form class="watchlist-form" action="{% url 'watchlist' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="listing_id" value="{{ listing.id }}">
                         <input type="hidden" name="from_url" value="{{ request.path }}">
@@ -43,9 +43,9 @@
             {% if listing.description %}
                 <p class="description">{{ listing.description }}</p>
             {% endif %}
-        </section>
+        </div>
         <hr>
-        <section class="auction">
+        <div class="auction">
             {% if listing.is_active %}
                 <p>{{ listing.bids.count }} bid(s) so far.
                     {% if listing.bids.last.user == user %}
@@ -59,13 +59,13 @@
                     </form>
                 {% endif %}
                 {% if user.is_authenticated and user != listing.user %}
-                    <form id="bid-form" action="{% url 'bid' listing.id %}" method="post">
+                    <form class="bid-form" action="{% url 'bid' listing.id %}" method="post">
                         {% csrf_token %}
                         {{ bid_form.as_p }}
                         <input class="btn btn-primary" type="submit" value="Place Bid" />
                     </form>
                     {% if message %}
-                        <p class="error">{{ message }}</p>
+                        <p class="text-warning">{{ message }}</p>
                     {% endif %}
                 {% endif %}
             {% else %}
@@ -75,9 +75,9 @@
                     <p class="alert alert-success"><strong>You won the auction.</strong></p>
                 {% endif %}
             {% endif %}
-        </section>
-        <section class="details">
-            <h2>Details:</h2>
+        </div>
+        <div class="details">
+            <h3>Details:</h3>
             <ul>
                 <li>Listed by: {{ listing.user.username }}</li>
                 <li>Category:
@@ -89,9 +89,9 @@
                 </li>
                 <li>Created: {{ listing.creation_date }}</li>
             </ul>
-        </section>
-        <section class="comments">
-            <h2>Comments:</h2>
+        </div>
+        <div class="comments">
+            <h3>Comments:</h3>
             {% if listing.comments.count %}
                 {% for comment in listing.comments.all %}
                     <div class="comment">
@@ -103,11 +103,11 @@
                 <p>No comments has been made on this listing.</p>
             {% endif %}
             {% if user.is_authenticated %}
-                <form id="comment-form" action="{% url 'comment' listing.id %}" method="post">
+                <form class="comment-form" action="{% url 'comment' listing.id %}" method="post">
                     {% csrf_token %}
                     {{ comment_form.as_p }}
                 </form>
             {% endif %}
-        </section>
-    </div>
+        </div>
+    </section>
 {% endblock %}
