@@ -30,7 +30,8 @@
                                     <img src="{{ listing.image_url }}" class="img-fluid" alt="{{ listing.title }}" />
                                 {% else %}
                                     {% load static %}
-                                    <img src="{% static 'auctions/no_image.svg' %}" class="img-fluid" alt="No image" />
+                                    <img src="{% static 'auctions/no_image.svg' %}" class="img-fluid" alt="No image"
+                                         title="No image has been uploaded for this listing"/>
                                 {% endif %}
                             </figure>
                             <div class="col-md-8">
