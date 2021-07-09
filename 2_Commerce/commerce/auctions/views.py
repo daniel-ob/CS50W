@@ -11,7 +11,7 @@ from .models import *
 def index(request):
     # render list of active listings
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.filter(is_active=True)
+        "listings": Listing.objects.filter(is_active=True).order_by("creation_date").reverse()
     })
 
 
@@ -184,8 +184,9 @@ def watchlist(request):
         # redirect to original page
         return HttpResponseRedirect(request.POST["from_url"])
     else:
+        # render listings in user watchlist
         return render(request, "auctions/index.html", {
-            "listings": user.watchlist.listings.all()
+            "listings": user.watchlist.listings.all().order_by("creation_date").reverse()
         })
 
 
@@ -200,5 +201,5 @@ def category(request, category_id):
     # render a list of all active listings in the category
     return render(request, "auctions/index.html", {
         "category_name": c.name,
-        "listings": c.listings.filter(is_active=True)
+        "listings": c.listings.filter(is_active=True).order_by("creation_date").reverse()
     })
