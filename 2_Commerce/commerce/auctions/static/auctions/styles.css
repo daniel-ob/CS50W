@@ -4,25 +4,26 @@ body {
 
 /* Layout */
 header {
-    display: grid;
-    grid-template-columns: auto auto;
-    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .title {
     display: flex;
-    justify-content: left;
     align-items: center;
-    font-family: URW Bookman L, Arial, sans-serif;
+    font-family: Bookman, URW Bookman L, serif;
     color: steelblue;
 }
 
 .logo {
-    padding: 12px;
-    height: 100px;
+    width: 100px;
 }
 
 .user-login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: right;
 }
 
@@ -30,8 +31,21 @@ header {
     margin: 0px;
 }
 
+@media screen and (max-width: 600px) {
+    header {
+        flex-direction: column;
+    }
+    .user-login {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+    .user-login p {
+        margin: 5px;
+    }
+}
+
 .nav {
-    margin-bottom: 30px;
+    margin: 20px 0;
 }
 
 /* Index */
