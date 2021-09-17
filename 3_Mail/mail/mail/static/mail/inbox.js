@@ -91,12 +91,12 @@ function load_mailbox(mailbox) {
       document.querySelector('#email-container').append(row);
 
       // Open the email when user clicks on it
-      row.addEventListener('click', () => view_email(email.id));
+      row.addEventListener('click', () => view_email(email.id, mailbox));
     });
   })
 }
 
-function view_email(id) {
+function view_email(id, mailbox) {
 
   // Show email view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -116,6 +116,22 @@ function view_email(id) {
     document.querySelector('#email-subject').innerHTML = email.subject;
     document.querySelector('#email-timestamp').innerHTML = email.timestamp;
     document.querySelector('#email-body').innerHTML = `<pre>${email.body}</pre>`;
+
+    // Toggle Archive/Unarchive button
+    if (!email.archived) {
+      document.querySelector('#archive').innerHTML = "Archive";
+      document.querySelector('#archive').onclick = () => archive_email(id, true);
+    } else {
+      document.querySelector('#archive').innerHTML = "Unarchive";
+      document.querySelector('#archive').onclick = () => archive_email(id, false);
+    }
+
+    // Hide Archive/Unarchive button for Sent mailbox emails, show for other mailboxes
+    if (mailbox === 'sent') {
+      document.querySelector('#archive').style.display = 'none';
+    } else {
+      document.querySelector('#archive').style.display = 'block';
+    }
   });
 
   // Mark the email as read
@@ -153,4 +169,21 @@ function send_email() {
 
   // Prevent default submission
   return false;
+}
+
+function archive_email(id, value) {
+
+  console.log('archive', id);
+
+  // Archive/Unarchive email
+  fetch(`/emails/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: value
+    })
+  })
+  // Once email archived/unarchived, load inbox
+  .then(result => {
+    load_mailbox('inbox');
+  })
 }
