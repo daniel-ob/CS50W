@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#compose').addEventListener('click', () => compose_email());
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -22,7 +22,8 @@ function compose_email() {
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
 
-  // Clear recipients error
+  // Clear errors
+  document.querySelector('#error').innerHTML = '';
   document.querySelector('#recipients-error').innerHTML = '';
   document.querySelector('#compose-recipients').addEventListener('input', () => {
     document.querySelector('#recipients-error').innerHTML = '';
@@ -41,6 +42,9 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#inbox-name').innerHTML = `${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}`;
+
+  // Clear error
+  document.querySelector('#error').innerHTML = '';
 
   // Clear email-container
   document.querySelector('#email-container').innerHTML = '';
@@ -94,6 +98,7 @@ function load_mailbox(mailbox) {
       row.addEventListener('click', () => view_email(email.id, mailbox));
     });
   })
+  .catch(error => show_error(error));
 }
 
 function view_email(id, mailbox) {
@@ -132,7 +137,8 @@ function view_email(id, mailbox) {
     } else {
       document.querySelector('#archive').style.display = 'block';
     }
-  });
+  })
+  .catch(error => show_error(error));
 
   document.querySelector('#reply').onclick = () => reply_email(id);
 
@@ -167,7 +173,8 @@ function send_email() {
     } else {
       load_mailbox('sent');
     }
-  });
+  })
+  .catch(error => show_error(error));
 
   // Prevent default submission
   return false;
@@ -188,6 +195,7 @@ function archive_email(id, value) {
   .then(result => {
     load_mailbox('inbox');
   })
+  .catch(error => show_error(error));
 }
 
 function reply_email(id) {
@@ -209,4 +217,11 @@ function reply_email(id) {
     }
     document.querySelector('#compose-body').value = `\n\nOn ${email.timestamp} ${email.sender} wrote:\n${email.body}`;
   })
+  .catch(error => show_error(error));
+}
+
+function show_error(error) {
+  console.error(error);
+  document.querySelector('#error').innerHTML = error.message;
+  window.scrollTo(0, 0);
 }
