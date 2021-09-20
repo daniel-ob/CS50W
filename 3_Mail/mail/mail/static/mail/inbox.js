@@ -134,6 +134,8 @@ function view_email(id, mailbox) {
     }
   });
 
+  document.querySelector('#reply').onclick = () => reply_email(id);
+
   // Mark the email as read
   fetch(`/emails/${id}`, {
     method: 'PUT',
@@ -185,5 +187,26 @@ function archive_email(id, value) {
   // Once email archived/unarchived, load inbox
   .then(result => {
     load_mailbox('inbox');
+  })
+}
+
+function reply_email(id) {
+
+  console.log('reply', id);
+
+  compose_email();
+
+  // Pre-fill composition fields with original email details
+  fetch(`/emails/${id}`)
+  .then(response => response.json())
+  .then(email => {
+    document.querySelector('#compose-recipients').value = email.sender;
+    // Add 'Re:' to original subject, except if it already begins with that
+    if (email.subject.slice(0,3).toLowerCase() === 're:') {
+      document.querySelector('#compose-subject').value = email.subject;
+    } else {
+      document.querySelector('#compose-subject').value = `RE: ${email.subject}`;
+    }
+    document.querySelector('#compose-body').value = `\n\nOn ${email.timestamp} ${email.sender} wrote:\n${email.body}`;
   })
 }
