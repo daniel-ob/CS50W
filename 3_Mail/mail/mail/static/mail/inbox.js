@@ -49,8 +49,13 @@ function load_mailbox(mailbox) {
   // Clear email-container
   document.querySelector('#email-container').innerHTML = '';
 
+  // Get mailbox url (set dynamically into dataset by back-end)
+  const re = /^.*\//;
+  const baseUrl = re.exec(document.querySelector('#emails-view').dataset.url)[0];
+  url = baseUrl + mailbox
+
   // Get emails
-  fetch(`/emails/${mailbox}`)
+  fetch(url)
   .then(response => response.json())
   .then(emails => {
     // Print emails
@@ -109,7 +114,7 @@ function view_email(id, mailbox) {
   document.querySelector('#compose-view').style.display = 'none';
 
   // Get the email
-  fetch(`/emails/${id}`)
+  fetch(get_email_url(id))
   .then(response => response.json())
   .then(email => {
     // Print email
@@ -143,7 +148,7 @@ function view_email(id, mailbox) {
   document.querySelector('#reply').onclick = () => reply_email(id);
 
   // Mark the email as read
-  fetch(`/emails/${id}`, {
+  fetch(url, {
     method: 'PUT',
     body: JSON.stringify({
         read: true
@@ -153,7 +158,11 @@ function view_email(id, mailbox) {
 
 function send_email() {
 
-  fetch('/emails', {
+  // Get compose url (set dynamically into dataset by back-end)
+  const url = document.querySelector('#compose-form').dataset.url;
+
+  // Send mail
+  fetch(url, {
     method: 'POST',
     body: JSON.stringify({
       recipients: document.querySelector('#compose-recipients').value,
@@ -185,7 +194,7 @@ function archive_email(id, value) {
   console.log('archive', id);
 
   // Archive/Unarchive email
-  fetch(`/emails/${id}`, {
+  fetch(get_email_url(id), {
     method: 'PUT',
     body: JSON.stringify({
         archived: value
@@ -205,7 +214,7 @@ function reply_email(id) {
   compose_email();
 
   // Pre-fill composition fields with original email details
-  fetch(`/emails/${id}`)
+  fetch(get_email_url(id))
   .then(response => response.json())
   .then(email => {
     document.querySelector('#compose-recipients').value = email.sender;
@@ -221,7 +230,17 @@ function reply_email(id) {
 }
 
 function show_error(error) {
+
   console.error(error);
   document.querySelector('#error').innerHTML = error.message;
   window.scrollTo(0, 0);
+}
+
+function get_email_url(id) {
+
+  // Get email URL (set dynamically into dataset by back-end)
+  const re = /^.*\//;
+  const baseUrl = re.exec(document.querySelector('#email-container').dataset.url)[0];
+  url = baseUrl + id;
+  return url;
 }

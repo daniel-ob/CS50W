@@ -13,10 +13,10 @@
 
     <div class="alert-danger" id="error"></div>
 
-    <div id="emails-view">
+    <div id="emails-view" data-url="{% url 'mailbox' 'inbox' %}">
         <h3 id="inbox-name">
         </h3>
-        <div class="container" id="email-container">
+        <div class="container" id="email-container" data-url="{% url 'email' 0 %}">
         </div>
     </div>
 
@@ -46,7 +46,7 @@
 
     <div id="compose-view">
         <h3>New Email</h3>
-        <form id="compose-form">
+        <form id="compose-form" data-url="{% url 'compose' %}">
             <div class="form-group">
                 From: <input disabled class="form-control" value="{{ request.user.email }}">
             </div>
