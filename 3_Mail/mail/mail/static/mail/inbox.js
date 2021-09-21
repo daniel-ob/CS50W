@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
+  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archived'));
   document.querySelector('#compose').addEventListener('click', () => compose_email());
 
   // By default, load the inbox
@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function compose_email() {
+
+  // Update nav bar
+  update_nav('compose');
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -35,13 +38,13 @@ function compose_email() {
 
 function load_mailbox(mailbox) {
 
+  // Update nav bar (nav-link id matches mailbox name)
+  update_nav(mailbox);
+
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
-
-  // Show the mailbox name
-  document.querySelector('#inbox-name').innerHTML = `${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}`;
 
   // Clear error
   document.querySelector('#error').innerHTML = '';
@@ -107,6 +110,9 @@ function load_mailbox(mailbox) {
 }
 
 function view_email(id, mailbox) {
+
+  // Update nav bar (deactivate all)
+  update_nav();
 
   // Show email view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -243,4 +249,17 @@ function get_email_url(id) {
   const baseUrl = re.exec(document.querySelector('#email-container').dataset.url)[0];
   url = baseUrl + id;
   return url;
+}
+
+function update_nav(selectedNavLinkId) {
+
+  // Deactivate all nav-links
+  document.querySelectorAll('.nav-link').forEach(item => {
+    item.classList.remove('active');
+  });
+
+  if (selectedNavLinkId) {
+    // Activate selected link
+    document.getElementById(selectedNavLinkId).classList.add('active');
+  }
 }

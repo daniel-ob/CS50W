@@ -2,20 +2,31 @@
 {% load static %}
 
 {% block body %}
-    <h2>{{ request.user.email }}</h2>
+    <div id="header" class="d-flex justify-content-between">
+        <ul class="nav nav-pills" id="nav">
+            <li class="nav-item">
+                <a class="nav-link" id="inbox" href="javascript:;">Inbox</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="compose" href="javascript:;">Compose</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="sent" href="javascript:;">Sent</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="archived" href="javascript:;">Archived</a>
+            </li>
+        </ul>
+        <div id="user" class="d-flex align-items-center">
+            <h3>{{ request.user.email }}</h3>
+            <a class="ml-2 btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
+        </div>
+    </div>
 
-    <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
-    <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
-    <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
-    <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
-    <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
-    <hr>
-
+    <hr class="mt-1 mb-4">
     <div class="alert-danger" id="error"></div>
 
     <div id="emails-view" data-url="{% url 'mailbox' 'inbox' %}">
-        <h3 id="inbox-name">
-        </h3>
         <div class="container" id="email-container" data-url="{% url 'email' 0 %}">
         </div>
     </div>
@@ -45,7 +56,6 @@
     </div>
 
     <div id="compose-view">
-        <h3>New Email</h3>
         <form id="compose-form" data-url="{% url 'compose' %}">
             <div class="form-group">
                 From: <input disabled class="form-control" value="{{ request.user.email }}">
