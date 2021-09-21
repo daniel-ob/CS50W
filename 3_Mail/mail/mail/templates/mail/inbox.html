@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-    <div id="header" class="d-flex justify-content-between">
+    <div id="header" class="d-flex justify-content-between flex-wrap-reverse">
         <ul class="nav nav-pills" id="nav">
             <li class="nav-item">
                 <a class="nav-link" id="inbox" href="javascript:;">Inbox</a>
@@ -18,7 +18,7 @@
             </li>
         </ul>
         <div id="user" class="d-flex align-items-center">
-            <h3>{{ request.user.email }}</h3>
+            <h3 class="text-break">{{ request.user.email }}</h3>
             <a class="ml-2 btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
         </div>
     </div>
