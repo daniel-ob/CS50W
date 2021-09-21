@@ -61,50 +61,58 @@ function load_mailbox(mailbox) {
   fetch(url)
   .then(response => response.json())
   .then(emails => {
-    // Print emails
-    console.log(emails);
+    // If emails on mailbox
+    if (emails.length > 0) {
+      // Print emails
+      console.log(emails);
 
-    // Create one row <div> per email (using Bootstrap grid)
-    emails.forEach(email => {
-      const row = document.createElement('div');
-      const recipients = document.createElement('div');
-      const sender = document.createElement('div');
-      const subject = document.createElement('div');
-      const timestamp = document.createElement('div');
+      // Create one row <div> per email (using Bootstrap grid)
+      emails.forEach(email => {
+        const row = document.createElement('div');
+        const recipients = document.createElement('div');
+        const sender = document.createElement('div');
+        const subject = document.createElement('div');
+        const timestamp = document.createElement('div');
 
-      // Set styles
-      row.className = 'row border p-2';
-      if (email.read === false) {
-        row.className += ' bg-white';
-      } else {
-        row.className += ' bg-light';
-      }
-      recipients.className = 'col-sm-3 font-weight-bold text-break';
-      sender.className = 'col-sm-3 font-weight-bold text-break';
-      subject.className = 'col-sm-6';
-      timestamp.className = 'col-sm-3 text-right';
+        // Set styles
+        row.className = 'row border p-2';
+        if (email.read === false) {
+          row.className += ' bg-white';
+        } else {
+          row.className += ' bg-light';
+        }
+        recipients.className = 'col-sm-3 font-weight-bold text-break';
+        sender.className = 'col-sm-3 font-weight-bold text-break';
+        subject.className = 'col-sm-6';
+        timestamp.className = 'col-sm-3 text-right';
 
-      // Set email details
-      recipients.innerHTML = 'To: ' + email.recipients;
-      sender.innerHTML = email.sender;
-      subject.innerHTML = email.subject;
-      timestamp.innerHTML = email.timestamp;
+        // Set email details
+        recipients.innerHTML = 'To: ' + email.recipients;
+        sender.innerHTML = email.sender;
+        subject.innerHTML = email.subject;
+        timestamp.innerHTML = email.timestamp;
 
-      // Show sender or recipients address depending on mailbox
-      if (mailbox === 'sent') {
-        row.append(recipients)
-      } else {
-        row.append(sender);
-      }
-      row.append(subject);
-      row.append(timestamp);
+        // Show sender or recipients address depending on mailbox
+        if (mailbox === 'sent') {
+          row.append(recipients)
+        } else {
+          row.append(sender);
+        }
+        row.append(subject);
+        row.append(timestamp);
 
-      // Add email to container
-      document.querySelector('#email-container').append(row);
+        // Add email to container
+        document.querySelector('#email-container').append(row);
 
-      // Open the email when user clicks on it
-      row.addEventListener('click', () => view_email(email.id, mailbox));
-    });
+        // Open the email when user clicks on it
+        row.addEventListener('click', () => view_email(email.id, mailbox));
+      });
+    } else {
+      // If no emails in mailbox, display an 'empty' message
+      const message = document.createElement('p');
+      message.innerHTML = 'Mailbox empty';
+      document.querySelector('#email-container').append(message);
+    }
   })
   .catch(error => show_error(error));
 }
