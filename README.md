@@ -8,4 +8,6 @@ These are the projects I built during the [course](https://cs50.harvard.edu/web/
 
 2. [**Commerce**](2_Commerce/commerce): An eBay-like e-commerce auction site using *Django framework* ([video](https://youtu.be/TJXBgeBw8mE))
 
+3. [**Mail**](3_Mail/mail): An email client front-end using *JavaScript, HTML and CSS* ([video](https://youtu.be/fsXTP5F2MeU))
+
 (:warning: work in progress)
