@@ -1,12 +1,45 @@
+// History API, enable going back through history
+window.onpopstate = event => {
+
+    try {
+      // load corresponding section
+      console.log(event.state.section);
+      if (event.state.section === 'compose') {
+        compose_email();
+      } else if (event.state.section.slice(0, 6) === 'email_') {
+        id = event.state.section.split('_')[1];
+        view_email(id);
+      } else {
+        //mailbox
+        load_mailbox(event.state.section);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
 
-  // Use buttons to toggle between views
-  document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
-  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archived'));
-  document.querySelector('#compose').addEventListener('click', () => compose_email());
+  // Use buttons to toggle between views. Update history for each click
+  document.querySelector('#inbox').addEventListener('click', () => {
+    history.pushState({section: 'inbox'}, '', '/emails/inbox');
+    load_mailbox('inbox');
+  });
+  document.querySelector('#sent').addEventListener('click', () => {
+    history.pushState({section: 'sent'}, '', '/emails/sent');
+    load_mailbox('sent');
+  });
+  document.querySelector('#archived').addEventListener('click', () => {
+    history.pushState({section: 'archived'}, '', '/emails/archived');
+    load_mailbox('archived');
+  });
+  document.querySelector('#compose').addEventListener('click', () => {
+    history.pushState({section: 'compose'}, '', '/emails');
+    compose_email();
+  });
 
   // By default, load the inbox
+  history.pushState({section: 'inbox'}, '', '/emails/inbox');
   load_mailbox('inbox');
 });
 
@@ -105,7 +138,10 @@ function load_mailbox(mailbox) {
         document.querySelector('#email-container').append(row);
 
         // Open the email when user clicks on it
-        row.addEventListener('click', () => view_email(email.id, mailbox));
+        row.addEventListener('click', () => {
+          history.pushState({section: `email_${email.id}`}, '', `/emails/${email.id}`);
+          view_email(email.id, mailbox);
+        });
       });
     } else {
       // If no emails in mailbox, display an 'empty' message
