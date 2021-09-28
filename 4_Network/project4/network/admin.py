@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import User, Post
+from .models import User, Post, FollowingList
 
 
 class PostAdmin(admin.ModelAdmin):
@@ -9,5 +9,10 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ("user", )
 
 
-admin.site.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ("id", "username")
+
+
+admin.site.register(User, UserAdmin)
 admin.site.register(Post, PostAdmin)
+admin.site.register(FollowingList)

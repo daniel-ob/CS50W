@@ -71,6 +71,7 @@ def register(request):
 
 @login_required
 def post(request):
+    """Create a new post"""
     user = request.user
     if request.method == "POST":
         # Create a form instance from POST data
@@ -83,3 +84,16 @@ def post(request):
             return HttpResponseRedirect(reverse("index"))
     else:
         return HttpResponseNotAllowed(["POST"])
+
+
+def profile(request, user_id):
+    """Render user profile page if user exists"""
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return HttpResponse("User does not exist.", status=404)
+
+    return render(request, "network/profile.html", {
+        "user_": user,
+        "posts": user.posts.all().order_by("creation_date").reverse()
+    })

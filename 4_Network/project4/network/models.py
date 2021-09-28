@@ -16,6 +16,14 @@ class Post(models.Model):
         return f"{self.user} says '{self.text}'"
 
 
+class FollowingList(models.Model):
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="following_list")
+    members = models.ManyToManyField(User, blank=True, related_name="in_following_lists")
+
+    def __str__(self):
+        return f"{self.owner}'s"
+
+
 class NewPostForm(ModelForm):
     """Create form from Post model"""
 

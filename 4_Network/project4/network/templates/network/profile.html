@@ -1,0 +1,28 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h1>{{ user_.username }}</h1>
+
+    <div class="m-2">
+        <div>
+            Followers: {{ user_.in_following_lists.count }}
+        </div>
+        <div>Following:
+            {% if user_.following_list %}
+                {{ user_.following_list.members.count }}
+            {% else %}
+                0
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="m-2" id="profile-posts">
+        {% for post in posts %}
+            <div class="border mt-2 p-4">
+                <p>{{ post.text }}</p>
+                <p class="text-muted">{{ post.creation_date }}</p>
+                <p><i class="bi bi-heart"></i> 0</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
