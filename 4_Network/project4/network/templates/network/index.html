@@ -3,12 +3,23 @@
 {% block body %}
     <h1>All Posts</h1>
 
-    <div class="border" id="new-post-form">
+    <div class="border mx-2 p-4" id="new-post-form">
         <h2>New Post</h2>
         <form action="{% url 'post' %}" method="post">
             {% csrf_token %}
             {{ post_form.as_p }}
             <input class="btn btn-primary" type="submit" value="Post">
         </form>
+    </div>
+
+    <div class="m-2" id="all-posts">
+        {% for post in posts %}
+            <div class="border mt-2 p-4">
+                <h2>{{ post.user.username }}</h2>
+                <p>{{ post.text }}</p>
+                <p class="text-muted">{{ post.creation_date }}</p>
+                <p><i class="bi bi-heart"></i> 0</p>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

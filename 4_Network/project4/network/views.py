@@ -5,12 +5,15 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllow
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, NewPostForm
+from .models import User, Post, NewPostForm
 
 
 def index(request):
+    """Render All posts page (all posts from all users)"""
+
     return render(request, "network/index.html", {
-        "post_form": NewPostForm()
+        "post_form": NewPostForm(),
+        "posts": Post.objects.all().order_by("creation_date").reverse()
     })
 
 
