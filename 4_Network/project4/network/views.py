@@ -1,11 +1,13 @@
+import json
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Post, FollowingList, NewPostForm
+from .models import User, Post, NewPostForm
 
 
 def index(request):
@@ -101,28 +103,41 @@ def profile(request, user_id):
 
 @login_required
 def follow(request, user_id):
-    """Add/Remove user from following list"""
+    """Follow/Unfollow user"""
 
-    current_user = request.user
-    if not hasattr(current_user, "following_list"):
-        new_following_list = FollowingList(owner=current_user)
-        new_following_list.save()
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
 
-    if request.method == "POST":
-        try:
-            user = User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return HttpResponse("User does not exist.", status=404)
+    try:
+        user_to_follow = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"error": f"User with id {user_id} not found."}, status=404)
 
-        follow_status = request.POST["follow"]
+    # User can only follow other users
+    if user_to_follow == request.user:
+        return JsonResponse({"error": "You can only follow other users"}, status=400)
 
-        if follow_status == "True":
-            # Add user to following list
-            current_user.following_list.members.add(user)
-        else:
-            # Remove user to following list
-            current_user.following_list.members.remove(user)
+    # Request must have a body
+    try:
+        data = json.loads(request.body)
+        # print(data)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "'follow' variable (bool) must be specified in request body (JSON)"}, status=400)
 
-        return HttpResponseRedirect(reverse("profile", args=(user.id,)))
+    # Ensure that Follow parameter exists and is a boolean
+    if "follow" not in data or not isinstance(data["follow"], bool):
+        return JsonResponse({"error": "'follow' variable (bool) must be specified in request body (JSON)"}, status=400)
     else:
-        return HttpResponseNotAllowed(["POST"])
+        follow_ = data["follow"]
+
+    # Update logged user's following list
+    if follow_:
+        request.user.following.add(user_to_follow)
+    else:
+        request.user.following.remove(user_to_follow)
+
+    # Send new follower count value in response to update front-end
+    return JsonResponse({
+        "message": "Follow status set successfully",
+        "followerCount": user_to_follow.followers.count()
+    }, status=200)

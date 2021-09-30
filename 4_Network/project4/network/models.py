@@ -4,7 +4,7 @@ from django.forms import ModelForm, Textarea
 
 
 class User(AbstractUser):
-    pass
+    following = models.ManyToManyField("self", blank=True, symmetrical=False, related_name="followers")
 
 
 class Post(models.Model):
@@ -14,14 +14,6 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.user} says '{self.text}'"
-
-
-class FollowingList(models.Model):
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="following_list")
-    members = models.ManyToManyField(User, blank=True, related_name="in_following_lists")
-
-    def __str__(self):
-        return f"{self.owner}'s"
 
 
 class NewPostForm(ModelForm):
