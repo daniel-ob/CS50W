@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllow
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Post, NewPostForm
+from .models import User, Post, FollowingList, NewPostForm
 
 
 def index(request):
@@ -87,7 +87,7 @@ def post(request):
 
 
 def profile(request, user_id):
-    """Render user profile page if user exists"""
+    """Load user's profile if user exists"""
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
@@ -97,3 +97,32 @@ def profile(request, user_id):
         "user_": user,
         "posts": user.posts.all().order_by("creation_date").reverse()
     })
+
+
+@login_required
+def follow(request, user_id):
+    """Add/Remove user from following list"""
+
+    current_user = request.user
+    if not hasattr(current_user, "following_list"):
+        new_following_list = FollowingList(owner=current_user)
+        new_following_list.save()
+
+    if request.method == "POST":
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return HttpResponse("User does not exist.", status=404)
+
+        follow_status = request.POST["follow"]
+
+        if follow_status == "True":
+            # Add user to following list
+            current_user.following_list.members.add(user)
+        else:
+            # Remove user to following list
+            current_user.following_list.members.remove(user)
+
+        return HttpResponseRedirect(reverse("profile", args=(user.id,)))
+    else:
+        return HttpResponseNotAllowed(["POST"])

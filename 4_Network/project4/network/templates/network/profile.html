@@ -4,8 +4,22 @@
     <h1>{{ user_.username }}</h1>
 
     <div class="m-2">
-        <div>
+        <div class="d-flex">
             Followers: {{ user_.in_following_lists.count }}
+            {# authenticated users can follow "other" users #}
+            {% if user.is_authenticated and user_ != user %}
+                <form class="ml-2" action="{% url 'follow' user_.id %}" method="post">
+                    {% csrf_token %}
+                    {# if we are already following this user_, give the option to unfollow him #}
+                    {% if user_ in user.following_list.members.all %}
+                        <button type="submit" class="btn btn-sm btn-outline-primary"
+                                name="follow" value="False">Unfollow</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-sm btn-outline-primary"
+                                name="follow" value="True">Follow</button>
+                    {% endif %}
+                </form>
+            {% endif %}
         </div>
         <div>Following:
             {% if user_.following_list %}
