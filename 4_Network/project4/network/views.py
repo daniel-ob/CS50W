@@ -84,6 +84,12 @@ def post(request):
             new_post.user = user
             new_post.save()
             return HttpResponseRedirect(reverse("index"))
+        else:
+            # Render same page with existing form data, so users can see the error
+            return render(request, "network/index.html", {
+                "post_form": f,
+                "posts": Post.objects.all().order_by("creation_date").reverse()
+            })
     else:
         return HttpResponseNotAllowed(["POST"])
 
