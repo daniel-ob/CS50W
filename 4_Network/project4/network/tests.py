@@ -19,9 +19,9 @@ class NetworkTestCase(TestCase):
         u3 = User.objects.create(username="user3")
 
         # Create posts.
-        Post.objects.create(user=u1, text="user1 post#1")
-        Post.objects.create(user=u1, text="user1 post#2")
-        Post.objects.create(user=u2, text="user2 post#1")
+        Post.objects.create(author=u1, text="user1 post#1")
+        Post.objects.create(author=u1, text="user1 post#2")
+        Post.objects.create(author=u2, text="user2 post#1")
 
         # Assign followers
         u1.followers.add(u2)

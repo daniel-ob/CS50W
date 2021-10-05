@@ -15,7 +15,7 @@
     <div class="m-2" id="all-posts">
         {% for post in posts %}
             <div class="border mt-2 p-4">
-                <h2><a href="{% url 'profile' post.user.id %}">{{ post.user.username }}</a></h2>
+                <h2><a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a></h2>
                 <p>{{ post.text }}</p>
                 <p class="text-muted">{{ post.creation_date }}</p>
                 <p><i class="bi bi-heart"></i> 0</p>

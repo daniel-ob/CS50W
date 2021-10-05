@@ -81,7 +81,7 @@ def post(request):
         if f.is_valid():
             # Save a new Post object from the form's data
             new_post = f.save(commit=False)
-            new_post.user = user
+            new_post.author = user
             new_post.save()
             return HttpResponseRedirect(reverse("index"))
         else:

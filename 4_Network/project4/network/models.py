@@ -8,12 +8,12 @@ class User(AbstractUser):
 
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     text = models.CharField(max_length=512, blank=False)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user} says '{self.text}'"
+        return f"{self.author} says '{self.text}'"
 
 
 class NewPostForm(ModelForm):
