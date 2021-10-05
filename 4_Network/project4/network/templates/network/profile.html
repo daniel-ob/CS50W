@@ -41,23 +41,37 @@
     </div>
 
     {% if posts_page.paginator.num_pages > 1 %}
-        <div class="pagination m-2">
-            <span class="step-links">
+        <!-- using Bootstrap pagination -->
+        <nav class="m-2">
+            <ul class="pagination">
                 {% if posts_page.has_previous %}
-                    <a href="?page=1">&laquo; first</a>
-                    <a href="?page={{ posts_page.previous_page_number }}">previous</a>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ posts_page.previous_page_number }}">previous</a>
+                    </li>
                 {% endif %}
 
-                <span class="current">
-                    Page {{ posts_page.number }} of {{ posts_page.paginator.num_pages }}.
-                </span>
+                {% for page in posts_page.paginator.page_range %}
+                    {% if page == posts_page.number %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">
+                                {{ page }}
+                                <span class="sr-only">(current)</span>
+                            </span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
 
                 {% if posts_page.has_next %}
-                    <a href="?page={{ posts_page.next_page_number }}">next</a>
-                    <a href="?page={{ posts_page.paginator.num_pages }}">last &raquo;</a>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ posts_page.next_page_number }}">next</a>
+                    </li>
                 {% endif %}
-            </span>
-        </div>
+            </ul>
+        </nav>
     {% endif %}
 {% endblock %}
 
