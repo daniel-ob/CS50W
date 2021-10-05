@@ -9,7 +9,6 @@ from selenium import webdriver
 from .models import User, Post
 
 
-# Create your tests here.
 class NetworkTestCase(TestCase):
 
     def setUp(self):
@@ -120,6 +119,27 @@ class NetworkTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(u1, u2.followers.all())
         self.assertNotIn(u2, u1.following.all())
+
+    def test_following_page(self):
+        """Following page for user2 must contain the posts from user1, in reverse chronological order"""
+        c = Client()
+
+        # log-in user2
+        u2 = User.objects.get(username="user2")
+        c.force_login(u2)
+
+        response = c.get("/following")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["posts"].count(), 2)
+        self.assertGreater(response.context["posts"][0].creation_date, response.context["posts"][1].creation_date)
+
+    def test_following_page_not_authenticated(self):
+        """Not authenticated user must be redirected to login page"""
+        c = Client()
+
+        response = c.get("/following")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/following")
 
 
 class WebpageTest(StaticLiveServerTestCase):

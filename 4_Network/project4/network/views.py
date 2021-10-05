@@ -14,6 +14,7 @@ def index(request):
     """Render All posts page (all posts from all users)"""
 
     return render(request, "network/index.html", {
+        "title": "All Posts",
         "post_form": NewPostForm(),
         "posts": Post.objects.all().order_by("creation_date").reverse()
     })
@@ -87,6 +88,7 @@ def post(request):
         else:
             # Render same page with existing form data, so users can see the error
             return render(request, "network/index.html", {
+                "title": "All Posts",
                 "post_form": f,
                 "posts": Post.objects.all().order_by("creation_date").reverse()
             })
@@ -147,3 +149,17 @@ def follow(request, user_id):
         "message": "Follow status set successfully",
         "followerCount": user_to_follow.followers.count()
     }, status=200)
+
+
+@login_required
+def following(request):
+    """Render Following page. This page contains all posts made by users that the current user follows"""
+
+    user = request.user
+    following_posts = Post.objects.filter(author__in=user.following.all())
+
+    return render(request, "network/index.html", {
+        "title": "Following",
+        "post_form": None,
+        "posts": following_posts.order_by("creation_date").reverse()
+    })

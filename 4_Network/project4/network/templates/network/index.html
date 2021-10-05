@@ -1,9 +1,9 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <h1>All Posts</h1>
+    <h1>{{ title }}</h1>
 
-    {% if user.is_authenticated %}
+    {% if post_form and user.is_authenticated %}
         <div class="border mx-2 p-4" id="new-post-form">
             <h2>New Post</h2>
             <form action="{% url 'post' %}" method="post">
