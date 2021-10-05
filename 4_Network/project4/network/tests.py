@@ -52,10 +52,28 @@ class NetworkTestCase(TestCase):
         # print(response)
         self.assertEqual(response.status_code, 200)
         # test number of posts
-        self.assertEqual(response.context["posts"].count(), 3)
+        self.assertEqual(len(response.context["posts_page"].object_list), 3)
         # test chronological order of posts
-        self.assertGreater(response.context["posts"][0].creation_date, response.context["posts"][1].creation_date)
-        self.assertGreater(response.context["posts"][1].creation_date, response.context["posts"][2].creation_date)
+        self.assertGreater(response.context["posts_page"][0].creation_date,
+                           response.context["posts_page"][1].creation_date)
+        self.assertGreater(response.context["posts_page"][1].creation_date,
+                           response.context["posts_page"][2].creation_date)
+
+    def test_index_pagination(self):
+        """Index page must contain maximum 10 posts per page"""
+        # Create 8 posts so that in total there are 11 (3 already exist from setUp())
+        u3 = User.objects.get(username="user3")
+        for i in range(1, 9):
+            Post.objects.create(author=u3, text=f"user3 post#{i}")
+
+        c = Client()
+        # 1st page must contain 10 posts
+        response = c.get("/")
+        self.assertEqual(len(response.context["posts_page"].object_list), 10)
+
+        # 2nd page must contain 1 post
+        response = c.get("/?page=2")
+        self.assertEqual(len(response.context["posts_page"].object_list), 1)
 
     def test_valid_profile_page(self):
         """Check that we get correct profile page for a valid user"""
@@ -73,8 +91,9 @@ class NetworkTestCase(TestCase):
         response = c.get(f"/users/{u1.id}")
         # print(response)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["posts"].count(), 2)
-        self.assertGreater(response.context["posts"][0].creation_date, response.context["posts"][1].creation_date)
+        self.assertEqual(len(response.context["posts_page"]), 2)
+        self.assertGreater(response.context["posts_page"][0].creation_date,
+                           response.context["posts_page"][1].creation_date)
 
     def test_invalid_profile_page(self):
         """Check that we get a 404 (not found) status code for a user with invalid id"""
@@ -83,6 +102,23 @@ class NetworkTestCase(TestCase):
         response = c.get(f"/users/{max_user_id + 1}")
         # print(response)
         self.assertEqual(response.status_code, 404)
+
+    def test_profile_page_pagination(self):
+        """Profile page must contain maximum 10 posts per page"""
+        # Create 11 posts for user3
+        u3 = User.objects.get(username="user3")
+        for i in range(1, 12):
+            Post.objects.create(author=u3, text=f"user3 post#{i}")
+        # print(u3.posts.count())
+
+        c = Client()
+        # 1st page must contain 10 posts
+        response = c.get(f"/users/{u3.id}")
+        self.assertEqual(len(response.context["posts_page"].object_list), 10)
+
+        # 2nd page must contain 1 post
+        response = c.get(f"/users/{u3.id}?page=2")
+        self.assertEqual(len(response.context["posts_page"].object_list), 1)
 
     def test_followers_count(self):
         """Check that user1 have 2 followers"""
@@ -130,8 +166,9 @@ class NetworkTestCase(TestCase):
 
         response = c.get("/following")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["posts"].count(), 2)
-        self.assertGreater(response.context["posts"][0].creation_date, response.context["posts"][1].creation_date)
+        self.assertEqual(len(response.context["posts_page"].object_list), 2)
+        self.assertGreater(response.context["posts_page"][0].creation_date,
+                           response.context["posts_page"][1].creation_date)
 
     def test_following_page_not_authenticated(self):
         """Not authenticated user must be redirected to login page"""
@@ -140,6 +177,27 @@ class NetworkTestCase(TestCase):
         response = c.get("/following")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/following")
+
+    def test_following_page_pagination(self):
+        """Following page must contain maximum 10 posts per page"""
+
+        # user1 has already 2 posts, create 9 more posts so that in total there are 11
+        u1 = User.objects.get(username="user1")
+        for i in range(3, 12):
+            Post.objects.create(author=u1, text=f"user1 post#{i}")
+
+        # log-in user2 (that follows only user1)
+        c = Client()
+        u2 = User.objects.get(username="user2")
+        c.force_login(u2)
+
+        # 1st page must contain 10 posts
+        response = c.get("/following")
+        self.assertEqual(len(response.context["posts_page"].object_list), 10)
+
+        # 2nd page must contain 1 post
+        response = c.get("/following?page=2")
+        self.assertEqual(len(response.context["posts_page"].object_list), 1)
 
 
 class WebpageTest(StaticLiveServerTestCase):

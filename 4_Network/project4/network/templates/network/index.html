@@ -15,8 +15,8 @@
     {% endif %}
 
     <div class="m-2" id="all-posts">
-        {% if posts %}
-            {% for post in posts %}
+        {% if posts_page %}
+            {% for post in posts_page %}
                 <div class="border mt-2 p-4">
                     <h2><a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a></h2>
                     <p>{{ post.text }}</p>
@@ -28,4 +28,24 @@
             <p class="m-2 text-muted">No posts in this section yet</p>
         {% endif %}
     </div>
+
+    {% if posts_page.paginator.num_pages > 1 %}
+        <div class="pagination m-2">
+            <span class="step-links">
+                {% if posts_page.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ posts_page.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ posts_page.number }} of {{ posts_page.paginator.num_pages }}.
+                </span>
+
+                {% if posts_page.has_next %}
+                    <a href="?page={{ posts_page.next_page_number }}">next</a>
+                    <a href="?page={{ posts_page.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
 {% endblock %}
