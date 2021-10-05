@@ -3,14 +3,16 @@
 {% block body %}
     <h1>All Posts</h1>
 
-    <div class="border mx-2 p-4" id="new-post-form">
-        <h2>New Post</h2>
-        <form action="{% url 'post' %}" method="post">
-            {% csrf_token %}
-            {{ post_form.as_p }}
-            <input class="btn btn-primary" type="submit" value="Post">
-        </form>
-    </div>
+    {% if user.is_authenticated %}
+        <div class="border mx-2 p-4" id="new-post-form">
+            <h2>New Post</h2>
+            <form action="{% url 'post' %}" method="post">
+                {% csrf_token %}
+                {{ post_form.as_p }}
+                <input class="btn btn-primary" type="submit" value="Post">
+            </form>
+        </div>
+    {% endif %}
 
     <div class="m-2" id="all-posts">
         {% for post in posts %}
