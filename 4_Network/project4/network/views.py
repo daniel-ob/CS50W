@@ -126,7 +126,7 @@ def profile(request, user_id):
 
 @login_required
 def follow(request, user_id):
-    """Follow/Unfollow user"""
+    """Follow/Unfollow user API"""
 
     if request.method != "PUT":
         return JsonResponse({"error": "PUT request required."}, status=400)
@@ -183,3 +183,39 @@ def following(request):
         "post_form": None,
         "posts_page": posts_page
     })
+
+
+@login_required
+def edit(request, post_id):
+    """Edit user post API"""
+
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
+
+    # Try to get post
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": f"Post with id {post_id} not found."}, status=404)
+
+    # User can only modify its own posts
+    user = request.user
+    if post.author != user:
+        return JsonResponse({"error": "This post belongs to another user. You can't modify it."}, status=403)
+
+    # Request must have a body
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "You must specify post 'content' (str) in request body (JSON)"}, status=400)
+
+    # text variable must be set on request body with a non-empty value
+    if "content" not in data or not data["content"]:
+        return JsonResponse({
+            "error": "You must specify a non-empty post 'content' (str) in request body (JSON)"
+        }, status=400)
+
+    # Update post content
+    post.text = data["content"]
+    post.save()
+    return JsonResponse({"message": "Post content was updated successfully."}, status=200)

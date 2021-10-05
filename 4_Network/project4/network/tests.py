@@ -199,6 +199,36 @@ class NetworkTestCase(TestCase):
         response = c.get("/following?page=2")
         self.assertEqual(len(response.context["posts_page"].object_list), 1)
 
+    def test_edit_valid_post(self):
+        """Check that user1 can update content of one of its posts"""
+        u1 = User.objects.get(username="user1")
+
+        # log-in user1
+        c = Client()
+        c.force_login(u1)
+
+        # Update post content
+        post_id = u1.posts.last().id
+        response = c.put(f"/edit/{post_id}", data=json.dumps({'content': 'content updated'}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Post.objects.get(id=post_id).text, "content updated")
+
+    def test_edit_another_user_post(self):
+        """Check that user1 can't update content of user2 post"""
+        u1 = User.objects.get(username="user1")
+        u2 = User.objects.get(username="user2")
+
+        # log-in user1
+        c = Client()
+        c.force_login(u1)
+
+        # Update post content
+        post_id = u2.posts.last().id
+        response = c.put(f"/edit/{post_id}", data=json.dumps({'content': 'content updated'}))
+
+        self.assertEqual(response.status_code, 403)
+
 
 class WebpageTest(StaticLiveServerTestCase):
 
