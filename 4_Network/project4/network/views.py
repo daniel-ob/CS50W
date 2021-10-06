@@ -16,7 +16,7 @@ POSTS_PER_PAGE = 10  # Maximum number of posts per page
 def index(request):
     """Render 'All posts' page (all posts from all users), with pagination"""
 
-    all_posts = Post.objects.all().order_by("creation_date").reverse()
+    all_posts = Post.objects.all().order_by("-creation_date")
     paginator = Paginator(all_posts, POSTS_PER_PAGE)
     page_number = request.GET.get("page")
     posts_page = paginator.get_page(page_number)
@@ -98,7 +98,7 @@ def post(request):
             return render(request, "network/index.html", {
                 "title": "All Posts",
                 "post_form": f,
-                "posts": Post.objects.all().order_by("creation_date").reverse()
+                "posts": Post.objects.all().order_by("-creation_date")
             })
     else:
         return HttpResponseNotAllowed(["POST"])
@@ -113,7 +113,7 @@ def profile(request, user_id):
         return HttpResponse("User does not exist.", status=404)
 
     # Pagination for user posts
-    user_posts = user.posts.all().order_by("creation_date").reverse()
+    user_posts = user.posts.all().order_by("-creation_date")
     paginator = Paginator(user_posts, POSTS_PER_PAGE)
     page_number = request.GET.get("page")
     posts_page = paginator.get_page(page_number)
@@ -171,7 +171,7 @@ def following(request):
     """Render Following page. This page contains all posts made by users that the current user follows"""
 
     user = request.user
-    following_posts = Post.objects.filter(author__in=user.following.all()).order_by("creation_date").reverse()
+    following_posts = Post.objects.filter(author__in=user.following.all()).order_by("-creation_date")
 
     # Pagination
     paginator = Paginator(following_posts, POSTS_PER_PAGE)
