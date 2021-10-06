@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
       follow = true;
     }
 
-    fetch(`/users/${userId}/follow`, {
+    fetch(`/users/${userId}`, {
       method: 'PUT',
       headers: {
         'X-CSRFToken': csrftoken

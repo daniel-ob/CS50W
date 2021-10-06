@@ -2,24 +2,24 @@
 {% load static %}
 
 {% block body %}
-    <h1>{{ user_.username }}</h1>
+    <h1>{{ profile_user.username }}</h1>
 
     <div class="m-2">
         <div class="d-flex">Followers:&nbsp;
-            <span id="follower-count">{{ user_.followers.count }}</span>
+            <span id="follower-count">{{ profile_user.followers.count }}</span>
             {# authenticated users can follow "other" users #}
-            {% if user.is_authenticated and user_ != user %}
+            {% if user.is_authenticated and profile_user != user %}
                 {# if already following this user, give the option to unfollow #}
-                {% if user_ in user.following.all %}
-                    <button class="btn btn-sm btn-outline-primary ml-2" id="follow" data-userid="{{user_.id}}">Unfollow</button>
+                {% if profile_user in user.following.all %}
+                    <button class="btn btn-sm btn-outline-primary ml-2" id="follow" data-userid="{{profile_user.id}}">Unfollow</button>
                 {% else %}
-                    <button class="btn btn-sm btn-primary ml-2" id="follow" data-userid="{{user_.id}}">Follow</button>
+                    <button class="btn btn-sm btn-primary ml-2" id="follow" data-userid="{{profile_user.id}}">Follow</button>
                 {% endif %}
             {% endif %}
         </div>
         <div>Following:
-            {% if user_.following %}
-                {{ user_.following.count }}
+            {% if profile_user.following %}
+                {{ profile_user.following.count }}
             {% else %}
                 0
             {% endif %}

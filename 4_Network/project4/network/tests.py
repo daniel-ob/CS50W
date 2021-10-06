@@ -83,7 +83,7 @@ class NetworkTestCase(TestCase):
         response = c.get(f"/users/{u1.id}")
         # print(response)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["user_"].username, u1.username)
+        self.assertEqual(response.context["profile_user"].username, u1.username)
 
     def test_valid_profile_page_posts(self):
         """Profile page for User1 must contain 2 posts in reverse chronological order"""
@@ -132,7 +132,7 @@ class NetworkTestCase(TestCase):
         self.assertEqual(u2.following.count(), 1)
 
     def test_follow_unfollow(self):
-        """Check that user1 user can follow and unfollow user2"""
+        """Check that user1 user can follow and unfollow user2 via API"""
         c = Client()
 
         # log-in user1
@@ -142,7 +142,7 @@ class NetworkTestCase(TestCase):
         u2 = User.objects.get(username="user2")
 
         # follow user2
-        response = c.put(f"/users/{u2.id}/follow", data=json.dumps({'follow': True}))
+        response = c.put(f"/users/{u2.id}", data=json.dumps({'follow': True}))
         # print(response, response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -150,7 +150,7 @@ class NetworkTestCase(TestCase):
         self.assertIn(u2, u1.following.all())
 
         # unfollow user2
-        response = c.put(f"/users/{u2.id}/follow", data=json.dumps({'follow': False}))
+        response = c.put(f"/users/{u2.id}", data=json.dumps({'follow': False}))
         # print(response, response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -171,7 +171,7 @@ class NetworkTestCase(TestCase):
         self.assertNotIn("Follow", smart_str(response.content))
 
     def test_follow_self(self):
-        """Check that a user can't follow himself"""
+        """Check that a user can't follow himself via API"""
         c = Client()
 
         # log-in user1
@@ -179,7 +179,7 @@ class NetworkTestCase(TestCase):
         c.force_login(u1)
 
         # follow user1 via API
-        response = c.put(f"/users/{u1.id}/follow", data=json.dumps({'follow': True}))
+        response = c.put(f"/users/{u1.id}", data=json.dumps({'follow': True}))
         self.assertEqual(response.status_code, 400)
 
     def test_following_page(self):

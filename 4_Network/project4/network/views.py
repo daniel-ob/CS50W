@@ -105,65 +105,71 @@ def create_post(request):
 
 
 def profile(request, user_id):
-    """Load user's profile if user exists"""
+    """User profile
+    GET: Load user's profile
+    PUT: Follow/Unfollow user"""
 
+    # Query for requested user
     try:
-        user = User.objects.get(pk=user_id)
+        profile_user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
         return HttpResponse("User does not exist.", status=404)
 
-    # Pagination for user posts
-    user_posts = user.posts.all().order_by("-creation_date")
-    paginator = Paginator(user_posts, POSTS_PER_PAGE)
-    page_number = request.GET.get("page")
-    posts_page = paginator.get_page(page_number)
+    # Return user profile page
+    if request.method == "GET":
+        # Pagination for user posts
+        posts = profile_user.posts.all().order_by("-creation_date")
+        paginator = Paginator(posts, POSTS_PER_PAGE)
+        page_number = request.GET.get("page")
+        posts_page = paginator.get_page(page_number)
 
-    return render(request, "network/profile.html", {
-        "user_": user,
-        "posts_page": posts_page
-    })
+        return render(request, "network/profile.html", {
+            "profile_user": profile_user,
+            "posts_page": posts_page
+        })
 
+    # Follow/Unfollow
+    elif request.method == "PUT":
+        # User must be authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "You must be logged-in to be able to follow"}, status=403)
 
-@login_required
-def follow(request, user_id):
-    """Follow/Unfollow user API"""
+        # User can only follow other users
+        if profile_user == request.user:
+            return JsonResponse({"error": "You can only follow other users"}, status=400)
 
-    if request.method != "PUT":
-        return JsonResponse({"error": "PUT request required."}, status=400)
+        # Request must have a body
+        try:
+            data = json.loads(request.body)
+            # print(data)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "'follow' variable (bool) must be specified in request body (JSON)"},
+                                status=400)
 
-    try:
-        user_to_follow = User.objects.get(pk=user_id)
-    except User.DoesNotExist:
-        return JsonResponse({"error": f"User with id {user_id} not found."}, status=404)
+        # Ensure that 'follow' parameter exists and is a boolean
+        if "follow" in data and isinstance(data["follow"], bool):
+            follow_ = data["follow"]
+        else:
+            return JsonResponse({"error": "'follow' variable (bool) must be specified in request body (JSON)"},
+                                status=400)
 
-    # User can only follow other users
-    if user_to_follow == request.user:
-        return JsonResponse({"error": "You can only follow other users"}, status=400)
+        # Update logged user's following list
+        if follow_:
+            request.user.following.add(profile_user)
+        else:
+            request.user.following.remove(profile_user)
 
-    # Request must have a body
-    try:
-        data = json.loads(request.body)
-        # print(data)
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "'follow' variable (bool) must be specified in request body (JSON)"}, status=400)
+        # Send new follower count value in response to update front-end
+        return JsonResponse({
+            "message": "Follow status set successfully",
+            "followerCount": profile_user.followers.count()
+        }, status=200)
 
-    # Ensure that Follow parameter exists and is a boolean
-    if "follow" not in data or not isinstance(data["follow"], bool):
-        return JsonResponse({"error": "'follow' variable (bool) must be specified in request body (JSON)"}, status=400)
+    # Profile must be via GET or PUT
     else:
-        follow_ = data["follow"]
-
-    # Update logged user's following list
-    if follow_:
-        request.user.following.add(user_to_follow)
-    else:
-        request.user.following.remove(user_to_follow)
-
-    # Send new follower count value in response to update front-end
-    return JsonResponse({
-        "message": "Follow status set successfully",
-        "followerCount": user_to_follow.followers.count()
-    }, status=200)
+        return JsonResponse({
+            "error": "GET or PUT request required."
+        }, status=400)
 
 
 @login_required
