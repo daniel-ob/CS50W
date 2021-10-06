@@ -81,7 +81,7 @@ def register(request):
 
 
 @login_required
-def post(request):
+def create_post(request):
     """Create a new post"""
     user = request.user
     if request.method == "POST":
@@ -186,8 +186,8 @@ def following(request):
 
 
 @login_required
-def edit(request, post_id):
-    """Edit user post API"""
+def update_post(request, post_id):
+    """API for updating post content"""
 
     if request.method != "PUT":
         return JsonResponse({"error": "PUT request required."}, status=400)

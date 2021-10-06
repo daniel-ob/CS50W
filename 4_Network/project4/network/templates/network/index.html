@@ -6,7 +6,7 @@
     {% if post_form and user.is_authenticated %}
         <div class="border mx-2 p-4" id="new-post-form">
             <h2>New Post</h2>
-            <form action="{% url 'post' %}" method="post">
+            <form action="{% url 'create_post' %}" method="post">
                 {% csrf_token %}
                 {{ post_form.as_p }}
                 <input class="btn btn-primary" type="submit" value="Post">

@@ -39,7 +39,7 @@ class NetworkTestCase(TestCase):
         user_post_count_before = u1.posts.count()
 
         # submit new post
-        c.post('/post', {'text': 'test post'})
+        c.post('/posts', {'text': 'test post'})
         self.assertEqual(Post.objects.count(), global_post_count_before + 1)
         self.assertEqual(u1.posts.count(), user_post_count_before + 1)
 
@@ -242,7 +242,7 @@ class NetworkTestCase(TestCase):
 
         # Update post content
         post_id = u1.posts.last().id
-        response = c.put(f"/edit/{post_id}", data=json.dumps({'content': 'content updated'}))
+        response = c.put(f"/posts/{post_id}", data=json.dumps({'content': 'content updated'}))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Post.objects.get(id=post_id).text, "content updated")
@@ -258,7 +258,7 @@ class NetworkTestCase(TestCase):
 
         # Update post content
         post_id = u2.posts.last().id
-        response = c.put(f"/edit/{post_id}", data=json.dumps({'content': 'content updated'}))
+        response = c.put(f"/posts/{post_id}", data=json.dumps({'content': 'content updated'}))
 
         self.assertEqual(response.status_code, 403)
 
