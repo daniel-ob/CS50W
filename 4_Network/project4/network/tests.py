@@ -4,6 +4,7 @@ import time
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.db.models import Max
 from django.test import Client, TestCase
+from django.utils.encoding import smart_str
 from selenium import webdriver
 
 from .models import User, Post
@@ -156,6 +157,31 @@ class NetworkTestCase(TestCase):
         self.assertNotIn(u1, u2.followers.all())
         self.assertNotIn(u2, u1.following.all())
 
+    def test_self_profile_follow_link(self):
+        """Check that 'Follow' button is not present in own user profile page"""
+        c = Client()
+
+        # log-in user1
+        u1 = User.objects.get(username="user1")
+        c.force_login(u1)
+
+        # Load user1 profile
+        response = c.put(f"/users/{u1.id}/")
+
+        self.assertNotIn("Follow", smart_str(response.content))
+
+    def test_follow_self(self):
+        """Check that a user can't follow himself"""
+        c = Client()
+
+        # log-in user1
+        u1 = User.objects.get(username="user1")
+        c.force_login(u1)
+
+        # follow user1 via API
+        response = c.put(f"/users/{u1.id}/follow", data=json.dumps({'follow': True}))
+        self.assertEqual(response.status_code, 400)
+
     def test_following_page(self):
         """Following page for user2 must contain the posts from user1, in reverse chronological order"""
         c = Client()
@@ -170,8 +196,15 @@ class NetworkTestCase(TestCase):
         self.assertGreater(response.context["posts_page"][0].creation_date,
                            response.context["posts_page"][1].creation_date)
 
+    def test_following_link_not_authenticated(self):
+        """Check that 'Following' link is not available for not authenticated users"""
+        c = Client()
+
+        response = c.get("/")
+        self.assertNotIn("Following", smart_str(response.content))
+
     def test_following_page_not_authenticated(self):
-        """Not authenticated user must be redirected to login page"""
+        """Not authenticated user must be redirected to login page when trying to access 'Following' page"""
         c = Client()
 
         response = c.get("/following")
