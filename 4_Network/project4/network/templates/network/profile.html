@@ -30,10 +30,18 @@
         {% if posts_page %}
             {% for post in posts_page %}
                 <div class="border mt-2 p-4">
-                    <p>{{ post.text }}</p>
+                    {% if post.author == user %}
+                        <div class="edit-container" data-postid="{{ post.id }}">
+                            <p>{{ post.text }}</p>
+                            <a class="edit" href="javascript:;">Edit</a>
+                        </div>
+                    {% else %}
+                        <p>{{ post.text }}</p>
+                    {% endif %}
                     <p class="text-muted">{{ post.creation_date }}</p>
                     <p><i class="bi bi-heart"></i> 0</p>
                 </div>
+
             {% endfor %}
         {% else %}
             <p class="mt-4 text-muted">User has no posts yet.</p>
@@ -73,8 +81,4 @@
             </ul>
         </nav>
     {% endif %}
-{% endblock %}
-
-{% block script %}
-    <script src="{% static 'network/profile.js' %}"></script>
 {% endblock %}

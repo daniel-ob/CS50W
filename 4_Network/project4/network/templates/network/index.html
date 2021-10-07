@@ -19,7 +19,14 @@
             {% for post in posts_page %}
                 <div class="border mt-2 p-4">
                     <h2><a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a></h2>
-                    <p>{{ post.text }}</p>
+                    {% if post.author == user %}
+                        <div class="edit-container" data-postid="{{ post.id }}">
+                            <p>{{ post.text }}</p>
+                            <a class="edit" href="javascript:;">Edit</a>
+                        </div>
+                    {% else %}
+                        <p>{{ post.text }}</p>
+                    {% endif %}
                     <p class="text-muted">{{ post.creation_date }}</p>
                     <p><i class="bi bi-heart"></i> 0</p>
                 </div>
