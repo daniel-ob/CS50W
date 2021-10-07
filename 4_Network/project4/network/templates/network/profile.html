@@ -29,14 +29,14 @@
     <div class="m-2" id="profile-posts">
         {% if posts_page %}
             {% for post in posts_page %}
-                <div class="border mt-2 p-4">
+                <div class="post border mt-2 p-4">
                     {% if post.author == user %}
                         <div class="edit-container" data-postid="{{ post.id }}">
-                            <p>{{ post.text }}</p>
+                            <p class="post-text">{{ post.text }}</p>
                             <a class="edit" href="javascript:;">Edit</a>
                         </div>
                     {% else %}
-                        <p>{{ post.text }}</p>
+                        <p class="post-text">{{ post.text }}</p>
                     {% endif %}
                     <p class="text-muted">{{ post.creation_date }}</p>
                     <p><i class="bi bi-heart"></i> 0</p>

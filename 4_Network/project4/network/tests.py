@@ -5,6 +5,8 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.db.models import Max
 from django.test import Client, TestCase
 from selenium import webdriver
+from bs4 import BeautifulSoup
+
 
 from .models import User, Post
 
@@ -287,6 +289,60 @@ class NetworkTestCase(TestCase):
         response = c.put(f"/posts/{max_post_id + 1}", data=json.dumps({'content': 'content updated'}))
         self.assertEqual(response.status_code, 404)
 
+    def test_edit_link_presence(self):
+        """For a not authenticated user, no post must has an 'Edit' link.
+        For an authenticated user, 'Edit' link must be present on all of its posts and absent on other user's posts"""
+        u1 = User.objects.get(username="user1")
+        u2 = User.objects.get(username="user2")
+
+        # Load 'All Posts' page
+        c = Client()
+        response = c.get("/")
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # No post must have an 'Edit' link (as no user is authenticated)
+        posts = soup.find_all("div", class_="post")
+        for post in posts:
+            edit_link = post.find("a", class_="edit")
+            self.assertIsNone(edit_link)
+
+        # Log-in user1
+        c.force_login(u1)
+
+        # Load 'All Posts' page
+        response = c.get("/")
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # All user1 posts must have an 'Edit' link. Posts from other users not.
+        posts = soup.find_all("div", class_="post")
+        for post in posts:
+            author = post.find("h2").text
+            edit_link = post.find("a", class_="edit")
+            if author == "user1":
+                self.assertIsNotNone(edit_link)
+            else:
+                self.assertIsNone(edit_link)
+
+        # Load user1 'Profile' page
+        response = c.get(f"/users/{u1.id}")
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # All posts must have an 'Edit' link
+        posts = soup.find_all("div", class_="post")
+        for post in posts:
+            edit_link = post.find("a", class_="edit")
+            self.assertIsNotNone(edit_link)
+
+        # Load user2 'Profile' page
+        response = c.get(f"/users/{u2.id}")
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # No 'edit' link must be present
+        posts = soup.find_all("div", class_="post")
+        for post in posts:
+            edit_link = post.find("a", class_="edit")
+            self.assertIsNone(edit_link)
+
 
 class WebpageTest(StaticLiveServerTestCase):
 
@@ -312,7 +368,7 @@ class WebpageTest(StaticLiveServerTestCase):
         Post.objects.create(author=u2, text="user2 post")
 
     def test_end_to_end(self):
-        """End to end test: Login, Post, Follow"""
+        """End to end test: Login, Post, Edit, Follow"""
 
         # Log-in test_user
         login_url = self.live_server_url + "/login"
@@ -335,43 +391,65 @@ class WebpageTest(StaticLiveServerTestCase):
         self.assertEqual(self.driver.current_url, index_url)
 
         # Submit new post
-        textarea = self.driver.find_element_by_id("id_text")
-        textarea.send_keys("Test Post")
-        post_button = self.driver.find_element_by_class_name("btn")
+        new_post_textarea = self.driver.find_element_by_id("id_text")
+        new_post_textarea.send_keys("Test Post")
+        post_button = self.driver.find_element_by_css_selector("input[value='Post']")
         post_button.click()
 
         # Check that post has been correctly submitted
-        last_post = self.driver.find_elements_by_css_selector("#all-posts > div")[0]
-        last_post_author = last_post.find_element_by_tag_name("a").text
-        last_post_text = last_post.find_element_by_tag_name("p").text
+        last_post = self.driver.find_elements_by_class_name("post")[0]
+        last_post_author = last_post.find_element_by_css_selector("h2 > a").text
+        last_post_text = last_post.find_element_by_class_name("post-text").text
         self.assertEqual(last_post_author, "test_user")
         self.assertEqual(last_post_text, "Test Post")
 
+        # Check that clicking on 'Edit' link loads a textarea without reloading the page
+        edit_link = last_post.find_element_by_link_text("Edit")
+        edit_link.click()
+        # if the page has been reloaded last_post would no longer exist
+        edit_textarea = last_post.find_element_by_tag_name("textarea")
+        self.assertIsNotNone(edit_textarea)
+
+        # Edit post
+        edit_textarea.clear()
+        edit_textarea.send_keys("Test Post (edited)")
+        save_button = last_post.find_element_by_class_name("save")
+        save_button.click()
+        time.sleep(0.1)
+
+        # Check that post content has been updated
+        last_post_text = last_post.find_element_by_class_name("post-text").text
+        self.assertEqual(last_post_author, "test_user")
+        self.assertEqual(last_post_text, "Test Post (edited)")
+
         # Click on user2 username to load profile page
         self.driver.find_element_by_link_text("user2").click()
+
+        # Check that the correct profile has been loaded
         u2 = User.objects.get(username="user2")
         u2_profile_url = self.live_server_url + f"/users/{u2.id}"
         self.assertEqual(self.driver.current_url, u2_profile_url)
 
-        follower_count_span = self.driver.find_element_by_id("follower-count")
-        follow_button = self.driver.find_element_by_id("follow")
-
         # Check initial state of profile page
-        self.assertEqual(follow_button.text, "Follow")
+        follow_button = self.driver.find_element_by_id("follow")
+        follower_count_span = self.driver.find_element_by_id("follower-count")
         follower_count_initial = int(follower_count_span.text)
+        self.assertEqual(follow_button.text, "Follow")
         self.assertEqual(follower_count_initial, 0)
 
         # "Follow"
         follow_button.click()
         time.sleep(0.1)
+        follower_count = int(follower_count_span.text)
         self.assertEqual(follow_button.text, "Unfollow")
-        self.assertEqual(int(follower_count_span.text), follower_count_initial + 1)
+        self.assertEqual(follower_count, follower_count_initial + 1)
 
         # "Unfollow"
         follow_button.click()
         time.sleep(0.1)
+        follower_count = int(follower_count_span.text)
         self.assertEqual(follow_button.text, "Follow")
-        self.assertEqual(int(follower_count_span.text), follower_count_initial)
+        self.assertEqual(follower_count, follower_count_initial)
 
         # Check that 'Following' link takes to Following page
         self.driver.find_element_by_link_text("Following").click()
