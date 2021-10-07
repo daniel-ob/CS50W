@@ -4,7 +4,6 @@ import time
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.db.models import Max
 from django.test import Client, TestCase
-from django.utils.encoding import smart_str
 from selenium import webdriver
 
 from .models import User, Post
@@ -51,7 +50,7 @@ class NetworkTestCase(TestCase):
         """Check that for a not authenticated user, there's no post form in 'All Posts' page"""
         c = Client()
         response = c.get("/")
-        self.assertNotIn("new-post-form", smart_str(response.content))
+        self.assertNotContains(response, "new-post-form")
 
     def test_index(self):
         """Index page must contain 3 posts in reverse chronological order"""
@@ -171,7 +170,7 @@ class NetworkTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # 'Follow' button must not be present
-        self.assertNotIn("id=\"follow\"", smart_str(response.content))
+        self.assertNotContains(response, "id=\"follow\"")
 
         # Request to follow user1
         response = c.put(f"/users/{u1.id}", data=json.dumps({'follow': True}))
@@ -192,7 +191,7 @@ class NetworkTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # 'Follow' button must not be present
-        self.assertNotIn("id=\"follow\"", smart_str(response.content))
+        self.assertNotContains(response, "id=\"follow\"")
 
         # Request to follow user1
         response = c.put(f"/users/{u1.id}", data=json.dumps({'follow': True}))
@@ -219,7 +218,7 @@ class NetworkTestCase(TestCase):
         c = Client()
         response = c.get("/")
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn("Following", smart_str(response.content))
+        self.assertNotContains(response, "Following")
 
         response = c.get("/following")
         self.assertEqual(response.status_code, 302)
