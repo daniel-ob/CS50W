@@ -54,9 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Get post content
       const originalPostContent = editContainer.firstElementChild.innerText;
 
-      // Empty edit container
-      editContainer.innerHTML = '';
-
+      // Switch edit container to 'edit' mode.
       // Add textarea with post content
       editContainer.innerHTML = `<textarea class="form-control" cols="40" rows="2" maxlength="512" required="">${originalPostContent}</textarea>`
 
@@ -66,14 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
       saveButton.className = 'save btn btn-primary my-2';
       editContainer.append(saveButton);
 
-      // Set focus to textarea
-      editContainer.firstElementChild.focus();
-
       // Set action for Save button
       saveButton.onclick = event => {
-        const thisSaveButton = event.target;
-        const editContainer = thisSaveButton.parentElement;
-        const postId = editContainer.dataset['postid'];
         const newPostContent = editContainer.firstElementChild.value;
 
         console.log('save', postId, newPostContent);
@@ -90,11 +82,39 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
           console.log(result);
           if (!result.error) {
-            // Reset edit container
-            editContainer.innerHTML = `<p class="post-text">${newPostContent}</p>
-              <a class="edit" data-postid="${postId}" href="javascript:;">Edit</a>`
+            // Switch edit container to 'view' mode with new post content
+            resetEditContainer(editContainer, newPostContent);
           }
         })
+      }
+
+      // Add button to Cancel edition
+      const cancelButton = document.createElement('button');
+      cancelButton.innerText = 'Cancel';
+      cancelButton.className = 'cancel btn btn-secondary m-2';
+      editContainer.append(cancelButton);
+
+      // Set action for Cancel button
+      cancelButton.onclick = event => {
+        // Switch edit container to 'view' mode with original post content
+        resetEditContainer(editContainer, originalPostContent);
+      }
+
+      // Also cancel edition when pressing 'Escape' on textarea
+      const textarea = editContainer.firstElementChild;
+      textarea.addEventListener('keyup', event => {
+        if (event.key == 'Escape') {
+          resetEditContainer(editContainer, originalPostContent);
+        }
+      })
+
+      // Set focus to textarea
+      editContainer.firstElementChild.focus();
+
+      function resetEditContainer(editContainer, postContent) {
+        // Reset edit container in 'view mode'
+        editContainer.innerHTML = `<p class="post-text">${postContent}</p>
+          <a class="edit" href="javascript:;">Edit</a>`;
       }
     }
   })

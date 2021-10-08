@@ -410,7 +410,18 @@ class WebpageTest(StaticLiveServerTestCase):
         edit_textarea = last_post.find_element_by_tag_name("textarea")
         self.assertIsNotNone(edit_textarea)
 
+        # Cancel edition
+        edit_textarea.clear()
+        cancel_button = last_post.find_element_by_class_name("cancel")
+        cancel_button.click()
+        # Check that post text has not changed
+        last_post_text = last_post.find_element_by_class_name("post-text").text
+        self.assertEqual(last_post_text, "Test Post")
+
         # Edit post
+        edit_link = last_post.find_element_by_link_text("Edit")
+        edit_link.click()
+        edit_textarea = last_post.find_element_by_tag_name("textarea")
         edit_textarea.clear()
         edit_textarea.send_keys("Test Post (edited)")
         save_button = last_post.find_element_by_class_name("save")
