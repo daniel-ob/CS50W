@@ -5,14 +5,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const element = event.target;
 
     // Manage "Follow" button actions with JavaScript for better user experience
-    if (element.id == 'follow') {
+    if (element.id === 'follow') {
       toggleFollow();
     }
 
     // Manage "Edit" post link with JavaScript so we don't need to reload entire page
-    if (element.className == 'edit') {
+    if (element.className === 'edit') {
       const editContainer = element.parentElement;
       setEdition(editContainer);
+    }
+
+    // Manage "Like/Unlike"
+    if (element.className.includes('like')) {
+      post = element.parentElement.parentElement;
+      toggleLike(post);
     }
   })
 })
@@ -60,8 +66,6 @@ function toggleFollow() {
 
 // Set post into 'edition' mode
 function setEdition(editContainer) {
-  const postId = editContainer.dataset['postid'];
-
   // Get post content
   const originalPostContent = editContainer.firstElementChild.innerText;
 
@@ -76,6 +80,7 @@ function setEdition(editContainer) {
 
   // Set action for Save button
   saveButton.onclick = () => {
+    const postId = editContainer.parentElement.dataset['id'];
     const newPostContent = editContainer.firstElementChild.value;
 
     console.log('save', postId, newPostContent);
@@ -126,6 +131,46 @@ function setEdition(editContainer) {
 function resetEdition(editContainer, postContent) {
   editContainer.innerHTML = `<p class="post-text">${postContent}</p>
     <a class="edit" href="javascript:;">Edit</a>`;
+}
+
+function toggleLike(post) {
+
+  postId = post.dataset['id'];
+  likeIcon = post.querySelector('i');
+  likeValueStr = likeIcon.className.split(' ')[0];
+  likeValue = likeValueStr === 'like' ? true : false;
+  likesCount = post.querySelector('.likes-count');
+
+  console.log(likeValueStr, postId);
+  fetch(`/posts/${postId}`, {
+    method: 'PUT',
+    headers: {
+      'X-CSRFToken': csrftoken
+    },
+    body: JSON.stringify({
+      like: likeValue
+    })
+  })
+  .then(response => {
+    if (response.status === 200) {
+      // if like value was correctly set, toggle icon
+      if (likeValue) {
+        likeIcon.className = 'unlike bi bi-heart-fill';
+        likeIcon.title = 'Unlike this post';
+      } else {
+        likeIcon.className = 'like bi bi-heart';
+        likeIcon.title = 'Like this post';
+      }
+    }
+    return response.json();
+  })
+  .then(result => {
+    console.log(result);
+    // update likes counter if received
+    if ('likesCount' in result) {
+      likesCount.innerText = result.likesCount
+    }
+  })
 }
 
 // from https://docs.djangoproject.com/en/3.2/ref/csrf/

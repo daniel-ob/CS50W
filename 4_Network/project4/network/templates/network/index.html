@@ -17,10 +17,10 @@
     <div class="m-2" id="all-posts">
         {% if posts_page %}
             {% for post in posts_page %}
-                <div class="post border mt-2 p-4">
+                <div class="post border mt-2 p-4" data-id="{{ post.id }}">
                     <h2><a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a></h2>
                     {% if post.author == user %}
-                        <div class="edit-container" data-postid="{{ post.id }}">
+                        <div class="edit-container">
                             <p class="post-text">{{ post.text }}</p>
                             <a class="edit" href="javascript:;">Edit</a>
                         </div>
@@ -28,7 +28,14 @@
                         <p class="post-text">{{ post.text }}</p>
                     {% endif %}
                     <p class="text-muted">{{ post.creation_date }}</p>
-                    <p><i class="bi bi-heart"></i> 0</p>
+                    <p>
+                        {% if user in post.liked_by.all %}
+                            <i class="unlike bi bi-heart-fill" title="Unlike this post"></i>
+                        {% else %}
+                            <i class="like bi bi-heart" title="Like this post"></i>
+                        {% endif %}
+                        <span class="likes-count">{{ post.liked_by.count }}</span>
+                    </p>
                 </div>
             {% endfor %}
         {% else %}

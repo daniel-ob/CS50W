@@ -191,37 +191,61 @@ def following(request):
     })
 
 
-@login_required
 def update_post(request, post_id):
-    """API for updating post content"""
+    """Update post content or like"""
 
     if request.method != "PUT":
         return JsonResponse({"error": "PUT request required."}, status=400)
 
-    # Try to get post
+    # User must be authenticated
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "You must be logged-in to be able to update a post"}, status=403)
+    else:
+        user = request.user
+
+    # Query for requested post
     try:
         post = Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         return JsonResponse({"error": f"Post with id {post_id} not found."}, status=404)
 
-    # User can only modify its own posts
-    user = request.user
-    if post.author != user:
-        return JsonResponse({"error": "This post belongs to another user. You can't modify it."}, status=403)
-
     # Request must have a body
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
-        return JsonResponse({"error": "You must specify post 'content' (str) in request body (JSON)"}, status=400)
-
-    # text variable must be set on request body with a non-empty value
-    if "content" not in data or not data["content"]:
         return JsonResponse({
-            "error": "You must specify a non-empty post 'content' (str) in request body (JSON)"
+            "error": "At least one parameter must be set in request body (JSON): 'content' (str) or 'like' (bool)"
         }, status=400)
 
-    # Update post content
-    post.text = data["content"]
-    post.save()
-    return JsonResponse({"message": "Post content was updated successfully."}, status=200)
+    if data.get("content") is not None:
+        # User can only modify its own posts
+        if post.author != user:
+            return JsonResponse({"error": "This post belongs to another user. You can't modify it."}, status=403)
+        new_content = data.get("content")
+        # Content must not be empty
+        if not new_content:
+            return JsonResponse({"error": "post 'content' (str) can not be empty"}, status=400)
+        # Update post content
+        post.text = data["content"]
+        post.save()
+        return JsonResponse({"message": "Post content was updated successfully."}, status=200)
+
+    elif data.get("like") is not None:
+        like_value = data.get("like")
+        if not isinstance(like_value, bool):
+            return JsonResponse({"error": "'like' must be true or false"}, status=400)
+        # Update whether user likes the post
+        if like_value:
+            post.liked_by.add(user)
+        else:
+            post.liked_by.remove(user)
+        post.save()
+        return JsonResponse({
+            "message": "Like status was updated successfully.",
+            "likesCount": post.likes_count
+        }, status=200)
+
+    else:
+        return JsonResponse({
+            "error": "Only post 'content' (str) or 'like' (bool) parameters can be updated"
+        }, status=400)

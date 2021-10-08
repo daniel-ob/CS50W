@@ -343,6 +343,55 @@ class NetworkTestCase(TestCase):
             edit_link = post.find("a", class_="edit")
             self.assertIsNone(edit_link)
 
+    def test_like_unlike(self):
+        """Check that a user can like any post"""
+        u1 = User.objects.get(username="user1")
+        u2 = User.objects.get(username="user2")
+
+        # log-in user1
+        c = Client()
+        c.force_login(u1)
+
+        # user2 last post like count initial state
+        post = u2.posts.last()
+        self.assertEqual(post.likes_count, 0)
+
+        # like post
+        response = c.put(f"/posts/{post.id}", data=json.dumps({'like': True}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(u1, post.liked_by.all())
+        self.assertEqual(post.likes_count, 1)
+
+        # unlike post
+        response = c.put(f"/posts/{post.id}", data=json.dumps({'like': False}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(u1, post.liked_by.all())
+        self.assertEqual(post.likes_count, 0)
+
+        # like self last post
+        post = u1.posts.last()
+        response = c.put(f"/posts/{post.id}", data=json.dumps({'like': True}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(u1, post.liked_by.all())
+        self.assertEqual(post.likes_count, 1)
+
+    def test_like_not_authenticated(self):
+        """Test that a not authenticated user must have a 'forbidden' response when trying to like a post"""
+        u1 = User.objects.get(username="user1")
+
+        post = u1.posts.last()
+        post_like_count_initial = post.likes_count
+
+        # Send request to like post
+        c = Client()
+        response = c.put(f"/posts/{post.id}", data=json.dumps({'like': True}))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(post.likes_count, post_like_count_initial)
+
 
 class WebpageTest(StaticLiveServerTestCase):
 
@@ -361,17 +410,31 @@ class WebpageTest(StaticLiveServerTestCase):
     def setUp(self):
         # Create users
         User.objects.create_user(username="test_user", password="secret")
-        User.objects.create_user(username="user2")
+        u2 = User.objects.create_user(username="user2")
 
         # Add post
-        u2 = User.objects.get(username="user2")
         Post.objects.create(author=u2, text="user2 post")
 
     def test_end_to_end(self):
-        """End to end test: Login, Post, Edit, Follow"""
+        """End to end test: Login, Post, Edit, Follow, Like"""
+        index_url = self.live_server_url + "/"
+        login_url = self.live_server_url + "/login"
+        following_url = self.live_server_url + "/following"
+        u2 = User.objects.get(username="user2")
+        u2_profile_url = self.live_server_url + f"/users/{u2.id}"
+        test_user = User.objects.get(username="test_user")
+
+        # Check that not-authenticated user can't like posts in 'All Posts' and 'Profile' pages
+        for url in [index_url, u2_profile_url]:
+            self.driver.get(url)
+            last_post = self.driver.find_elements_by_class_name("post")[0]
+            like_count_before = int(last_post.find_element_by_class_name("likes-count").text)
+            like_icon = last_post.find_element_by_tag_name("i")
+            like_icon.click()
+            like_count_after = int(last_post.find_element_by_class_name("likes-count").text)
+            self.assertEqual(like_count_after, like_count_before)
 
         # Log-in test_user
-        login_url = self.live_server_url + "/login"
         self.driver.get(login_url)
 
         username_input = self.driver.find_element_by_name("username")
@@ -382,7 +445,6 @@ class WebpageTest(StaticLiveServerTestCase):
         follow_button.click()
 
         # Check that we have been logged into index page
-        index_url = self.live_server_url + "/"
         self.assertEqual(self.driver.current_url, index_url)
         self.assertEqual(self.driver.find_element_by_id("username").text, "test_user")
 
@@ -433,20 +495,51 @@ class WebpageTest(StaticLiveServerTestCase):
         self.assertEqual(last_post_author, "test_user")
         self.assertEqual(last_post_text, "Test Post (edited)")
 
+        # Like/Unlike ('All Posts' page)
+        posts = self.driver.find_elements_by_class_name("post")
+        for post in posts:
+            post_id = int(post.get_attribute("data-id"))
+            # Check initial state of like icon and count ('All Posts' page)
+            like_count_initial = int(post.find_element_by_class_name("likes-count").text)
+            self.assertEqual(like_count_initial, 0)
+            like_icon = post.find_element_by_tag_name("i")
+            like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
+            self.assertEqual(like_icon_class, "bi-heart")
+
+            # Like
+            like_icon.click()
+            time.sleep(0.1)
+            # Check that count is updated without reloading page (if page reloads, post wouldn't be attached)
+            like_count = int(post.find_element_by_class_name("likes-count").text)
+            self.assertEqual(like_count, like_count_initial + 1)
+            # Check icon was toggled
+            like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
+            self.assertEqual(like_icon_class, "bi-heart-fill")
+            self.assertIn(test_user, Post.objects.get(id=post_id).liked_by.all())
+
+            # Unlike
+            like_icon.click()
+            time.sleep(0.1)
+            like_count = int(post.find_element_by_class_name("likes-count").text)
+            self.assertEqual(like_count, like_count_initial)
+            like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
+            self.assertEqual(like_icon_class, "bi-heart")
+            self.assertNotIn(test_user, Post.objects.get(id=post_id).liked_by.all())
+
         # Click on user2 username to load profile page
         self.driver.find_element_by_link_text("user2").click()
 
         # Check that the correct profile has been loaded
-        u2 = User.objects.get(username="user2")
-        u2_profile_url = self.live_server_url + f"/users/{u2.id}"
         self.assertEqual(self.driver.current_url, u2_profile_url)
 
         # Check initial state of profile page
         follow_button = self.driver.find_element_by_id("follow")
+        self.assertEqual(follow_button.text, "Follow")
         follower_count_span = self.driver.find_element_by_id("follower-count")
         follower_count_initial = int(follower_count_span.text)
-        self.assertEqual(follow_button.text, "Follow")
         self.assertEqual(follower_count_initial, 0)
+        posts = self.driver.find_elements_by_class_name("post")
+        self.assertEqual(len(posts), 1)
 
         # "Follow"
         follow_button.click()
@@ -462,7 +555,24 @@ class WebpageTest(StaticLiveServerTestCase):
         self.assertEqual(follow_button.text, "Follow")
         self.assertEqual(follower_count, follower_count_initial)
 
+        # Like (Profile page)
+        post = self.driver.find_element_by_class_name("post")
+        post_id = int(post.get_attribute("data-id"))
+        # Post initial status
+        like_count_initial = int(post.find_element_by_class_name("likes-count").text)
+        self.assertEqual(like_count_initial, 0)
+        like_icon = post.find_element_by_tag_name("i")
+        like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
+        self.assertEqual(like_icon_class, "bi-heart")
+        # Like the post
+        like_icon.click()
+        time.sleep(0.1)
+        like_count = int(post.find_element_by_class_name("likes-count").text)
+        self.assertEqual(like_count, like_count_initial + 1)
+        like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
+        self.assertEqual(like_icon_class, "bi-heart-fill")
+        self.assertIn(test_user, Post.objects.get(id=post_id).liked_by.all())
+
         # Check that 'Following' link takes to Following page
         self.driver.find_element_by_link_text("Following").click()
-        following_url = self.live_server_url + "/following"
         self.assertEqual(self.driver.current_url, following_url)

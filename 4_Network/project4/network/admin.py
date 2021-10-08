@@ -5,7 +5,7 @@ from .models import User, Post
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ("id", "author", "text", "creation_date")
+    list_display = ("id", "author", "text", "likes_count", "creation_date")
     list_filter = ("author", )
 
 
