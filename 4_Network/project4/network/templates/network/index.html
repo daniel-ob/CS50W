@@ -4,42 +4,48 @@
     <h1>{{ title }}</h1>
 
     {% if post_form and user.is_authenticated %}
-        <div class="border mx-2 p-4" id="new-post-form">
-            <h2>New Post</h2>
-            <form action="{% url 'create_post' %}" method="post">
-                {% csrf_token %}
-                {{ post_form.as_p }}
-                <input class="btn btn-primary" type="submit" value="Post">
-            </form>
+        <div class="border card border-primary" id="new-post-form">
+            <div class="card-body">
+                <h2 class="card-title">New Post</h2>
+                <form action="{% url 'create_post' %}" method="post">
+                    {% csrf_token %}
+                    {{ post_form.as_p }}
+                    <input class="btn btn-primary" type="submit" value="Post">
+                </form>
+            </div>
         </div>
     {% endif %}
 
-    <div class="m-2" id="all-posts">
+    <div id="all-posts">
         {% if posts_page %}
             {% for post in posts_page %}
-                <div class="post border mt-2 p-4" data-url="{% url 'update_post' post.id %}">
-                    <h2><a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a></h2>
-                    {% if post.author == user %}
-                        <div class="edit-container">
-                            <p class="post-text">{{ post.text }}</p>
-                            <a class="edit" href="javascript:;">Edit</a>
-                        </div>
-                    {% else %}
-                        <p class="post-text">{{ post.text }}</p>
-                    {% endif %}
-                    <p class="text-muted">{{ post.creation_date }}</p>
-                    <p>
-                        {% if user.is_authenticated %}
-                            {% if user in post.liked_by.all %}
-                                <i class="unlike bi bi-heart-fill" title="Unlike this post"></i>
-                            {% else %}
-                                <i class="like bi bi-heart" title="Like this post"></i>
-                            {% endif %}
+                <div class="post card text-dark bg-light mt-2" data-url="{% url 'update_post' post.id %}">
+                    <div class="card-body">
+                        <h2 class="card-title"><a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a></h2>
+                        {% if post.author == user %}
+                            <div class="edit-container">
+                                <p class="post-text card-text">{{ post.text }}</p>
+                                <p><a class="edit card-link" href="javascript:;">Edit</a></p>
+                            </div>
                         {% else %}
-                            <i class="like bi bi-heart" title="Log-in to like"></i>
+                            <p class="post-text card-text">{{ post.text }}</p>
                         {% endif %}
-                        <span class="likes-count">{{ post.liked_by.count }}</span>
-                    </p>
+                        <p>
+                            {% if user.is_authenticated %}
+                                {% if user in post.liked_by.all %}
+                                    <i class="unlike bi bi-heart-fill" title="Unlike this post"></i>
+                                {% else %}
+                                    <i class="like bi bi-heart" title="Like this post"></i>
+                                {% endif %}
+                            {% else %}
+                                <i class="like bi bi-heart" title="Log-in to like"></i>
+                            {% endif %}
+                            <span class="likes-count">{{ post.liked_by.count }}</span>
+                        </p>
+                    </div>
+                    <div class="card-footer text-muted">
+                        {{ post.creation_date }}
+                    </div>
                 </div>
             {% endfor %}
         {% else %}

@@ -10,14 +10,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Manage "Edit" post link with JavaScript so we don't need to reload entire page
-    if (element.className === 'edit') {
-      const post = element.parentElement.parentElement;
+    if (element.className.includes('edit')) {
+      const post = findParentPost(element);
       setEdition(post);
     }
 
     // Manage "Like/Unlike"
     if (element.className.includes('like')) {
-      post = element.parentElement.parentElement;
+      const post = findParentPost(element);
       toggleLike(post);
     }
   })
@@ -134,7 +134,7 @@ function setEdition(post) {
 function resetEdition(post, postContent) {
   editContainer = post.querySelector('.edit-container');
   editContainer.innerHTML = `<p class="post-text">${postContent}</p>
-    <a class="edit" href="javascript:;">Edit</a>`;
+    <p><a class="edit card-link" href="javascript:;">Edit</a></p>`;
 }
 
 function toggleLike(post) {
@@ -174,6 +174,13 @@ function toggleLike(post) {
       likesCount.innerText = result.likesCount
     }
   })
+}
+
+function findParentPost(element) {
+  while (!element.className.includes('post')) {
+    element = element.parentElement;
+  }
+  return element;
 }
 
 // from https://docs.djangoproject.com/en/3.2/ref/csrf/
