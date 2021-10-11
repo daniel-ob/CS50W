@@ -17,7 +17,7 @@
     <div class="m-2" id="all-posts">
         {% if posts_page %}
             {% for post in posts_page %}
-                <div class="post border mt-2 p-4" data-id="{{ post.id }}">
+                <div class="post border mt-2 p-4" data-url="{% url 'update_post' post.id %}">
                     <h2><a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a></h2>
                     {% if post.author == user %}
                         <div class="edit-container">

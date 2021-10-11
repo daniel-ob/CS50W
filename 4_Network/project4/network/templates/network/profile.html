@@ -11,9 +11,11 @@
             {% if user.is_authenticated and profile_user != user %}
                 {# if already following this user, give the option to unfollow #}
                 {% if profile_user in user.following.all %}
-                    <button class="btn btn-sm btn-outline-primary ml-2" id="follow" data-userid="{{profile_user.id}}">Unfollow</button>
+                    <button class="btn btn-sm btn-outline-primary ml-2" id="follow"
+                            data-profileurl="{% url 'profile' profile_user.id %}">Unfollow</button>
                 {% else %}
-                    <button class="btn btn-sm btn-primary ml-2" id="follow" data-userid="{{profile_user.id}}">Follow</button>
+                    <button class="btn btn-sm btn-primary ml-2" id="follow"
+                            data-profileurl="{% url 'profile' profile_user.id %}">Follow</button>
                 {% endif %}
             {% endif %}
         </div>
@@ -29,7 +31,7 @@
     <div class="m-2" id="profile-posts">
         {% if posts_page %}
             {% for post in posts_page %}
-                <div class="post border mt-2 p-4" data-id="{{ post.id }}">
+                <div class="post border mt-2 p-4" data-url="{% url 'update_post' post.id %}">
                     {% if post.author == user %}
                         <div class="edit-container">
                             <p class="post-text">{{ post.text }}</p>

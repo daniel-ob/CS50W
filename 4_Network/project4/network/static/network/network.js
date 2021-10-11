@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function toggleFollow() {
   const followButton = document.querySelector('#follow');
-  const userId = followButton.dataset.userid;
+  const profileUrl = followButton.dataset.profileurl;
   const followerCount = document.querySelector('#follower-count')
 
   let follow_state = false;
@@ -33,7 +33,9 @@ function toggleFollow() {
     follow_state = true;
   }
 
-  fetch(`/users/${userId}`, {
+  console.log(profileUrl)
+
+  fetch(profileUrl, {
     method: 'PUT',
     headers: {
       'X-CSRFToken': csrftoken
@@ -66,6 +68,7 @@ function toggleFollow() {
 
 // Set post into 'edition' mode
 function setEdition(post) {
+  const postUrl = post.dataset.url;
   // Get post content
   const editContainer = post.querySelector('.edit-container');
   const originalPostContent = post.querySelector('.post-text').innerText;
@@ -81,11 +84,10 @@ function setEdition(post) {
 
   // Set action for Save button
   saveButton.onclick = () => {
-    const postId = editContainer.parentElement.dataset['id'];
     const newPostContent = editContainer.firstElementChild.value;
 
-    console.log('save', postId, newPostContent);
-    fetch(`/posts/${postId}`, {
+    console.log('save', postUrl, newPostContent);
+    fetch(postUrl, {
       method: 'PUT',
       headers: {
         'X-CSRFToken': csrftoken
@@ -130,22 +132,20 @@ function setEdition(post) {
 
 // Set post into 'view' mode
 function resetEdition(post, postContent) {
-  console.log(post)
   editContainer = post.querySelector('.edit-container');
   editContainer.innerHTML = `<p class="post-text">${postContent}</p>
     <a class="edit" href="javascript:;">Edit</a>`;
 }
 
 function toggleLike(post) {
-
-  postId = post.dataset['id'];
+  postUrl = post.dataset.url;
   likeIcon = post.querySelector('i');
   likeValueStr = likeIcon.className.split(' ')[0];
   likeValue = likeValueStr === 'like' ? true : false;
   likesCount = post.querySelector('.likes-count');
 
-  console.log(likeValueStr, postId);
-  fetch(`/posts/${postId}`, {
+  console.log(likeValueStr, postUrl);
+  fetch(postUrl, {
     method: 'PUT',
     headers: {
       'X-CSRFToken': csrftoken

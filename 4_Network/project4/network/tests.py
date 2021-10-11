@@ -498,7 +498,7 @@ class WebpageTest(StaticLiveServerTestCase):
         # Like/Unlike ('All Posts' page)
         posts = self.driver.find_elements_by_class_name("post")
         for post in posts:
-            post_id = int(post.get_attribute("data-id"))
+            post_id = int(post.get_attribute("data-url").split("/")[-1])
             # Check initial state of like icon and count ('All Posts' page)
             like_count_initial = int(post.find_element_by_class_name("likes-count").text)
             self.assertEqual(like_count_initial, 0)
@@ -557,7 +557,7 @@ class WebpageTest(StaticLiveServerTestCase):
 
         # Like (Profile page)
         post = self.driver.find_element_by_class_name("post")
-        post_id = int(post.get_attribute("data-id"))
+        post_id = int(post.get_attribute("data-url").split("/")[-1])
         # Post initial status
         like_count_initial = int(post.find_element_by_class_name("likes-count").text)
         self.assertEqual(like_count_initial, 0)
