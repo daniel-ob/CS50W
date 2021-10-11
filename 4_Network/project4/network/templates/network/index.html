@@ -29,10 +29,14 @@
                     {% endif %}
                     <p class="text-muted">{{ post.creation_date }}</p>
                     <p>
-                        {% if user in post.liked_by.all %}
-                            <i class="unlike bi bi-heart-fill" title="Unlike this post"></i>
+                        {% if user.is_authenticated %}
+                            {% if user in post.liked_by.all %}
+                                <i class="unlike bi bi-heart-fill" title="Unlike this post"></i>
+                            {% else %}
+                                <i class="like bi bi-heart" title="Like this post"></i>
+                            {% endif %}
                         {% else %}
-                            <i class="like bi bi-heart" title="Like this post"></i>
+                            <i class="like bi bi-heart" title="Log-in to like"></i>
                         {% endif %}
                         <span class="likes-count">{{ post.liked_by.count }}</span>
                     </p>
