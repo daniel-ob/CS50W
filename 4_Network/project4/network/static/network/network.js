@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Manage "Edit" post link with JavaScript so we don't need to reload entire page
     if (element.className === 'edit') {
-      const editContainer = element.parentElement;
-      setEdition(editContainer);
+      const post = element.parentElement.parentElement;
+      setEdition(post);
     }
 
     // Manage "Like/Unlike"
@@ -65,9 +65,10 @@ function toggleFollow() {
 }
 
 // Set post into 'edition' mode
-function setEdition(editContainer) {
+function setEdition(post) {
   // Get post content
-  const originalPostContent = editContainer.firstElementChild.innerText;
+  const editContainer = post.querySelector('.edit-container');
+  const originalPostContent = post.querySelector('.post-text').innerText;
 
   // Add textarea with post content
   editContainer.innerHTML = `<textarea class="form-control" cols="40" rows="2" maxlength="512" required="">${originalPostContent}</textarea>`
@@ -98,7 +99,7 @@ function setEdition(editContainer) {
       console.log(result);
       if (!result.error) {
         // Switch edit container to 'view' mode with new post content
-        resetEdition(editContainer, newPostContent);
+        resetEdition(post, newPostContent);
       }
     })
   }
@@ -112,14 +113,14 @@ function setEdition(editContainer) {
   // Set action for Cancel button
   cancelButton.onclick = () => {
     // Switch edit container to 'view' mode with original post content
-    resetEdition(editContainer, originalPostContent);
+    resetEdition(post, originalPostContent);
   }
 
   // Also cancel edition when pressing 'Escape' on textarea
   const textarea = editContainer.firstElementChild;
   textarea.addEventListener('keyup', event => {
     if (event.key == 'Escape') {
-      resetEdition(editContainer, originalPostContent);
+      resetEdition(post, originalPostContent);
     }
   })
 
@@ -128,7 +129,9 @@ function setEdition(editContainer) {
 }
 
 // Set post into 'view' mode
-function resetEdition(editContainer, postContent) {
+function resetEdition(post, postContent) {
+  console.log(post)
+  editContainer = post.querySelector('.edit-container');
   editContainer.innerHTML = `<p class="post-text">${postContent}</p>
     <a class="edit" href="javascript:;">Edit</a>`;
 }
