@@ -17,7 +17,7 @@
             <p>
                 {% if user.is_authenticated %}
                     {% if user in post.liked_by.all %}
-                        <i class="unlike bi bi-heart-fill" title="Unlike this post"></i>
+                        <i class="unlike text-primary bi bi-heart-fill" title="Unlike this post"></i>
                     {% else %}
                         <i class="like bi bi-heart" title="Like this post"></i>
                     {% endif %}

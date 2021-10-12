@@ -1,0 +1,19 @@
+@keyframes beat {
+  0% {
+    font-size: auto;
+  }
+  50% {
+    font-size: 125%;
+  }
+  100% {
+    font-size: auto;
+  }
+}
+
+/* when user likes a post, icon becomes ".unlike", and animation is triggered */
+.unlike {
+  animation-name: beat;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+}

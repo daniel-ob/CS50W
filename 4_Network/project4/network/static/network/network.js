@@ -156,11 +156,14 @@ function toggleLike(post) {
   })
   .then(response => {
     if (response.status === 200) {
-      // if like value was correctly set, toggle icon
       if (likeValue) {
-        likeIcon.className = 'unlike bi bi-heart-fill';
+        // user has liked, set icon to unlike
+        likeIcon.className = 'unlike text-primary bi bi-heart-fill';
         likeIcon.title = 'Unlike this post';
+        // trigger icon animation
+        likeIcon.style.animationPlayState = 'running';
       } else {
+        // user has unliked, set icon to like
         likeIcon.className = 'like bi bi-heart';
         likeIcon.title = 'Like this post';
       }
