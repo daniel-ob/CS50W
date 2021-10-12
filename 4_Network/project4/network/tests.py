@@ -156,14 +156,15 @@ class NetworkTestCase(TestCase):
         # Load user1 profile
         response = self.c.get(reverse("profile", args=[self.u1.id]))
         self.assertEqual(response.status_code, 200)
-
         # 'Follow' button must not be present
         self.assertNotContains(response, "id=\"follow\"")
 
+        initial_followers_count = self.u1.followers.count()
         # Request to follow user1
         self.u1_profile = reverse("profile", args=[self.u1.id])
         response = self.c.put(self.u1_profile, data=json.dumps({'follow': True}))
         self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.u1.followers.count(), initial_followers_count)
 
     def test_follow_self(self):
         """Check that a user can't follow himself:
@@ -183,6 +184,16 @@ class NetworkTestCase(TestCase):
         # Request to follow user1
         response = self.c.put(self.u1_profile, data=json.dumps({'follow': True}))
         self.assertEqual(response.status_code, 400)
+
+    def test_follow_invalid_user(self):
+        """Check that we get a 404 (not found) status code when trying to follow a user with invalid id"""
+        # Log-in user1
+        self.c.force_login(self.u1)
+
+        max_user_id = User.objects.all().aggregate(Max("id"))["id__max"]
+        profile_url = reverse("profile", args=[max_user_id + 1])
+        response = self.c.put(profile_url, data=json.dumps({'follow': True}))
+        self.assertEqual(response.status_code, 404)
 
     def test_following_page(self):
         """Following page for user2 must contain the posts from user1, in reverse chronological order"""
