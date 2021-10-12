@@ -16,49 +16,47 @@ class NetworkTestCase(TestCase):
 
     def setUp(self):
         # Create users
-        u1 = User.objects.create(username="user1")
-        u2 = User.objects.create(username="user2")
-        u3 = User.objects.create(username="user3")
+        self.u1 = User.objects.create(username="user1")
+        self.u2 = User.objects.create(username="user2")
+        self.u3 = User.objects.create(username="user3")
 
         # Create posts
-        Post.objects.create(author=u1, text="user1 post#1")
-        Post.objects.create(author=u1, text="user1 post#2")
-        Post.objects.create(author=u2, text="user2 post#1")
+        Post.objects.create(author=self.u1, text="user1 post#1")
+        Post.objects.create(author=self.u1, text="user1 post#2")
+        Post.objects.create(author=self.u2, text="user2 post#1")
 
         # Assign followers
-        u1.followers.add(u2)
-        u1.followers.add(u3)
-        u2.followers.add(u1)
+        self.u1.followers.add(self.u2)
+        self.u1.followers.add(self.u3)
+        self.u2.followers.add(self.u1)
+
+        # Create client
+        self.c = Client()
 
     def test_post(self):
         """Submit new post and check that post counts increases"""
-        u1 = User.objects.get(username="user1")
-
         global_post_count_initial = Post.objects.count()
-        user_post_count_initial = u1.posts.count()
+        user_post_count_initial = self.u1.posts.count()
 
         # log-in user1
-        c = Client()
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         # submit new post
-        c.post(reverse("create_post"), {'text': 'test post'})
+        self.c.post(reverse("create_post"), {'text': 'test post'})
         self.assertEqual(Post.objects.count(), global_post_count_initial + 1)
-        self.assertEqual(u1.posts.count(), user_post_count_initial + 1)
+        self.assertEqual(self.u1.posts.count(), user_post_count_initial + 1)
 
         # reset
         Post.objects.last().delete()
 
     def test_post_not_authenticated(self):
         """Check that for a not authenticated user, there's no post form in 'All Posts' page"""
-        c = Client()
-        response = c.get(reverse("index"))
+        response = self.c.get(reverse("index"))
         self.assertNotContains(response, "new-post-form")
 
     def test_index(self):
         """Index page must contain 3 posts in reverse chronological order"""
-        c = Client()
-        response = c.get(reverse("index"))
+        response = self.c.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
         # Check post count
         self.assertEqual(len(response.context["posts_page"].object_list), 3)
@@ -70,35 +68,29 @@ class NetworkTestCase(TestCase):
 
     def test_index_pagination(self):
         """Index page must contain maximum 10 posts per page"""
-        u3 = User.objects.get(username="user3")
-
         # Create 8 posts so that in total there are 11 (3 already exist from setUp())
         for i in range(1, 9):
-            Post.objects.create(author=u3, text=f"user3 post#{i}")
+            Post.objects.create(author=self.u3, text=f"user3 post#{i}")
 
-        c = Client()
         index_url = reverse("index")
         # 1st page must contain 10 posts
-        response = c.get(index_url)
+        response = self.c.get(index_url)
         self.assertEqual(len(response.context["posts_page"].object_list), 10)
 
         # 2nd page must contain 1 post
-        response = c.get(f"{index_url}?page=2")
+        response = self.c.get(f"{index_url}?page=2")
         self.assertEqual(len(response.context["posts_page"].object_list), 1)
 
     def test_profile_page(self):
         """Check profile page for a valid user:
         - Followers and following count
         - Post count and reverse chronological order"""
-        u1 = User.objects.get(username="user1")
-
         # Get user1 profile page
-        c = Client()
-        response = c.get(reverse("profile", args=[u1.id]))
+        response = self.c.get(reverse("profile", args=[self.u1.id]))
         self.assertEqual(response.status_code, 200)
 
         # Check that we get the correct profile
-        self.assertEqual(response.context["profile_user"].username, u1.username)
+        self.assertEqual(response.context["profile_user"].username, self.u1.username)
 
         # Check followers and following count
         self.assertEqual(response.context["profile_user"].followers.count(), 2)
@@ -113,108 +105,91 @@ class NetworkTestCase(TestCase):
         """Check that we get a 404 (not found) status code for a user with invalid id"""
         max_user_id = User.objects.all().aggregate(Max("id"))["id__max"]
 
-        c = Client()
         profile_url = reverse("profile", args=[max_user_id + 1])
-        response = c.get(profile_url)
+        response = self.c.get(profile_url)
         self.assertEqual(response.status_code, 404)
 
     def test_profile_page_pagination(self):
         """Profile page must contain maximum 10 posts per page"""
-        u3 = User.objects.get(username="user3")
-
         # Create 11 posts for user3
         for i in range(1, 12):
-            Post.objects.create(author=u3, text=f"user3 post#{i}")
+            Post.objects.create(author=self.u3, text=f"user3 post#{i}")
 
-        c = Client()
         # 1st page must contain 10 posts
-        u3_profile_url = reverse("profile", args=[u3.id])
-        response = c.get(u3_profile_url)
+        self.u3_profile_url = reverse("profile", args=[self.u3.id])
+        response = self.c.get(self.u3_profile_url)
         self.assertEqual(len(response.context["posts_page"].object_list), 10)
 
         # 2nd page must contain 1 post
-        response = c.get(f"{u3_profile_url}?page=2")
+        response = self.c.get(f"{self.u3_profile_url}?page=2")
         self.assertEqual(len(response.context["posts_page"].object_list), 1)
 
     def test_follow_unfollow(self):
         """Check that user1 user can follow and unfollow user2"""
-        u1 = User.objects.get(username="user1")
-        u3 = User.objects.get(username="user3")
-
         # log-in user1
-        c = Client()
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         # user3 initial follower count
-        self.assertEqual(u3.followers.count(), 0)
+        self.assertEqual(self.u3.followers.count(), 0)
 
         # follow user3
-        u3_url = reverse("profile", args=[u3.id])
-        response = c.put(u3_url, data=json.dumps({'follow': True}))
+        self.u3_url = reverse("profile", args=[self.u3.id])
+        response = self.c.put(self.u3_url, data=json.dumps({'follow': True}))
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(u1, u3.followers.all())
-        self.assertIn(u3, u1.following.all())
-        self.assertEqual(u3.followers.count(), 1)
+        self.assertIn(self.u1, self.u3.followers.all())
+        self.assertIn(self.u3, self.u1.following.all())
+        self.assertEqual(self.u3.followers.count(), 1)
 
         # unfollow user3
-        response = c.put(u3_url, data=json.dumps({'follow': False}))
+        response = self.c.put(self.u3_url, data=json.dumps({'follow': False}))
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(u1, u3.followers.all())
-        self.assertNotIn(u3, u1.following.all())
-        self.assertEqual(u3.followers.count(), 0)
+        self.assertNotIn(self.u1, self.u3.followers.all())
+        self.assertNotIn(self.u3, self.u1.following.all())
+        self.assertEqual(self.u3.followers.count(), 0)
 
     def test_follow_not_authenticated(self):
         """For a not authenticated user, check that:
         - There's no 'Follow' button on a profile page
         - Follow request obtains a 'forbidden' response"""
-        u1 = User.objects.get(username="user1")
-
         # Load user1 profile
-        c = Client()
-        response = c.get(reverse("profile", args=[u1.id]))
+        response = self.c.get(reverse("profile", args=[self.u1.id]))
         self.assertEqual(response.status_code, 200)
 
         # 'Follow' button must not be present
         self.assertNotContains(response, "id=\"follow\"")
 
         # Request to follow user1
-        u1_profile = reverse("profile", args=[u1.id])
-        response = c.put(u1_profile, data=json.dumps({'follow': True}))
+        self.u1_profile = reverse("profile", args=[self.u1.id])
+        response = self.c.put(self.u1_profile, data=json.dumps({'follow': True}))
         self.assertEqual(response.status_code, 403)
 
     def test_follow_self(self):
         """Check that a user can't follow himself:
         - There's no 'Follow' button in its own profile page
         - Follow request obtains a '400' response"""
-        u1 = User.objects.get(username="user1")
-
         # Log-in user1
-        c = Client()
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         # Load user1 profile
-        u1_profile = reverse("profile", args=[u1.id])
-        response = c.get(u1_profile)
+        self.u1_profile = reverse("profile", args=[self.u1.id])
+        response = self.c.get(self.u1_profile)
         self.assertEqual(response.status_code, 200)
 
         # 'Follow' button must not be present
         self.assertNotContains(response, "id=\"follow\"")
 
         # Request to follow user1
-        response = c.put(u1_profile, data=json.dumps({'follow': True}))
+        response = self.c.put(self.u1_profile, data=json.dumps({'follow': True}))
         self.assertEqual(response.status_code, 400)
 
     def test_following_page(self):
         """Following page for user2 must contain the posts from user1, in reverse chronological order"""
-        u2 = User.objects.get(username="user2")
-
         # log-in user2
-        c = Client()
-        c.force_login(u2)
+        self.c.force_login(self.u2)
 
-        response = c.get(reverse("following"))
+        response = self.c.get(reverse("following"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["posts_page"].object_list), 2)
         self.assertGreater(response.context["posts_page"][0].creation_date,
@@ -224,93 +199,74 @@ class NetworkTestCase(TestCase):
         """For a not authenticated user, check that:
         - 'Following' link is not available
         - When trying to access 'Following' page, user is redirected to login page"""
-        c = Client()
-        response = c.get(reverse("index"))
+        response = self.c.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Following")
 
         following_url = reverse("following")
         login_url = reverse("login")
-        response = c.get(following_url)
+        response = self.c.get(following_url)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, f"{login_url}?next={following_url}")
 
     def test_following_page_pagination(self):
         """Following page must contain maximum 10 posts per page"""
-        u1 = User.objects.get(username="user1")
-
         # user1 has already 2 posts, create 9 more so that in total there are 11
         for i in range(3, 12):
-            Post.objects.create(author=u1, text=f"user1 post#{i}")
+            Post.objects.create(author=self.u1, text=f"user1 post#{i}")
 
         # log-in user2 (that follows only user1)
-        c = Client()
-        u2 = User.objects.get(username="user2")
-        c.force_login(u2)
+        self.c.force_login(self.u2)
 
         following_url = reverse("following")
         # 1st page must contain 10 posts
-        response = c.get(following_url)
+        response = self.c.get(following_url)
         self.assertEqual(len(response.context["posts_page"].object_list), 10)
 
         # 2nd page must contain 1 post
-        response = c.get(f"{following_url}?page=2")
+        response = self.c.get(f"{following_url}?page=2")
         self.assertEqual(len(response.context["posts_page"].object_list), 1)
 
     def test_edit_post(self):
         """Check that user1 can update content of one of its posts"""
-        u1 = User.objects.get(username="user1")
-
         # log-in user1
-        c = Client()
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         # Update content of user's last post
-        post_id = u1.posts.last().id
+        post_id = self.u1.posts.last().id
         post_url = reverse("update_post", args=[post_id])
-        response = c.put(post_url, data=json.dumps({'content': 'content updated'}))
+        response = self.c.put(post_url, data=json.dumps({'content': 'content updated'}))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Post.objects.get(id=post_id).text, "content updated")
 
     def test_edit_another_user_post(self):
         """Check that user1 can't update content of user2 post"""
-        u1 = User.objects.get(username="user1")
-        u2 = User.objects.get(username="user2")
-
         # log-in user1
-        c = Client()
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         # Update post content
-        post_id = u2.posts.last().id
+        post_id = self.u2.posts.last().id
         post_url = reverse("update_post", args=[post_id])
-        response = c.put(post_url, data=json.dumps({'content': 'content updated'}))
+        response = self.c.put(post_url, data=json.dumps({'content': 'content updated'}))
 
         self.assertEqual(response.status_code, 403)
 
     def test_edit_invalid_post(self):
         """Check that we get a 404 (not found) status code when trying to edit a post with invalid id"""
-        u1 = User.objects.get(username="user1")
-
         # log-in user1
-        c = Client()
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         max_post_id = Post.objects.all().aggregate(Max("id"))["id__max"]
         post_url = reverse("update_post", args=[max_post_id + 1])
-        response = c.put(post_url, data=json.dumps({'content': 'content updated'}))
+        response = self.c.put(post_url, data=json.dumps({'content': 'content updated'}))
         self.assertEqual(response.status_code, 404)
 
     def test_edit_link_presence(self):
         """For a not authenticated user, no post must has an 'Edit' link.
         For an authenticated user, 'Edit' link must be present on all of its posts and absent on other user's posts"""
-        u1 = User.objects.get(username="user1")
-        u2 = User.objects.get(username="user2")
-
         # Load 'All Posts' page
-        c = Client()
-        response = c.get(reverse("index"))
+        response = self.c.get(reverse("index"))
         soup = BeautifulSoup(response.content, "html.parser")
 
         # No post must have an 'Edit' link (as no user is authenticated)
@@ -320,10 +276,10 @@ class NetworkTestCase(TestCase):
             self.assertIsNone(edit_link)
 
         # Log-in user1
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         # Load 'All Posts' page
-        response = c.get(reverse("index"))
+        response = self.c.get(reverse("index"))
         soup = BeautifulSoup(response.content, "html.parser")
 
         # All user1 posts must have an 'Edit' link. Posts from other users not.
@@ -337,7 +293,7 @@ class NetworkTestCase(TestCase):
                 self.assertIsNone(edit_link)
 
         # Load user1 'Profile' page
-        response = c.get(reverse("profile", args=[u1.id]))
+        response = self.c.get(reverse("profile", args=[self.u1.id]))
         soup = BeautifulSoup(response.content, "html.parser")
 
         # All posts must have an 'Edit' link
@@ -347,7 +303,7 @@ class NetworkTestCase(TestCase):
             self.assertIsNotNone(edit_link)
 
         # Load user2 'Profile' page
-        response = c.get(reverse("profile", args=[u2.id]))
+        response = self.c.get(reverse("profile", args=[self.u2.id]))
         soup = BeautifulSoup(response.content, "html.parser")
 
         # No 'edit' link must be present
@@ -358,50 +314,43 @@ class NetworkTestCase(TestCase):
 
     def test_like_unlike(self):
         """Check that a user can like any post"""
-        u1 = User.objects.get(username="user1")
-        u2 = User.objects.get(username="user2")
-
         # log-in user1
-        c = Client()
-        c.force_login(u1)
+        self.c.force_login(self.u1)
 
         # user2 last post like count initial state
-        post = u2.posts.last()
+        post = self.u2.posts.last()
         self.assertEqual(post.likes_count, 0)
 
         # like post
         post_url = reverse("update_post", args=[post.id])
-        response = c.put(post_url, data=json.dumps({'like': True}))
+        response = self.c.put(post_url, data=json.dumps({'like': True}))
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(u1, post.liked_by.all())
+        self.assertIn(self.u1, post.liked_by.all())
         self.assertEqual(post.likes_count, 1)
 
         # unlike post
-        response = c.put(post_url, data=json.dumps({'like': False}))
+        response = self.c.put(post_url, data=json.dumps({'like': False}))
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(u1, post.liked_by.all())
+        self.assertNotIn(self.u1, post.liked_by.all())
         self.assertEqual(post.likes_count, 0)
 
         # like self last post
-        post = u1.posts.last()
-        response = c.put(reverse("update_post", args=[post.id]), data=json.dumps({'like': True}))
+        post = self.u1.posts.last()
+        response = self.c.put(reverse("update_post", args=[post.id]), data=json.dumps({'like': True}))
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(u1, post.liked_by.all())
+        self.assertIn(self.u1, post.liked_by.all())
         self.assertEqual(post.likes_count, 1)
 
     def test_like_not_authenticated(self):
         """Test that a not authenticated user must have a 'forbidden' response when trying to like a post"""
-        u1 = User.objects.get(username="user1")
-
-        post = u1.posts.last()
+        post = self.u1.posts.last()
         post_like_count_initial = post.likes_count
 
         # Send request to like post
-        c = Client()
-        response = c.put(reverse("update_post", args=[post.id]), data=json.dumps({'like': True}))
+        response = self.c.put(reverse("update_post", args=[post.id]), data=json.dumps({'like': True}))
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(post.likes_count, post_like_count_initial)
