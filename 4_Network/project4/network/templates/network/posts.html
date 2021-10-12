@@ -1,5 +1,5 @@
 {% for post in posts_page %}
-    <div class="post card text-dark bg-light mt-2" data-url="{% url 'update_post' post.id %}">
+    <div class="post card mt-2" data-url="{% url 'update_post' post.id %}">
         <div class="card-body">
             {% url 'index' as index_url %}
             {% url 'following' as following_url %}
