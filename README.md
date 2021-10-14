@@ -10,4 +10,6 @@ These are the projects I built during the [course](https://cs50.harvard.edu/web/
 
 3. [**Mail**](3_Mail/mail): An email client front-end using *JavaScript, HTML and CSS* ([video](https://youtu.be/fsXTP5F2MeU))
 
+4. [**Network**](4_Network/project4): A Twitter-like social network website built using *Django, JavaScript, HTML and CSS* ([video](https://youtu.be/LSnRNnF0ZiU))
+
 (:warning: work in progress)
