@@ -139,8 +139,9 @@ function resetEdition(post, postContent) {
 
 function toggleLike(post) {
   postUrl = post.dataset.url;
-  likeIcon = post.querySelector('i');
-  likeValueStr = likeIcon.className.split(' ')[0];
+  likeButton = post.querySelector('.btn');
+  likeIcon = likeButton.querySelector('i');
+  likeValueStr = likeButton.className.split(' ')[0];
   likeValue = likeValueStr === 'like' ? true : false;
   likesCount = post.querySelector('.likes-count');
 
@@ -158,14 +159,16 @@ function toggleLike(post) {
     if (response.status === 200) {
       if (likeValue) {
         // user has liked, set icon to unlike
-        likeIcon.className = 'unlike text-primary bi bi-heart-fill';
-        likeIcon.title = 'Unlike this post';
+        likeButton.className = 'unlike btn btn-outline-primary';
+        likeButton.title = 'Unlike this post';
+        likeIcon.className = 'unlike bi bi-heart-fill';
         // trigger icon animation
         likeIcon.style.animationPlayState = 'running';
       } else {
         // user has unliked, set icon to like
+        likeButton.className = 'like btn btn-outline-primary';
+        likeButton.title = 'Like this post';
         likeIcon.className = 'like bi bi-heart';
-        likeIcon.title = 'Like this post';
       }
     }
     return response.json();

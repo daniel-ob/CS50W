@@ -14,18 +14,22 @@
             {% else %}
                 <p class="post-text card-text">{{ post.text }}</p>
             {% endif %}
-            <p>
                 {% if user.is_authenticated %}
                     {% if user in post.liked_by.all %}
-                        <i class="unlike text-primary bi bi-heart-fill" title="Unlike this post"></i>
+                        <button class="unlike btn btn-outline-primary" title="Unlike this post">
+                            <i class="unlike bi bi-heart-fill"></i>
                     {% else %}
-                        <i class="like bi bi-heart" title="Like this post"></i>
+                        <button class="like btn btn-outline-primary" title="Like this post">
+                            <i class="like bi bi-heart"></i>
                     {% endif %}
+                            <span class="likes-count">{{ post.liked_by.count }}</span>
+                        </button>
                 {% else %}
-                    <i class="like bi bi-heart" title="Log-in to like"></i>
+                    <p>
+                        <i class="bi bi-heart" title="Log-in to like"></i>
+                        <span class="likes-count">{{ post.liked_by.count }}</span>
+                    </p>
                 {% endif %}
-                <span class="likes-count">{{ post.liked_by.count }}</span>
-            </p>
         </div>
         <div class="card-footer text-muted">
             {{ post.creation_date }}

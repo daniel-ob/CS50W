@@ -21,7 +21,7 @@ This is made using asynchronous JavaScript, without reloading entire page.
 Edition can be cancelled using "Cancel" button or "Escape" key. 
 This is made using asynchronous JavaScript, without reloading entire page.
 7. **Like/Unlike**:
-   1. Signed users can *like* any post clicking on an icon (asynchronous JavaScript is used). 
+   1. Signed users can *like* any post clicking on a button (asynchronous JavaScript is used). 
    2. A CSS animation is played when user *likes* a post.
    3. Each post displays the number of *likes* it has.
 8. **Responsiveness**: the application is mobile-responsive. This has been done using Bootstrap CSS framework.

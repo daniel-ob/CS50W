@@ -476,28 +476,28 @@ class WebpageTest(StaticLiveServerTestCase):
             # Check initial state of like icon and count ('All Posts' page)
             like_count_initial = int(post.find_element_by_class_name("likes-count").text)
             self.assertEqual(like_count_initial, 0)
-            like_icon = post.find_element_by_tag_name("i")
-            like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
-            self.assertEqual(like_icon_class, "bi-heart")
+            like_button = post.find_element_by_class_name("btn")
+            like_button_class = like_button.get_attribute("class").split(" ")[0]
+            self.assertEqual(like_button_class, "like")
 
             # Like
-            like_icon.click()
+            like_button.click()
             time.sleep(0.1)
             # Check that count is updated without reloading page (if page reloads, post wouldn't be attached)
             like_count = int(post.find_element_by_class_name("likes-count").text)
             self.assertEqual(like_count, like_count_initial + 1)
             # Check icon was toggled
-            like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
-            self.assertEqual(like_icon_class, "bi-heart-fill")
+            like_button_class = like_button.get_attribute("class").split(" ")[0]
+            self.assertEqual(like_button_class, "unlike")
             self.assertIn(test_user, Post.objects.get(id=post_id).liked_by.all())
 
             # Unlike
-            like_icon.click()
+            like_button.click()
             time.sleep(0.1)
             like_count = int(post.find_element_by_class_name("likes-count").text)
             self.assertEqual(like_count, like_count_initial)
-            like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
-            self.assertEqual(like_icon_class, "bi-heart")
+            like_button_class = like_button.get_attribute("class").split(" ")[0]
+            self.assertEqual(like_button_class, "like")
             self.assertNotIn(test_user, Post.objects.get(id=post_id).liked_by.all())
 
         # Click on user2 username to load profile page
@@ -535,16 +535,16 @@ class WebpageTest(StaticLiveServerTestCase):
         # Post initial status
         like_count_initial = int(post.find_element_by_class_name("likes-count").text)
         self.assertEqual(like_count_initial, 0)
-        like_icon = post.find_element_by_tag_name("i")
-        like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
-        self.assertEqual(like_icon_class, "bi-heart")
+        like_button = post.find_element_by_class_name("btn")
+        like_button_class = like_button.get_attribute("class").split(" ")[0]
+        self.assertEqual(like_button_class, "like")
         # Like the post
-        like_icon.click()
+        like_button.click()
         time.sleep(0.1)
         like_count = int(post.find_element_by_class_name("likes-count").text)
         self.assertEqual(like_count, like_count_initial + 1)
-        like_icon_class = like_icon.get_attribute("class").split(" ")[-1]
-        self.assertEqual(like_icon_class, "bi-heart-fill")
+        like_button_class = like_button.get_attribute("class").split(" ")[0]
+        self.assertEqual(like_button_class, "unlike")
         self.assertIn(test_user, Post.objects.get(id=post_id).liked_by.all())
 
         # Check that 'Following' link takes to Following page
