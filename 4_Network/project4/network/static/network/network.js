@@ -44,9 +44,11 @@ function toggleFollow() {
       follow: follow_state
     })
   })
-  .then(response => {
-    if (response.status === 200) {
-      // if follow status was correctly set, toggle button
+  .then(response => response.json())
+  .then(result => {
+    console.log(result);
+    // if follow status was correctly set, toggle button and update follower counter
+    if ('followerCount' in result) {
       if (follow_state) {
         followButton.innerText = 'Unfollow';
         followButton.className = 'btn btn-sm btn-outline-primary ml-2';
@@ -54,13 +56,6 @@ function toggleFollow() {
         followButton.innerText = 'Follow';
         followButton.className = 'btn btn-sm btn-primary ml-2';
       }
-    }
-    return response.json();
-  })
-  .then(result => {
-    console.log(result);
-    // update follower counter if received
-    if ('followerCount' in result) {
       followerCount.innerText = result.followerCount
     }
   })
@@ -138,12 +133,12 @@ function resetEdition(post, postContent) {
 }
 
 function toggleLike(post) {
-  postUrl = post.dataset.url;
-  likeButton = post.querySelector('.btn');
-  likeIcon = likeButton.querySelector('i');
-  likeValueStr = likeButton.className.split(' ')[0];
-  likeValue = likeValueStr === 'like' ? true : false;
-  likesCount = post.querySelector('.likes-count');
+  const postUrl = post.dataset.url;
+  const likeButton = post.querySelector('.btn');
+  const likeIcon = likeButton.querySelector('i');
+  const likeValueStr = likeButton.className.split(' ')[0];
+  const likeValue = likeValueStr === 'like' ? true : false;
+  const likesCount = post.querySelector('.likes-count');
 
   console.log(likeValueStr, postUrl);
   fetch(postUrl, {
@@ -155,8 +150,11 @@ function toggleLike(post) {
       like: likeValue
     })
   })
-  .then(response => {
-    if (response.status === 200) {
+  .then(response => response.json())
+  .then(result => {
+    console.log(result);
+    // if request successful, update like button and counter
+    if ('likesCount' in result) {
       if (likeValue) {
         // user has liked, set icon to unlike
         likeButton.className = 'unlike btn btn-outline-primary';
@@ -170,13 +168,6 @@ function toggleLike(post) {
         likeButton.title = 'Like this post';
         likeIcon.className = 'like bi bi-heart';
       }
-    }
-    return response.json();
-  })
-  .then(result => {
-    console.log(result);
-    // update likes counter if received
-    if ('likesCount' in result) {
       likesCount.innerText = result.likesCount
     }
   })
