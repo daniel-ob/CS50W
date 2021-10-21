@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
+from django.db.models import Sum
 
 # FR phone numbers regex
 PHONE_REGEX = RegexValidator(regex=r"^"
@@ -51,6 +52,13 @@ class UserOrder(models.Model):
     amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
     message = models.CharField(blank=True, max_length=128)
 
+    def save(self, *args, **kwargs):
+        # Order amount is the sum of its items amounts
+        order_items = self.items.all()
+        self.amount = order_items.aggregate(Sum("amount"))["amount__sum"] if order_items else 0.00
+        # Save order
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"From {self.user} for {self.delivery.date}"
 
@@ -59,6 +67,15 @@ class UserOrderItem(models.Model):
     user_order = models.ForeignKey(UserOrder, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="user_order_items")
     quantity = models.PositiveIntegerField(null=False, validators=[MinValueValidator(1)])
+    amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
+
+    def save(self, *args, **kwargs):
+        # Calculate item amount
+        self.amount = self.quantity * self.product.unit_price
+        # Save item
+        super().save(*args, **kwargs)
+        # Recalculate user_order.amount with this item
+        self.user_order.save()
 
     def __str__(self):
         return f"{self.user_order}: {self.quantity} x {self.product}"
