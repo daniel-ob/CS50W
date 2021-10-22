@@ -45,9 +45,9 @@ class Delivery(models.Model):
         return f"{self.date}"
 
 
-class UserOrder(models.Model):
+class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="orders")
-    delivery = models.ForeignKey(Delivery, on_delete=models.PROTECT, related_name="user_orders")
+    delivery = models.ForeignKey(Delivery, on_delete=models.PROTECT, related_name="orders")
     creation_date = models.DateTimeField(auto_now_add=True)
     amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
     message = models.CharField(blank=True, max_length=128)
@@ -63,9 +63,9 @@ class UserOrder(models.Model):
         return f"From {self.user} for {self.delivery.date}"
 
 
-class UserOrderItem(models.Model):
-    user_order = models.ForeignKey(UserOrder, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="user_order_items")
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
     quantity = models.PositiveIntegerField(null=False, validators=[MinValueValidator(1)])
     amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
 
@@ -74,8 +74,8 @@ class UserOrderItem(models.Model):
         self.amount = self.quantity * self.product.unit_price
         # Save item
         super().save(*args, **kwargs)
-        # Recalculate user_order.amount with this item
-        self.user_order.save()
+        # Recalculate order.amount with this item
+        self.order.save()
 
     def __str__(self):
-        return f"{self.user_order}: {self.quantity} x {self.product}"
+        return f"{self.order}: {self.quantity} x {self.product}"
