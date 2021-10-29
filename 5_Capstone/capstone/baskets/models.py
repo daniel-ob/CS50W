@@ -66,7 +66,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
-    quantity = models.PositiveIntegerField(null=False, validators=[MinValueValidator(1)])
+    quantity = models.PositiveIntegerField(null=False, default=1, validators=[MinValueValidator(1)])
     amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
 
     def save(self, *args, **kwargs):
@@ -76,6 +76,10 @@ class OrderItem(models.Model):
         super().save(*args, **kwargs)
         # Recalculate order.amount with this item
         self.order.save()
+
+    def is_valid(self):
+        """Order item is valid if product is available in related delivery and quantity is greater than 0"""
+        return self.product in self.order.delivery.products.all() and self.quantity > 0
 
     def __str__(self):
         return f"{self.order}: {self.quantity} x {self.product}"

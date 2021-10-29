@@ -28,12 +28,16 @@ class BasketsTestCase(TestCase):
         self.d2 = Delivery.objects.create(date=datetime.date(2021, 12, 14))
         self.d2.products.set([self.product1, self.product3])
 
-        # Create order
+        # Create orders
         self.o1 = Order.objects.create(user=self.u1, delivery=self.d1)
+        self.o2 = Order.objects.create(user=self.u2, delivery=self.d2)
 
         # Create order items
         self.oi1 = OrderItem.objects.create(order=self.o1, product=self.product1, quantity=4)
         self.oi2 = OrderItem.objects.create(order=self.o1, product=self.product2, quantity=1)
+        # invalids
+        self.oi3 = OrderItem.objects.create(order=self.o2, product=self.product2, quantity=1)
+        self.oi4 = OrderItem.objects.create(order=self.o2, product=self.product1, quantity=0)
 
         # Create test client
         self.c = Client()
@@ -93,3 +97,19 @@ class BasketsTestCase(TestCase):
 
         # Reset product unit price
         self.product1.unit_price = initial_product1_unit_price
+
+    def test_valid_order_item(self):
+        """Check that order item is valid if product is available in delivery and quantity is greater than 0"""
+
+        self.assertEqual(self.oi1.is_valid(), True)
+        self.assertEqual(self.oi2.is_valid(), True)
+
+    def test_invalid_order_item_product(self):
+        """Check that order item is invalid if product is not available in delivery"""
+
+        self.assertEqual(self.oi3.is_valid(), False)
+
+    def test_invalid_order_item_quantity(self):
+        """Check that order item is invalid if quantity is not greater than 0"""
+
+        self.assertEqual(self.oi4.is_valid(), False)
