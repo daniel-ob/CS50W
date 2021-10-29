@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
@@ -32,14 +34,35 @@ class Product(models.Model):
     name = models.CharField(blank=False, max_length=64)
     unit_price = models.DecimalField(blank=False, max_digits=8, decimal_places=2)
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "unit_price": self.unit_price
+        }
+
     def __str__(self):
         return f"{self.name}"
 
 
 class Delivery(models.Model):
+    ORDER_DEADLINE_DAYS_BEFORE = 4
+
     date = models.DateField(blank=False, unique=True)
     products = models.ManyToManyField(Product, related_name="deliveries")
     message = models.CharField(blank=True, max_length=128)
+
+    @property
+    def order_deadline(self):
+        return self.date - datetime.timedelta(days=self.ORDER_DEADLINE_DAYS_BEFORE)
+
+    def serialize(self):
+        return {
+            "date": self.date,
+            "order_deadline": self.order_deadline,
+            "products": [product.serialize() for product in self.products.all()],
+            "message": self.message
+        }
 
     def __str__(self):
         return f"{self.date}"
@@ -51,6 +74,14 @@ class Order(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
     message = models.CharField(blank=True, max_length=128)
+
+    def serialize(self):
+        return {
+            "delivery_id": self.delivery.id,
+            "items": [item.serialize() for item in self.items.all()],
+            "amount": self.amount,
+            "message": self.message
+        }
 
     def save(self, *args, **kwargs):
         # Order amount is the sum of its items amounts
@@ -68,6 +99,13 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
     quantity = models.PositiveIntegerField(null=False, default=1, validators=[MinValueValidator(1)])
     amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
+
+    def serialize(self):
+        return {
+            "product": self.product.serialize(),
+            "quantity": self.quantity,
+            "amount": self.amount
+        }
 
     def save(self, *args, **kwargs):
         # Calculate item amount
