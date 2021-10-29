@@ -139,8 +139,8 @@ def create_order(request):
 
     return JsonResponse({
         "message": "Order has been successfully created",
-        "id": o.id,
-        "amount": o.amount
+        "url": reverse("order", args=[o.id]),
+        "amount": "{:.2f}".format(o.amount)
     }, status=201)
 
 
@@ -166,7 +166,6 @@ def order(request, order_id):
 
     elif request.method == "PUT":
         data = json.loads(request.body)
-        print(data)
 
         if data.get("delivery_id") is not None:
             # Update delivery
@@ -210,7 +209,7 @@ def order(request, order_id):
 
         return JsonResponse({
             "message": "Order has been successfully updated",
-            "amount": o.amount
+            "amount": "{:.2f}".format(o.amount)
         }, status=200)
 
     elif request.method == "DELETE":

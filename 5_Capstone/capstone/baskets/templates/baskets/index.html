@@ -1,6 +1,72 @@
 {% extends "baskets/layout.html" %}
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'baskets/js/orders.js' %}"></script>
+{% endblock %}
 
 {% block body %}
+
     <h1>Orders</h1>
+
+    <div class="card" id="order-list">
+        {% if deliveries_orders %}
+            <table class="table table-hover table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Delivery Date</th>
+                        <th scope="col">Total Order</th>
+                    </tr>
+                </thead>
+                <tbody title="click on a row to see details">
+                    {% for item in deliveries_orders %}
+                        <tr class="order-list-item">
+                            <td class="delivery" data-url="{% url 'delivery' item.delivery.id %}">{{ item.delivery.date }}</td>
+                            {% if item.order %}
+                                <td class="order"
+                                    data-method="put"
+                                    data-url="{% url 'order' item.order.id %}">{{ item.order.amount }} €</td>
+                            {% else %}
+                                <td class="order"
+                                    data-method="post"
+                                    data-url="{% url 'create_order' %}">No order recorded</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>There are no opened deliveries yet</p>
+        {% endif %}
+    </div>
+
+    <div class="card d-none mt-3 border-dark p-2" id="order-view">
+        <h2>Order for <span id="order-delivery-date"></span></h2>
+        <p>Deadline: <span id="order-deadline"></span></p>
+        <table class="table align-middle table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Product name</th>
+                    <th scope="col">Unit Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="order-items">
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td class="text-end">Total</td>
+                    <td><span id="order-amount"></span> €</td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="d-flex justify-content-end align-items-center">
+            <div class="d-none me-3" id="alert"></div>
+            <input type="submit" class="btn btn-primary" id="save" value="Save Order">
+        </div>
+    </div>
 
 {% endblock %}
