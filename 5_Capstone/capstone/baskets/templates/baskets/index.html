@@ -1,6 +1,10 @@
 {% extends "baskets/layout.html" %}
 {% load static %}
 
+{% block style %}
+    <link href="{% static 'baskets/css/orders.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block script %}
     <script src="{% static 'baskets/js/orders.js' %}"></script>
 {% endblock %}
@@ -11,8 +15,8 @@
 
     <div class="card" id="order-list">
         {% if deliveries_orders %}
-            <table class="table table-hover table-sm">
-                <thead class="table-light">
+            <table class="table table-hover table-sm table-fixed-head">
+                <thead>
                     <tr>
                         <th scope="col">Delivery Date</th>
                         <th scope="col">Total Order</th>
