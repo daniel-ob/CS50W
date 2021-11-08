@@ -167,16 +167,6 @@ def order(request, order_id):
     elif request.method == "PUT":
         data = json.loads(request.body)
 
-        if data.get("delivery_id") is not None:
-            # Update delivery
-            d_id = data["delivery_id"]
-            try:
-                d = Delivery.objects.get(id=d_id)
-            except Delivery.DoesNotExist:
-                return JsonResponse({"error": f"Delivery with id {d_id} does not exist"}, status=404)
-            o.delivery = d
-            o.save()
-
         if data.get("items") is not None:
             # Update order items
             previous_order_items_ids = [order_item.id for order_item in o.items.all()]
