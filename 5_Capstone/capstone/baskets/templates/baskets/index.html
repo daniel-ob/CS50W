@@ -29,12 +29,9 @@
                             <td class="delivery" data-url="{% url 'delivery' item.delivery.id %}">{{ item.delivery.date }}</td>
                             {% if item.order %}
                                 <td class="order"
-                                    data-method="put"
                                     data-url="{% url 'order' item.order.id %}">{{ item.order.amount }} €</td>
                             {% else %}
-                                <td class="order"
-                                    data-method="post"
-                                    data-url="{% url 'create_order' %}">No order recorded</td>
+                                <td class="order" data-url="">No order recorded</td>
                             {% endif %}
                         </tr>
                     {% endfor %}

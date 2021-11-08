@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     item.addEventListener('click', () => {
       if (item !== selectedOrderListItem) {
         selectedOrderListItem = item;
-
         clearAlert();
 
         // highlight selected order list item
@@ -27,14 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
 })
 
 async function updateOrderView(selectedOrderListItem) {
-  // Update order view with selected order information. If order method is 'post', display an empty order form.
+  // Update order view with selected order information. If no order exists, display an empty order form.
 
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
-  const orderMethod = selectedOrderListItem.querySelector('.order').dataset.method;
 
   const delivery = await requestGetDelivery(deliveryUrl);
-  const order = (orderMethod === 'put') ? await requestGetOrder(orderUrl) : null;
+  const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
 
   // show order view
   document.querySelector('#order-view').classList.replace('d-none', 'block');
@@ -56,9 +54,9 @@ async function updateOrderView(selectedOrderListItem) {
     quantity = 0;
     amount = 0;
     // if product exists in order, use values from order
-    if (order !== null) {
+    if (order) {
       orderItem = order.items.find(item => item.product.id === product.id)
-      if (orderItem !== undefined) {
+      if (orderItem) {
         quantity = orderItem.quantity;
         amount = orderItem.amount;
       }
@@ -80,7 +78,7 @@ async function updateOrderView(selectedOrderListItem) {
   })
 
   // update total order amount
-  document.querySelector('#order-amount').innerText = (order !== null) ? order.amount : 0;
+  document.querySelector('#order-amount').innerText = order ? order.amount : 0;
 
   // show/hide 'delete' button
   const deleteIcon = document.querySelector('#delete')
@@ -115,29 +113,24 @@ async function saveOrder() {
   // Create or Update order
 
   const selectedOrderListItem = document.querySelector('.table-active');
-  const method = selectedOrderListItem.querySelector('.order').dataset.method;
-  const url = selectedOrderListItem.querySelector('.order').dataset.url;
   const deliveryId = selectedOrderListItem.querySelector('.delivery').dataset.url.split('/').pop();
   const orderAmount = document.querySelector('#order-amount').innerText;
   const deleteIcon = document.querySelector('#delete')
-
-  let savedOrderUrl = null;
+  let orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
 
   let orderItems = getOrderItems()
   if (orderItems.length > 0) {
-    if (method === 'post') {
-      result = await requestCreateOrder(url, deliveryId, orderItems);
-      savedOrderUrl = result.url; // new order url
+    if (orderUrl === '') {
+      result = await requestCreateOrder(deliveryId, orderItems);
+      orderUrl = result.url; // new order url
     } else {
-      result = await requestUpdateOrder(url, orderItems);
-      savedOrderUrl = url;  // order url remains the same
+      result = await requestUpdateOrder(orderUrl, orderItems);
     }
-    console.log(result);
 
     // if order amount sent by back-end matches front-end one, order has been successfully created
     if (result.amount === orderAmount) {
       showAlert('successSave');
-      updateSelectedOrderListItem(orderAmount, savedOrderUrl, "put");
+      updateSelectedOrderListItem(orderAmount, orderUrl);
       deleteIcon.classList.replace('d-none', 'block');
     } else {
       showAlert('errorSave');
@@ -164,8 +157,7 @@ async function deleteOrder() {
 
     updateOrderViewAmounts();
     deleteIcon.classList.replace('block', 'd-none');
-    createOrderUrl = document.querySelector('#create-order').dataset.url
-    updateSelectedOrderListItem(null, createOrderUrl, "post");
+    updateSelectedOrderListItem(null, '');
   }
 }
 
@@ -205,10 +197,12 @@ async function requestGetOrder(orderUrl) {
   return responseJSON;
 }
 
-async function requestCreateOrder(url, deliveryId, orderItems) {
+async function requestCreateOrder(deliveryId, orderItems) {
   // Send 'POST' request to create order in back-end
 
-  const response = await fetch(url, {
+  const createOrderUrl = document.querySelector('#create-order').dataset.url;
+
+  const response = await fetch(createOrderUrl, {
     method: 'POST',
     headers: {
       'X-CSRFToken': csrftoken
@@ -219,6 +213,7 @@ async function requestCreateOrder(url, deliveryId, orderItems) {
     })
   })
   const responseJSON = await response.json();
+  console.log(responseJSON);
   return responseJSON;
 }
 
@@ -235,6 +230,7 @@ async function requestUpdateOrder(orderUrl, orderItems) {
     })
   })
   const responseJSON = await response.json();
+  console.log(responseJSON);
   return responseJSON;
 }
 
@@ -252,13 +248,12 @@ async function requestDeleteOrder(orderUrl) {
   return responseJSON;
 }
 
-function updateSelectedOrderListItem(orderAmount, orderUrl, orderMethod) {
+function updateSelectedOrderListItem(orderAmount, orderUrl) {
   const selectedOrderListItem = document.querySelector('.table-active');
   const selectedOrder = selectedOrderListItem.querySelector('.order');
 
-  selectedOrder.innerText = (orderAmount !== null) ? orderAmount + ' €' : 'No order recorded';
+  selectedOrder.innerText = orderAmount ? orderAmount + ' €' : 'No order recorded';
   selectedOrder.dataset.url = orderUrl;
-  selectedOrder.dataset.method = orderMethod;
 }
 
 function showAlert(alertType) {
