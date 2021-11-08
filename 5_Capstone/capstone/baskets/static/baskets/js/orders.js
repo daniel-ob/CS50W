@@ -20,8 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     })
   })
 
-  // Manage clicks on 'Save Order' button
+  // Manage clicks on 'Save' and 'Delete' order buttons
   document.querySelector('#save').addEventListener('click', () => saveOrder());
+  document.querySelector('#delete').addEventListener('click', () => deleteOrder());
+
 })
 
 async function updateOrderView(selectedOrderListItem) {
@@ -71,7 +73,7 @@ async function updateOrderView(selectedOrderListItem) {
     // set action on quantity input change
     quantityInput = orderViewItem.querySelector('.quantity').addEventListener('input', () => {
       clearAlert();
-      updateOrderViewAmounts(orderViewItem);
+      updateOrderViewAmounts();
     })
 
     orderViewItems.append(orderViewItem);
@@ -79,18 +81,29 @@ async function updateOrderView(selectedOrderListItem) {
 
   // update total order amount
   document.querySelector('#order-amount').innerText = (order !== null) ? order.amount : 0;
+
+  // show/hide 'delete' button
+  const deleteIcon = document.querySelector('#delete')
+  if (order) {
+    deleteIcon.classList.replace('d-none', 'block');
+  } else {
+    deleteIcon.classList.replace('block', 'd-none');
+  }
 }
 
-function updateOrderViewAmounts(orderViewItem) {
-  // Item amount
-  const unitPrice = orderViewItem.querySelector('.unit-price').innerText;
-  const quantity = orderViewItem.querySelector('.quantity').value;
-  const itemAmount = unitPrice * quantity;
-  orderViewItem.querySelector('.amount').innerText = itemAmount.toFixed(2)
+function updateOrderViewAmounts() {
+
+  // Items amount
+  const orderViewItems = document.querySelectorAll('.order-item');
+  orderViewItems.forEach(orderViewItem => {
+    const unitPrice = orderViewItem.querySelector('.unit-price').innerText;
+    const quantity = orderViewItem.querySelector('.quantity').value;
+    const itemAmount = unitPrice * quantity;
+    orderViewItem.querySelector('.amount').innerText = itemAmount.toFixed(2)
+  })
 
   // Total order amount
   let totalAmount = 0;
-  const orderViewItems = document.querySelectorAll('.order-item');
   orderViewItems.forEach(orderViewItem => {
     const itemAmount = parseFloat(orderViewItem.querySelector('.amount').innerText);
     totalAmount += itemAmount;
@@ -106,6 +119,7 @@ async function saveOrder() {
   const url = selectedOrderListItem.querySelector('.order').dataset.url;
   const deliveryId = selectedOrderListItem.querySelector('.delivery').dataset.url.split('/').pop();
   const orderAmount = document.querySelector('#order-amount').innerText;
+  const deleteIcon = document.querySelector('#delete')
 
   let savedOrderUrl = null;
 
@@ -122,13 +136,36 @@ async function saveOrder() {
 
     // if order amount sent by back-end matches front-end one, order has been successfully created
     if (result.amount === orderAmount) {
-      showAlert('success');
-      updateSelectedOrderListItem(savedOrderUrl);
+      showAlert('successSave');
+      updateSelectedOrderListItem(orderAmount, savedOrderUrl, "put");
+      deleteIcon.classList.replace('d-none', 'block');
     } else {
       showAlert('errorSave');
     }
   } else {
     showAlert('errorItems');
+  }
+}
+
+async function deleteOrder() {
+  const selectedOrderListItem = document.querySelector('.table-active');
+  const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
+  const deleteIcon = document.querySelector('#delete')
+
+  const result = await requestDeleteOrder(orderUrl);
+
+  if (result.message) {
+    showAlert('successRemove');
+
+    // reset items quantities
+    document.querySelectorAll('.order-item').forEach(orderViewItem => {
+      orderViewItem.querySelector('.quantity').value = 0;
+    });
+
+    updateOrderViewAmounts();
+    deleteIcon.classList.replace('block', 'd-none');
+    createOrderUrl = document.querySelector('#create-order').dataset.url
+    updateSelectedOrderListItem(null, createOrderUrl, "post");
   }
 }
 
@@ -201,16 +238,27 @@ async function requestUpdateOrder(orderUrl, orderItems) {
   return responseJSON;
 }
 
-function updateSelectedOrderListItem(newOrderUrl) {
-  // After order saving, update order list item: amount, url and method
+async function requestDeleteOrder(orderUrl) {
+  // Send 'DELETE' order request to back-end
 
+  const response = await fetch(orderUrl, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRFToken': csrftoken
+    }
+  })
+  const responseJSON = await response.json();
+  console.log(responseJSON);
+  return responseJSON;
+}
+
+function updateSelectedOrderListItem(orderAmount, orderUrl, orderMethod) {
   const selectedOrderListItem = document.querySelector('.table-active');
   const selectedOrder = selectedOrderListItem.querySelector('.order');
-  const orderAmount = document.querySelector('#order-amount').innerText;
 
-  selectedOrder.innerText = orderAmount + ' €';
-  selectedOrder.dataset.url = newOrderUrl;
-  selectedOrder.dataset.method = 'put';
+  selectedOrder.innerText = (orderAmount !== null) ? orderAmount + ' €' : 'No order recorded';
+  selectedOrder.dataset.url = orderUrl;
+  selectedOrder.dataset.method = orderMethod;
 }
 
 function showAlert(alertType) {
@@ -218,10 +266,15 @@ function showAlert(alertType) {
   alert.classList.replace('d-none', 'block');
 
   switch(alertType) {
-    case 'success':
+    case 'successSave':
       alert.classList.remove('text-danger');
       alert.classList.add('text-success');
       alert.innerText = 'Order has been successfully saved';
+      break;
+    case 'successRemove':
+      alert.classList.remove('text-danger');
+      alert.classList.add('text-success');
+      alert.innerText = 'Order has been successfully removed';
       break;
     case 'errorSave':
       alert.classList.remove('text-success');
