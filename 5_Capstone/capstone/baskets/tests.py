@@ -61,6 +61,14 @@ class ModelsTestCase(BasketsTestCase):
     def test_delivery_orders_count(self):
         self.assertEqual(self.d1.orders.count(), 1)
 
+    def test_delivery_deadline_auto(self):
+        self.assertEqual(self.d1.order_deadline,
+                         self.d1.date - datetime.timedelta(days=self.d1.ORDER_DEADLINE_DAYS_BEFORE))
+
+    def test_delivery_deadline_custom(self):
+        d = Delivery.objects.create(date=datetime.date.today(), order_deadline=datetime.date(2021, 11, 23))
+        self.assertEqual(d.order_deadline, datetime.date(2021, 11, 23))
+
     def test_order_items_count(self):
         self.assertEqual(self.o1.items.count(), 2)
 
@@ -340,3 +348,23 @@ class APITestCase(BasketsTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), d1_expected_json)
+
+
+class WebPageTestCase(TestCase):
+    def test_index_opened_deliveries(self):
+        """Check that index page contains only opened deliveries (deadline not passed)"""
+
+        today = datetime.date.today()
+        tomorrow = today + datetime.timedelta(days=1)
+        yesterday = today - datetime.timedelta(days=1)
+
+        opened_delivery = Delivery.objects.create(date=tomorrow, order_deadline=today)
+        closed_delivery = Delivery.objects.create(date=today, order_deadline=yesterday)
+
+        u = User.objects.create(username="test_user")
+        c = Client()
+        c.force_login(u)
+        response = c.get(reverse("index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["deliveries_orders"]), 1)
+        self.assertEqual(response.context["deliveries_orders"][0]["delivery"], opened_delivery)

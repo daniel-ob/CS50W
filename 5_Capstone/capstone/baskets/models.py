@@ -47,14 +47,13 @@ class Product(models.Model):
 
 class Delivery(models.Model):
     ORDER_DEADLINE_DAYS_BEFORE = 4
+    ORDER_DEADLINE_HELP_TEXT = f"Last day to order. If left blank, it will be automatically set to " \
+                               f"{ORDER_DEADLINE_DAYS_BEFORE} days before Delivery date"
 
-    date = models.DateField(blank=False, unique=True)
+    date = models.DateField(blank=False)
+    order_deadline = models.DateField(blank=True, unique=True, help_text=ORDER_DEADLINE_HELP_TEXT)
     products = models.ManyToManyField(Product, related_name="deliveries")
     message = models.CharField(blank=True, max_length=128)
-
-    @property
-    def order_deadline(self):
-        return self.date - datetime.timedelta(days=self.ORDER_DEADLINE_DAYS_BEFORE)
 
     def serialize(self):
         return {
@@ -63,6 +62,11 @@ class Delivery(models.Model):
             "products": [product.serialize() for product in self.products.all()],
             "message": self.message
         }
+
+    def save(self, *args, **kwargs):
+        if not self.order_deadline:
+            self.order_deadline = self.date - datetime.timedelta(days=self.ORDER_DEADLINE_DAYS_BEFORE)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.date}"

@@ -11,7 +11,7 @@
 
 {% block body %}
 
-    <h1>Orders</h1>
+    <h1>Opened Orders</h1>
 
     <div class="card" id="order-list">
         {% if deliveries_orders %}
@@ -45,8 +45,8 @@
     </div>
 
     <div class="card d-none mt-3 border-dark p-2" id="order-view">
-        <h2>Order for <span id="order-delivery-date"></span></h2>
-        <p>Deadline: <span id="order-deadline"></span></p>
+        <p class="fw-bold">Delivery date: <span id="order-delivery-date"></span></p>
+        <p>Last day to order: <span id="order-deadline"></span></p>
         <table class="table align-middle table-sm">
             <thead>
                 <tr>

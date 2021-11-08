@@ -14,16 +14,16 @@ from .models import User, Order, Delivery, Product, OrderItem
 
 @login_required
 def index(request):
-    """Render user order list for next deliveries"""
+    """Render list of deliveries for which users can still order and its related orders"""
 
-    next_deliveries = Delivery.objects.filter(date__gte=date.today()).order_by("date")
+    opened_deliveries = Delivery.objects.filter(order_deadline__gte=date.today()).order_by("date")
 
     deliveries_orders = [
         {
             "delivery": d,
             "order": Order.objects.filter(user=request.user, delivery=d).first()
         }
-        for d in next_deliveries
+        for d in opened_deliveries
     ]
 
     return render(request, "baskets/index.html", {
