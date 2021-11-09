@@ -22,25 +22,25 @@ document.addEventListener('DOMContentLoaded', function() {
 async function updateOrderView(selectedOrderListItem) {
   // Update order view with selected order information. If no order exists, display an empty order form.
 
+  const orderView = document.querySelector('#order-view');
+  const orderViewItems = document.querySelector('#order-items');
+  const orderAmount = document.querySelector('#order-amount');
+  const deleteIcon = document.querySelector('#delete');
+
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const delivery = await requestGetDelivery(deliveryUrl);
   const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
 
+  // reset order-view
   clearAlert();
-
-  // show order view
-  document.querySelector('#order-view').classList.replace('d-none', 'block');
+  orderViewItems.innerHTML = '';
 
   // display delivery details
   document.querySelector('#order-delivery-date').innerText = delivery.date;
   document.querySelector('#order-deadline').innerText = delivery.order_deadline;
 
-  // clear order items
-  const orderViewItems = document.querySelector('#order-items');
-  orderViewItems.innerHTML = '';
-
-  // add a row for each delivery product
+  // add a new row for each delivery product
   delivery.products.forEach(product => {
     const orderViewItem = document.createElement('tr');
     orderViewItem.className = "order-item";
@@ -73,19 +73,20 @@ async function updateOrderView(selectedOrderListItem) {
   })
 
   // update total order amount
-  document.querySelector('#order-amount').innerText = order ? order.amount : 0;
+  orderAmount.innerText = order ? order.amount : 0;
 
   // show/hide 'delete' button
-  const deleteIcon = document.querySelector('#delete')
   if (order) {
     deleteIcon.classList.replace('d-none', 'block');
   } else {
     deleteIcon.classList.replace('block', 'd-none');
   }
+
+  // Finally show order view if hidden
+  orderView.classList.replace('d-none', 'block');
 }
 
 function updateOrderViewAmounts() {
-
   // Items amount
   const orderViewItems = document.querySelectorAll('.order-item');
   orderViewItems.forEach(orderViewItem => {
@@ -106,7 +107,6 @@ function updateOrderViewAmounts() {
 
 async function saveOrder() {
   // Create or Update order
-
   const selectedOrderListItem = document.querySelector('.table-active');
   const deliveryId = selectedOrderListItem.querySelector('.delivery').dataset.url.split('/').pop();
   const orderAmount = document.querySelector('#order-amount').innerText;
@@ -158,7 +158,6 @@ async function deleteOrder() {
 
 function getOrderItems() {
   // Get order items from order view
-
   let orderItems = []
   orderViewItems = document.querySelectorAll('.order-item')
   orderViewItems.forEach(orderViewItem => {
@@ -176,7 +175,6 @@ function getOrderItems() {
 
 async function requestGetDelivery(deliveryUrl) {
   // Send 'GET' request to get delivery details
-
   const response = await fetch(deliveryUrl)
   const responseJSON = await response.json();
   console.log('delivery', responseJSON);
@@ -185,7 +183,6 @@ async function requestGetDelivery(deliveryUrl) {
 
 async function requestGetOrder(orderUrl) {
   // Send 'GET' request to get order details
-
   const response = await fetch(orderUrl)
   const responseJSON = await response.json();
   console.log('order', responseJSON);
@@ -194,9 +191,7 @@ async function requestGetOrder(orderUrl) {
 
 async function requestCreateOrder(deliveryId, orderItems) {
   // Send 'POST' request to create order in back-end
-
   const createOrderUrl = document.querySelector('#create-order').dataset.url;
-
   const response = await fetch(createOrderUrl, {
     method: 'POST',
     headers: {
@@ -214,7 +209,6 @@ async function requestCreateOrder(deliveryId, orderItems) {
 
 async function requestUpdateOrder(orderUrl, orderItems) {
   // Send 'PUT' request to update order in back-end
-
   const response = await fetch(orderUrl, {
     method: 'PUT',
     headers: {
@@ -231,7 +225,6 @@ async function requestUpdateOrder(orderUrl, orderItems) {
 
 async function requestDeleteOrder(orderUrl) {
   // Send 'DELETE' order request to back-end
-
   const response = await fetch(orderUrl, {
     method: 'DELETE',
     headers: {
