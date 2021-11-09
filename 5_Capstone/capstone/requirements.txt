@@ -1,0 +1,16 @@
+asgiref==3.4.1
+chardet==4.0.0
+Django==3.2.9
+django-excel==0.0.10
+lml==0.1.0
+lxml==4.6.4
+pkg-resources==0.0.0
+pyexcel==0.6.7
+pyexcel-ezodf==0.3.4
+pyexcel-io==0.6.5
+pyexcel-ods3==0.6.0
+pyexcel-webio==0.1.4
+pytz==2021.3
+sqlparse==0.4.2
+texttable==1.6.4
+typing-extensions==3.10.0.2

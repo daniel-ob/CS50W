@@ -1,9 +1,12 @@
+from datetime import date
+
 from django.contrib import admin
 from django.db.models import Count, Sum
 from django.urls import reverse
 from django.utils.html import format_html
 
 from .models import User, Producer, Product, Delivery, Order, OrderItem
+from . import utils
 
 
 class ProductInline(admin.TabularInline):
@@ -41,7 +44,7 @@ class ProducerAdmin(admin.ModelAdmin):
 
 
 class DeliveryAdmin(admin.ModelAdmin):
-    list_display = ("date", "orders_count")
+    list_display = ("date", "orders_count", "export")
     ordering = ["date"]
     inlines = [DeliveryProductInline]
 
@@ -53,6 +56,16 @@ class DeliveryAdmin(admin.ModelAdmin):
     @admin.display(ordering="orders__count")
     def orders_count(self, obj):
         return obj.orders__count
+
+    def export(self, obj):
+        d = obj
+        delivery_export_url = reverse("delivery_export", args=[d.id])
+        if date.today() > d.order_deadline and d.orders.count():
+            return format_html(
+                f"<a href='{delivery_export_url}'>Export order forms</a>"
+            )
+        else:
+            return "-"
 
 
 class OrderAdmin(admin.ModelAdmin):

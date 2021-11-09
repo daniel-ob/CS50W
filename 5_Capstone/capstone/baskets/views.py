@@ -2,13 +2,15 @@ from datetime import date
 import json
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django_excel import make_response_from_book_dict
 
+from . import utils
 from .models import User, Order, Delivery, Product, OrderItem
 
 
@@ -232,3 +234,18 @@ def delivery(request, delivery_id):
 
     if request.method == "GET":
         return JsonResponse(d.serialize())
+
+
+def admin_check(user):
+    return user.is_superuser
+
+
+@user_passes_test(admin_check)
+def delivery_export(request, delivery_id):
+    """Download delivery related orders forms"""
+
+    # Attempt to retrieve delivery
+    d = get_object_or_404(Delivery, id=delivery_id)
+
+    book = utils.delivery_to_order_form_book(d)
+    return make_response_from_book_dict(adict=book, file_type="ods", file_name=f"{d.date}_order_forms.ods")
