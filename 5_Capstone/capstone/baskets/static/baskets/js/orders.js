@@ -1,21 +1,15 @@
 const csrftoken = getCookie('csrftoken');
 
 document.addEventListener('DOMContentLoaded', function() {
-  let selectedOrderListItem = null;
 
   // Manage clicks on order list items
-  document.querySelectorAll('.order-list-item').forEach(item => {
-    item.addEventListener('click', () => {
-      if (item !== selectedOrderListItem) {
-        selectedOrderListItem = item;
-        clearAlert();
+  document.querySelectorAll('.order-list-item').forEach(orderListItem => {
+    orderListItem.addEventListener('click', () => {
+      // highlight selected order list item
+      document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
+      orderListItem.classList.add('table-active');
 
-        // highlight selected order list item
-        document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
-        selectedOrderListItem.classList.add('table-active');
-
-        updateOrderView(selectedOrderListItem);
-      }
+      updateOrderView(orderListItem);
     })
   })
 
@@ -30,9 +24,10 @@ async function updateOrderView(selectedOrderListItem) {
 
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
-
   const delivery = await requestGetDelivery(deliveryUrl);
   const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
+
+  clearAlert();
 
   // show order view
   document.querySelector('#order-view').classList.replace('d-none', 'block');
