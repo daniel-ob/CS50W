@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, UniqueConstraint
 
 # FR phone numbers regex
 PHONE_REGEX = RegexValidator(regex=r"^"
@@ -78,6 +78,11 @@ class Order(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
     message = models.CharField(blank=True, max_length=128)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=["delivery", "user"], name="user can only place one order per delivery")
+        ]
 
     def serialize(self):
         return {
