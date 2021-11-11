@@ -120,6 +120,7 @@ def create_order(request):
 
     # Add order items
     if data.get("items") is None:
+        o.delete()
         return JsonResponse({"error": "Order must contain at least one item"}, status=400)
     else:
         for item in data["items"]:

@@ -185,7 +185,7 @@ class APITestCase(BasketsTestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(Order.objects.count(), orders_count_initial)
 
-    def test_order_creation_invalid_deadline_passed(self):
+    def test_order_creation_deadline_passed(self):
         """Check that when a user tries to create an order for a delivery which deadline is passed:
         - A 'Bad request' error is received
         - Order is not created"""
@@ -211,7 +211,7 @@ class APITestCase(BasketsTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u1.orders.count(), u1_initial_orders_count)
 
-    def test_order_creation_invalid_second_order_for_delivery(self):
+    def test_order_creation_second_order_for_delivery(self):
         """Check that user1 receives a 'Bad request' error when trying to create a second order for a given delivery"""
 
         self.c.force_login(self.u1)
@@ -220,6 +220,20 @@ class APITestCase(BasketsTestCase):
         # user already has an order for d1
         order_json = {
             "delivery_id": self.d1.id
+        }
+        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
+
+    def test_order_creation_no_item(self):
+        """Check that user receives a 'bad request' error when trying to create an order without items"""
+
+        self.c.force_login(self.u1)
+        user1_orders_count_initial = self.u1.orders.count()
+
+        order_json = {
+            "delivery_id": self.d2.id,
         }
         response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
 
