@@ -73,13 +73,18 @@ def register(request):
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
+            # user account will be activated by admin
+            user.is_active = False
             user.save()
         except IntegrityError:
             return render(request, "baskets/register.html", {
                 "message": "Username already taken."
             })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+        utils.email_admin_ask_account_activation(user)
+        return render(request, "baskets/register.html", {
+            "message": "Your register request has been sent to the administrator for validation. "
+                       "You will receive an email as soon as your account is activated."
+        })
     else:
         return render(request, "baskets/register.html")
 

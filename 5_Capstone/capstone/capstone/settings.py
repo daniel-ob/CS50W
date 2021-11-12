@@ -128,3 +128,16 @@ LOGIN_URL = 'login'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SERVER_URL = "http://127.0.0.1:8000"
+
+EMAIL_SUBJECT_PREFIX = "[Baskets] "  # only for mail_admins()
+ADMINS = [("admin", os.environ["ADMIN_EMAIL"])]
+
+# SMTP server settings
+SERVER_EMAIL = os.environ["SERVER_EMAIL"]
+EMAIL_HOST = os.environ["EMAIL_HOST"]
+EMAIL_USE_TLS = os.environ["EMAIL_USE_TLS"]
+EMAIL_PORT = os.environ["EMAIL_PORT"]
+EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]

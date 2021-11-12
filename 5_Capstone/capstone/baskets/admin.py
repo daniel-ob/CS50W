@@ -39,6 +39,14 @@ class DeliveryProductInline(admin.TabularInline):
         )
 
 
+class UserAdmin(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # notify user when its account is activated
+        if obj.is_active:
+            utils.email_user_account_activated(obj)
+
+
 class ProducerAdmin(admin.ModelAdmin):
     inlines = [ProductInline]
 
@@ -88,7 +96,7 @@ class OrderItemAdmin(admin.ModelAdmin):
         return obj.order.user
 
 
-admin.site.register(User)
+admin.site.register(User, UserAdmin)
 admin.site.register(Producer, ProducerAdmin)
 admin.site.register(Delivery, DeliveryAdmin)
 admin.site.register(Order, OrderAdmin)
