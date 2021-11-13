@@ -14,6 +14,8 @@ PHONE_REGEX = RegexValidator(regex=r"^"
 
 
 class User(AbstractUser):
+    last_name = models.CharField(max_length=150, blank=False)
+    email = models.EmailField(blank=False)
     phone = models.CharField(blank=True, validators=[PHONE_REGEX], max_length=18)
 
     def __str__(self):

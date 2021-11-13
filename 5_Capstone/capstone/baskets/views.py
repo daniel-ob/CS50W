@@ -11,6 +11,7 @@ from django.urls import reverse
 from django_excel import make_response_from_book_dict
 
 from . import utils
+from .forms import NewUserForm
 from .models import User, Order, Delivery, Product, OrderItem
 
 
@@ -59,34 +60,42 @@ def logout_view(request):
 
 def register(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
+        form = NewUserForm(request.POST)
+        if not form.is_valid():
+            # render the same page adding existing form data, so users can see the errors they made
+            return render(request, "baskets/register.html", {
+                "form": form
+            })
 
         # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
             return render(request, "baskets/register.html", {
-                "message": "Passwords must match."
+                "message": "Passwords must match.",
+                "form": form
             })
 
-        # Attempt to create new user
-        try:
-            user = User.objects.create_user(username, email, password)
-            # user account will be activated by admin
-            user.is_active = False
-            user.save()
-        except IntegrityError:
-            return render(request, "baskets/register.html", {
-                "message": "Username already taken."
-            })
+        # Create new user
+        user = form.save(commit=False)
+        # save hashed password
+        password = form.cleaned_data['password']
+        user.set_password(password)
+        # user account will be activated by admin
+        user.is_active = False
+        user.save()
+
         utils.email_admin_ask_account_activation(user)
         return render(request, "baskets/register.html", {
             "message": "Your register request has been sent to the administrator for validation. "
-                       "You will receive an email as soon as your account is activated."
+                       "You will receive an email as soon as your account is activated.",
+            "form": form
         })
     else:
-        return render(request, "baskets/register.html")
+        # render empty form
+        return render(request, "baskets/register.html", {
+            "form": NewUserForm()
+        })
 
 
 def create_order(request):
