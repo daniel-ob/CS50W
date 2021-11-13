@@ -1,6 +1,7 @@
 import datetime
 import json
 
+from django.db.models import Max
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -211,7 +212,7 @@ class APITestCase(BasketsTestCase):
         self.assertEqual(self.u1.orders.count(), u1_initial_orders_count)
 
     def test_order_creation_invalid_second_order_for_delivery(self):
-        """Check that user1 receives an error 400 when trying to create a second order for a given delivery"""
+        """Check that user1 receives a 'Bad request' error when trying to create a second order for a given delivery"""
 
         self.c.force_login(self.u1)
         user1_orders_count_initial = self.u1.orders.count()
@@ -323,6 +324,41 @@ class APITestCase(BasketsTestCase):
         updated_order = self.u1.orders.last()
         self.assertEqual(updated_order.message, "order updated")
         self.assertEqual(updated_order.items.count(), 1)
+
+    def test_order_update_invalid_product(self):
+        """Check that, when trying to update an order with a non existing product:
+        - A 'Not found' error is received
+        - Order is not updated"""
+
+        # log-in user1
+        self.c.force_login(self.u1)
+
+        # Create an order
+        order = Order.objects.create(user=self.u1, delivery=self.d2, message="test order")
+        order_item1 = OrderItem.objects.create(order=order, product=self.product1, quantity=1)
+        order_item2 = OrderItem.objects.create(order=order, product=self.product3, quantity=3)
+
+        invalid_product_id = Product.objects.all().aggregate(Max("id"))["id__max"] + 1
+        updated_order_json = {
+            "items": [
+                {
+                    "product_id": invalid_product_id,
+                    "quantity": 2
+                }
+            ],
+            "message": "try to update"
+        }
+        response = self.c.put(reverse("order", args=[order.id]),
+                              data=json.dumps(updated_order_json),
+                              content_type="application/json")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(order.items.count(), 2)
+        self.assertEqual(order.items.all()[0].product.id, self.product1.id)
+        self.assertEqual(order.items.all()[0].quantity, 1)
+        self.assertEqual(order.items.all()[1].product.id, self.product3.id)
+        self.assertEqual(order.items.all()[1].quantity, 3)
+        self.assertEqual(order.message, "test order")
 
     def test_order_delete(self):
         """Check that user1 can delete one of its orders, including all of its items, through API"""

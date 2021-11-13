@@ -151,7 +151,7 @@ def create_order(request):
 def order(request, order_id):
     """Order:
     - GET: Get Order details
-    - PUT: Update existing Order
+    - PUT: Update existing Order (items, message)
     - DELETE: Delete Order"""
 
     # User must be authenticated to access orders
@@ -176,10 +176,10 @@ def order(request, order_id):
         data = json.loads(request.body)
 
         if data.get("items") is not None:
-            # Update order items
-            previous_order_items_ids = [order_item.id for order_item in o.items.all()]
+            # Update order items (remove old, add new)
+            old_order_items = o.items.all()
+            new_order_items = []
 
-            # Add new items
             for item in data["items"]:
                 # Attempt to retrieve product
                 try:
@@ -187,18 +187,22 @@ def order(request, order_id):
                 except Product.DoesNotExist:
                     return JsonResponse({"error": f"Product with id {item['product_id']} does not exist"}, status=404)
 
-                order_item = OrderItem.objects.create(
+                order_item = OrderItem(
                     order=o,
                     product=product,
                     quantity=int(item["quantity"])
                 )
 
                 if not order_item.is_valid():
-                    order_item.delete()
-                    return JsonResponse({"error": "Invalid order. All products must be available in the delivery and "
+                    return JsonResponse({"error": "All products must be available in the delivery and "
                                                   "quantities must be greater than zero"}, status=400)
-            # Remove previous order items
-            OrderItem.objects.filter(pk__in=previous_order_items_ids).delete()
+                new_order_items.append(order_item)
+
+            for order_item in old_order_items:
+                order_item.delete()
+
+            for order_item in new_order_items:
+                order_item.save()
 
         if data.get("message") is not None:
             o.message = data["message"]
