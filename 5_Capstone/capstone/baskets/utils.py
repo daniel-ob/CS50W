@@ -11,7 +11,7 @@ def delivery_to_order_form_book(delivery):
         sheet_content = [
             ["Basket Order"],
             [""],
-            ["User:", order.user.username],
+            ["User:", f"{order.user.first_name} {order.user.last_name}"],
             ["Delivery date:", str(delivery.date)],
             [""],
             ["Product", "Unit price", "Quantity", "Amount"]
@@ -26,7 +26,7 @@ def delivery_to_order_form_book(delivery):
             ["", "", "total", str(order.amount)]
         )
 
-        bookdict[order.user.username] = sheet_content
+        bookdict[order.user.last_name] = sheet_content
 
     return bookdict
 
