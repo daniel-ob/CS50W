@@ -184,6 +184,32 @@ class APITestCase(BasketsTestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(Order.objects.count(), orders_count_initial)
 
+    def test_order_creation_invalid_deadline_passed(self):
+        """Check that when a user tries to create an order for a delivery which deadline is passed:
+        - A 'Bad request' error is received
+        - Order is not created"""
+
+        self.c.force_login(self.u1)
+        u1_initial_orders_count = self.u1.orders.count()
+
+        today = datetime.date.today()
+        yesterday = today - datetime.timedelta(days=1)
+        closed_delivery = Delivery.objects.create(date=today, order_deadline=yesterday)
+
+        order_json = {
+            "delivery_id": closed_delivery.id,
+            "items": [
+                {
+                    "product_id": self.product1.id,
+                    "quantity": 1
+                }
+            ]
+        }
+        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.u1.orders.count(), u1_initial_orders_count)
+
     def test_order_creation_invalid_second_order_for_delivery(self):
         """Check that user1 receives an error 400 when trying to create a second order for a given delivery"""
 

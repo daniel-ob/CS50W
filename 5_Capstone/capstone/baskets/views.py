@@ -102,6 +102,10 @@ def create_order(request):
     except Delivery.DoesNotExist:
         return JsonResponse({"error": f"Delivery with id {d_id} does not exist"}, status=404)
 
+    # Orders for given delivery can only be created until deadline
+    if date.today() > d.order_deadline:
+        return JsonResponse({"error": "Order deadline is passed for this delivery"}, status=400)
+
     # User can only have one order per delivery
     if d.orders.filter(user=request.user):
         return JsonResponse({"error": "User already has an order for this delivery"}, status=400)
@@ -165,6 +169,10 @@ def order(request, order_id):
         return JsonResponse(o.serialize())
 
     elif request.method == "PUT":
+        # Orders can only be updated until its delivery deadline
+        if date.today() > o.delivery.order_deadline:
+            return JsonResponse({"error": "Related delivery is closed. Order can't be updated"}, status=400)
+
         data = json.loads(request.body)
 
         if data.get("items") is not None:
