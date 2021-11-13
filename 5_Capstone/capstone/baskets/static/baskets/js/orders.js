@@ -22,23 +22,29 @@ document.addEventListener('DOMContentLoaded', function() {
 async function updateOrderView(selectedOrderListItem) {
   // Update order view with selected order information. If no order exists, display an empty order form.
 
+  const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
+  const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const orderView = document.querySelector('#order-view');
+  const deliveryDate = document.querySelector('#order-delivery-date');
+  const orderDeadline = document.querySelector('#order-deadline');
   const orderViewItems = document.querySelector('#order-items');
   const orderAmount = document.querySelector('#order-amount');
   const deleteIcon = document.querySelector('#delete');
 
-  const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
-  const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
-  const delivery = await requestGetDelivery(deliveryUrl);
-  const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
+  // hide order view while updating
+  orderView.classList.replace('block', 'd-none');
 
   // reset order-view
   clearAlert();
   orderViewItems.innerHTML = '';
 
+  // get delivery and order
+  const delivery = await requestGetDelivery(deliveryUrl);
+  const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
+
   // display delivery details
-  document.querySelector('#order-delivery-date').innerText = delivery.date;
-  document.querySelector('#order-deadline').innerText = delivery.order_deadline;
+  deliveryDate.innerText = delivery.date;
+  orderDeadline.innerText = delivery.order_deadline;
 
   // add a new row for each delivery product
   delivery.products.forEach(product => {
@@ -82,7 +88,7 @@ async function updateOrderView(selectedOrderListItem) {
     deleteIcon.classList.replace('block', 'd-none');
   }
 
-  // Finally show order view if hidden
+  // Finally show order view
   orderView.classList.replace('d-none', 'block');
 }
 
