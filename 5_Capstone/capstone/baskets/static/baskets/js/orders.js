@@ -28,7 +28,7 @@ async function updateOrderView(selectedOrderListItem) {
   const deliveryDate = document.querySelector('#order-delivery-date');
   const orderDeadline = document.querySelector('#order-deadline');
   const orderViewItems = document.querySelector('#order-items');
-  const orderAmount = document.querySelector('#order-amount');
+  const orderAmountSpan = document.querySelector('#order-amount');
   const deleteIcon = document.querySelector('#delete');
 
   // hide order view while updating
@@ -52,22 +52,22 @@ async function updateOrderView(selectedOrderListItem) {
     orderViewItem.className = "order-item";
     orderViewItem.dataset.productid = product.id;
 
-    quantity = 0;
-    amount = 0;
+    let itemQuantity = 0;
+    let itemAmount = 0;
     // if product exists in order, use values from order
     if (order) {
       orderItem = order.items.find(item => item.product.id === product.id)
       if (orderItem) {
-        quantity = orderItem.quantity;
-        amount = orderItem.amount;
+        itemQuantity = orderItem.quantity;
+        itemAmount = parseFloat(orderItem.amount);
       }
     }
 
     orderViewItem.innerHTML = `
       <td>${product.name}</td>
       <td><span class="unit-price">${product.unit_price}</span> €</td>
-      <td><input type="number" class="quantity form-control" value="${quantity}" min="0"></td>
-      <td><span class="amount">${amount}</span> €</td>`;
+      <td><input type="number" class="quantity form-control" value="${itemQuantity}" min="0"></td>
+      <td><span class="amount">${itemAmount.toFixed(2)}</span> €</td>`;
 
     // set action on quantity input change
     quantityInput = orderViewItem.querySelector('.quantity').addEventListener('input', () => {
@@ -79,7 +79,8 @@ async function updateOrderView(selectedOrderListItem) {
   })
 
   // update total order amount
-  orderAmount.innerText = order ? order.amount : 0;
+  let orderAmount = order ? parseFloat(order.amount) : 0;
+  orderAmountSpan.innerText = orderAmount.toFixed(2);
 
   // show/hide 'delete' button
   if (order) {
@@ -93,22 +94,21 @@ async function updateOrderView(selectedOrderListItem) {
 }
 
 function updateOrderViewAmounts() {
-  // Items amount
+  // Re-calculate order view amounts (items and total) according to items quantities
+
   const orderViewItems = document.querySelectorAll('.order-item');
+  const orderTotalAmountSpan = document.querySelector('#order-amount');
+
+  let orderTotalAmount = 0;
   orderViewItems.forEach(orderViewItem => {
     const unitPrice = orderViewItem.querySelector('.unit-price').innerText;
     const quantity = orderViewItem.querySelector('.quantity').value;
     const itemAmount = unitPrice * quantity;
-    orderViewItem.querySelector('.amount').innerText = itemAmount.toFixed(2)
+    orderViewItem.querySelector('.amount').innerText = itemAmount.toFixed(2);
+    orderTotalAmount += itemAmount;
   })
 
-  // Total order amount
-  let totalAmount = 0;
-  orderViewItems.forEach(orderViewItem => {
-    const itemAmount = parseFloat(orderViewItem.querySelector('.amount').innerText);
-    totalAmount += itemAmount;
-  })
-  document.querySelector('#order-amount').innerText = totalAmount.toFixed(2);
+  orderTotalAmountSpan.innerText = orderTotalAmount.toFixed(2);
 }
 
 async function saveOrder() {
