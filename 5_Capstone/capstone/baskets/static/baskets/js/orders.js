@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
       orderListItem.classList.add('table-active');
 
+      clearAlert();
       updateOrderView(orderListItem);
     })
   })
@@ -34,10 +35,6 @@ async function updateOrderView(selectedOrderListItem) {
   // hide order view while updating
   orderView.classList.replace('block', 'd-none');
 
-  // reset order-view
-  clearAlert();
-  orderViewItems.innerHTML = '';
-
   // get delivery and order
   const delivery = await requestGetDelivery(deliveryUrl);
   const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
@@ -46,6 +43,7 @@ async function updateOrderView(selectedOrderListItem) {
   deliveryDate.innerText = delivery.date;
   orderDeadline.innerText = delivery.order_deadline;
 
+  orderViewItems.innerHTML = '';
   // add a new row for each delivery product
   delivery.products.forEach(product => {
     const orderViewItem = document.createElement('tr');
@@ -115,6 +113,7 @@ async function saveOrder() {
   // Create or Update order
   const selectedOrderListItem = document.querySelector('.table-active');
   const deliveryId = selectedOrderListItem.querySelector('.delivery').dataset.url.split('/').pop();
+  const orderView = document.querySelector('#order-view');
   const orderAmount = document.querySelector('#order-amount').innerText;
   const deleteIcon = document.querySelector('#delete')
   let orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
@@ -132,7 +131,8 @@ async function saveOrder() {
     if (result.amount === orderAmount) {
       showAlert('successSave');
       updateSelectedOrderListItem(orderAmount, orderUrl);
-      deleteIcon.classList.replace('d-none', 'block');
+      orderView.classList.replace('block', 'd-none');
+      document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
     } else {
       showAlert('errorSave');
     }
@@ -144,6 +144,7 @@ async function saveOrder() {
 async function deleteOrder() {
   const selectedOrderListItem = document.querySelector('.table-active');
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
+  const orderView = document.querySelector('#order-view');
   const deleteIcon = document.querySelector('#delete')
 
   const result = await requestDeleteOrder(orderUrl);
@@ -156,9 +157,9 @@ async function deleteOrder() {
       orderViewItem.querySelector('.quantity').value = 0;
     });
 
-    updateOrderViewAmounts();
-    deleteIcon.classList.replace('block', 'd-none');
     updateSelectedOrderListItem(null, '');
+    orderView.classList.replace('block', 'd-none');
+    document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
   }
 }
 
