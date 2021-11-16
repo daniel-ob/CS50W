@@ -45,8 +45,8 @@
     <div class="d-none mt-3" id="alert"></div>
 
     <div class="card mt-3 border-dark p-2 d-none" id="order-view">
-        <p class="fw-bold">Delivery date: <span id="order-delivery-date"></span></p>
-        <p>Last day to order: <span id="order-deadline"></span></p>
+        <h2 id="order-view-title"></h2>
+        <p id="order-view-subtitle"></p>
         <table class="table align-middle table-sm">
             <thead>
                 <tr>
@@ -59,7 +59,7 @@
             <tbody id="order-items">
             </tbody>
             <tfoot>
-                <tr>
+                <tr class="fw-bold">
                     <td></td>
                     <td></td>
                     <td class="text-end">Total</td>
@@ -71,7 +71,7 @@
             <button class="btn btn-secondary m-1 d-none" id="delete" title="Delete order">
                 <i class="bi bi-trash-fill"></i>
             </button>
-            <button class="btn btn-primary" id="save">Save Order</button>
+            <button class="btn btn-primary" id="save"></button>
             <input type="hidden" id="create-order" data-url="{% url 'create_order' %}" />
         </div>
     </div>

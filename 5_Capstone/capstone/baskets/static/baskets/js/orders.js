@@ -26,10 +26,11 @@ async function updateOrderView(selectedOrderListItem) {
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const orderView = document.querySelector('#order-view');
-  const deliveryDate = document.querySelector('#order-delivery-date');
-  const orderDeadline = document.querySelector('#order-deadline');
+  const orderViewTitle = document.querySelector('#order-view-title');
+  const orderViewSubtitle = document.querySelector('#order-view-subtitle');
   const orderViewItems = document.querySelector('#order-items');
   const orderAmountSpan = document.querySelector('#order-amount');
+  const saveIcon = document.querySelector('#save');
   const deleteIcon = document.querySelector('#delete');
 
   // hide order view while updating
@@ -39,17 +40,26 @@ async function updateOrderView(selectedOrderListItem) {
   const delivery = await requestGetDelivery(deliveryUrl);
   const order = (orderUrl !== '') ? await requestGetOrder(orderUrl) : null;
 
-  // display delivery details
-  deliveryDate.innerText = delivery.date;
-  orderDeadline.innerText = delivery.order_deadline;
+  // update border
+  if (order) {
+    orderView.classList.replace('border-light', 'border-dark');
+  } else {
+    orderView.classList.replace('border-dark', 'border-light');
+  }
 
+  // update title and subtitle
+  orderViewTitle.innerText = order ? 'Order for ' : 'New order for ';
+  orderViewTitle.innerText += `${delivery.date} delivery`;
+  orderViewSubtitle.innerText = order ? 'Can be updated until: ' : 'Last day to order: ';
+  orderViewSubtitle.innerText += delivery.order_deadline;
+
+  // Update order view items
   orderViewItems.innerHTML = '';
   // add a new row for each delivery product
   delivery.products.forEach(product => {
     const orderViewItem = document.createElement('tr');
     orderViewItem.className = "order-item";
     orderViewItem.dataset.productid = product.id;
-
     let itemQuantity = 0;
     let itemAmount = 0;
     // if product exists in order, use values from order
@@ -60,19 +70,16 @@ async function updateOrderView(selectedOrderListItem) {
         itemAmount = parseFloat(orderItem.amount);
       }
     }
-
     orderViewItem.innerHTML = `
       <td>${product.name}</td>
       <td><span class="unit-price">${product.unit_price}</span> €</td>
       <td><input type="number" class="quantity form-control" value="${itemQuantity}" min="0"></td>
       <td><span class="amount">${itemAmount.toFixed(2)}</span> €</td>`;
-
     // set action on quantity input change
     quantityInput = orderViewItem.querySelector('.quantity').addEventListener('input', () => {
       clearAlert();
       updateOrderViewAmounts();
     })
-
     orderViewItems.append(orderViewItem);
   })
 
@@ -80,11 +87,13 @@ async function updateOrderView(selectedOrderListItem) {
   let orderAmount = order ? parseFloat(order.amount) : 0;
   orderAmountSpan.innerText = orderAmount.toFixed(2);
 
-  // show/hide 'delete' button
+  // update 'delete' and 'save' buttons
   if (order) {
     deleteIcon.classList.replace('d-none', 'block');
+    saveIcon.innerText = 'Update Order'
   } else {
     deleteIcon.classList.replace('block', 'd-none');
+    saveIcon.innerText = 'Save Order'
   }
 
   // Finally show order view
