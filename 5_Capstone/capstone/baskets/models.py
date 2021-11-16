@@ -14,9 +14,13 @@ PHONE_REGEX = RegexValidator(regex=r"^"
 
 
 class User(AbstractUser):
+    # make last_name and email mandatory
     last_name = models.CharField(max_length=150, blank=False)
     email = models.EmailField(blank=False)
+
+    # add new fields
     phone = models.CharField(blank=True, validators=[PHONE_REGEX], max_length=18)
+    address = models.CharField(blank=True, max_length=128)
 
     def __str__(self):
         return f"{self.username}"

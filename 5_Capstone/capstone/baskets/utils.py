@@ -10,9 +10,12 @@ def delivery_to_order_form_book(delivery):
     for order in delivery.orders.all():
         sheet_content = [
             ["Basket Order"],
+            ["Delivery date:", str(delivery.date)],
             [""],
             ["User:", f"{order.user.first_name} {order.user.last_name}"],
-            ["Delivery date:", str(delivery.date)],
+            ["Group:", order.user.groups.first().name],
+            ["Address:", order.user.address],
+            ["Phone:", order.user.phone],
             [""],
             ["Product", "Unit price", "Quantity", "Amount"]
         ]
