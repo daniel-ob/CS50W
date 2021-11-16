@@ -4,15 +4,13 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError
-from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django_excel import make_response_from_book_dict
 
 from . import utils
 from .forms import NewUserForm
-from .models import User, Order, Delivery, Product, OrderItem
+from .models import Order, Delivery, Product, OrderItem
 
 
 @login_required
@@ -262,5 +260,5 @@ def delivery_export(request, delivery_id):
     # Attempt to retrieve delivery
     d = get_object_or_404(Delivery, id=delivery_id)
 
-    book = utils.delivery_to_order_form_book(d)
-    return make_response_from_book_dict(adict=book, file_type="ods", file_name=f"{d.date}_order_forms.ods")
+    buffer = utils.get_order_forms_xlsx(d)
+    return FileResponse(buffer, as_attachment=True, filename=f"{d.date}_order_forms.xlsx")

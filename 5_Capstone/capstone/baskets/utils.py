@@ -1,37 +1,79 @@
+import io
+
 from django.core.mail import mail_admins, send_mail
 from django.urls import reverse
+from xlsxwriter.workbook import Workbook
 
 from capstone import settings
 
 
-def delivery_to_order_form_book(delivery):
-    bookdict = {}
+def get_order_forms_xlsx(delivery):
+    """Generate an 'in memory' Excel workbook containing order forms for given delivery, one sheet per user order"""
+
+    # Create a file-like buffer
+    buffer = io.BytesIO()
+
+    # Create the Workbook object, using the buffer as its "file"
+    workbook = Workbook(buffer, {'in_memory': True})
+
+    # Add formats
+    bold = workbook.add_format({'bold': True})
+    money = workbook.add_format({'num_format': '#.## €'})
+    wrap = workbook.add_format({'text_wrap': True})
 
     for order in delivery.orders.all():
-        sheet_content = [
-            ["Basket Order"],
+        worksheet = workbook.add_worksheet(order.user.last_name)
+        row = 0
+        col = 0
+
+        # order headers
+        main_headers = (
+            ["Basket Order", ""],
             ["Delivery date:", str(delivery.date)],
-            [""],
+            ["", ""],
             ["User:", f"{order.user.first_name} {order.user.last_name}"],
-            ["Group:", order.user.groups.first().name],
+            ["Group:", order.user.groups.first().name if order.user.groups.first() else ""],
             ["Address:", order.user.address],
             ["Phone:", order.user.phone],
-            [""],
-            ["Product", "Unit price", "Quantity", "Amount"]
-        ]
-
-        for item in order.items.all():
-            sheet_content.append(
-                [item.product.name, str(item.product.unit_price), item.quantity, str(item.amount)]
-            )
-
-        sheet_content.append(
-            ["", "", "total", str(order.amount)]
+            ["", ""],
         )
+        for title, value in main_headers:
+            worksheet.write(row, col, title)
+            worksheet.merge_range(row, col + 1, row, col + 3, value, wrap)  # values takes up 3 cols
+            row += 1
+        # set height for 'address' row
+        worksheet.set_row(5, 50)
 
-        bookdict[order.user.last_name] = sheet_content
+        # order items headers
+        worksheet.write(row, col, "Product", bold)
+        worksheet.write(row, col + 1, "Unit price", bold)
+        worksheet.write(row, col + 2, "Quantity", bold)
+        worksheet.write(row, col + 3, "Amount", bold)
+        row += 1
 
-    return bookdict
+        # order items
+        for item in order.items.all():
+            worksheet.write_string(row, col, item.product.name)
+            worksheet.write_number(row, col + 1, item.product.unit_price, money)
+            worksheet.write_number(row, col + 2, item.quantity)
+            worksheet.write_number(row, col + 3, item.amount, money)
+            row += 1
+
+        # set width of 'product' column
+        max_column_size = max([len(item.product.name) for item in order.items.all()])
+        worksheet.set_column('A:A', max_column_size)
+        # set width of other order items columns
+        worksheet.set_column(1, 3, 10)
+
+        # order total
+        row += 1  # one empty row
+        worksheet.write(row, col + 2, "Total", bold)
+        worksheet.write_number(row, col + 3, order.amount, money)
+
+    workbook.close()
+
+    buffer.seek(0)  # set pointer to beginning
+    return buffer
 
 
 def email_admin_ask_account_activation(user):
