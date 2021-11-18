@@ -20,7 +20,8 @@
     </form>
 
     <div class="mt-3">
-        Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here.</a></p>
+        <p>Forgotten your password? <a href="{% url 'password_reset' %}">Reset your password here.</a></p>
     </div>
 
 {% endblock %}
