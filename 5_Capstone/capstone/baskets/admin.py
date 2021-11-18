@@ -15,13 +15,22 @@ class ProductInline(admin.TabularInline):
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
+    fields = ["product", "unit_price", "quantity", "amount"]
+    readonly_fields = ["unit_price", "amount"]
+    extra = 0
+
+    def unit_price(self, obj):
+        p = obj.product
+        return p.unit_price
 
 
 class DeliveryProductInline(admin.TabularInline):
     model = Delivery.products.through
-    readonly_fields = ["product", "total_ordered_quantity", "modify_quantities"]
-    ordering = ["product"]
+    readonly_fields = ["producer", "product", "total_ordered_quantity", "modify_quantities"]
     extra = 0
+
+    def producer(self, obj):
+        return obj.product.producer
 
     def total_ordered_quantity(self, obj):
         d = obj.delivery
@@ -31,10 +40,10 @@ class DeliveryProductInline(admin.TabularInline):
 
     def modify_quantities(self, obj):
         order_item_admin_url = reverse("admin:baskets_orderitem_changelist")
-        d_id = obj.delivery.id
-        p_id = obj.product.id
+        d = obj.delivery
+        p = obj.product
         return format_html(
-            f"<a href='{order_item_admin_url}?order__delivery__id__exact={d_id}&product__id__exact={p_id}'>"
+            f"<a href='{order_item_admin_url}?order__delivery__id__exact={d.id}&product__id__exact={p.id}'>"
             "Modify ordered quantities</a>"
         )
 
@@ -63,7 +72,10 @@ class DeliveryAdmin(admin.ModelAdmin):
 
     @admin.display(ordering="orders__count")
     def orders_count(self, obj):
-        return obj.orders__count
+        delivery_orders_url = reverse("admin:baskets_order_changelist") + f"?delivery__id__exact={obj.id}"
+        return format_html(
+            f"<a href='{delivery_orders_url}'>{obj.orders__count}</a>"
+        )
 
     def export(self, obj):
         d = obj
@@ -84,7 +96,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("delivery", "product", "user", "quantity")
+    list_display = ("id", "delivery", "product", "user", "quantity")
     list_editable = ("quantity", )
     list_filter = ("order__delivery", "product")
 
