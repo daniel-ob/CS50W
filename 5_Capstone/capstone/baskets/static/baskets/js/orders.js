@@ -34,7 +34,7 @@ async function updateOrderView(selectedOrderListItem) {
   const deleteIcon = document.querySelector('#delete');
 
   // hide order view while updating
-  orderView.classList.replace('block', 'd-none');
+  hide(orderView);
 
   // get delivery and order
   const delivery = await requestGetDelivery(deliveryUrl);
@@ -89,15 +89,15 @@ async function updateOrderView(selectedOrderListItem) {
 
   // update 'delete' and 'save' buttons
   if (order) {
-    deleteIcon.classList.replace('d-none', 'block');
+    show(deleteIcon);
     saveIcon.innerText = 'Update Order'
   } else {
-    deleteIcon.classList.replace('block', 'd-none');
+    hide(deleteIcon);
     saveIcon.innerText = 'Save Order'
   }
 
   // Finally show order view
-  orderView.classList.replace('d-none', 'block');
+  show(orderView);
 }
 
 function updateOrderViewAmounts() {
@@ -140,7 +140,7 @@ async function saveOrder() {
     if (result.amount === orderAmount) {
       showAlert('successSave');
       updateSelectedOrderListItem(orderAmount, orderUrl);
-      orderView.classList.replace('block', 'd-none');
+      hide(orderView);
       document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
     } else {
       showAlert('errorSave');
@@ -167,7 +167,7 @@ async function deleteOrder() {
     });
 
     updateSelectedOrderListItem(null, '');
-    orderView.classList.replace('block', 'd-none');
+    hide(orderView);
     document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
   }
 }
@@ -262,7 +262,7 @@ function updateSelectedOrderListItem(orderAmount, orderUrl) {
 
 function showAlert(alertType) {
   alert = document.querySelector('#alert');
-  alert.classList.replace('d-none', 'block');
+  show(alert);
 
   switch(alertType) {
     case 'successSave':
@@ -290,8 +290,16 @@ function showAlert(alertType) {
 
 function clearAlert() {
   alert = document.querySelector('#alert');
-  alert.classList.replace('block', 'd-none');
+  hide(alert);
   alert.innerText = '';
+}
+
+function show(element) {
+  element.classList.replace('d-none', 'block');
+}
+
+function hide(element) {
+  element.classList.replace('block', 'd-none');
 }
 
 // from https://docs.djangoproject.com/en/3.2/ref/csrf/
