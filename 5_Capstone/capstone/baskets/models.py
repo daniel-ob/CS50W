@@ -1,4 +1,4 @@
-import datetime
+from datetime import date, timedelta
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator
@@ -66,13 +66,19 @@ class Delivery(models.Model):
             "date": self.date,
             "order_deadline": self.order_deadline,
             "products": [product.serialize() for product in self.products.all()],
-            "message": self.message
+            "message": self.message,
+            "is_open": self.is_open
         }
 
     def save(self, *args, **kwargs):
         if not self.order_deadline:
-            self.order_deadline = self.date - datetime.timedelta(days=self.ORDER_DEADLINE_DAYS_BEFORE)
+            self.order_deadline = self.date - timedelta(days=self.ORDER_DEADLINE_DAYS_BEFORE)
         super().save(*args, **kwargs)
+
+    @property
+    def is_open(self):
+        """Delivery is open until order_deadline is passed"""
+        return date.today() <= self.order_deadline
 
     def __str__(self):
         return f"{self.date}"

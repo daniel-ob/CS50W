@@ -15,7 +15,7 @@ from .models import Order, Delivery, Product, OrderItem
 
 @login_required
 def index(request):
-    """Render list of deliveries for which users can still order and its related orders"""
+    """Render 'Next Orders' page: a list of opened deliveries and its related orders in chronological order"""
 
     opened_deliveries = Delivery.objects.filter(order_deadline__gte=date.today()).order_by("date")
 
@@ -28,6 +28,30 @@ def index(request):
     ]
 
     return render(request, "baskets/index.html", {
+        "title": "Next Orders",
+        "deliveries_orders": deliveries_orders
+    })
+
+
+@login_required
+def order_history(request):
+    """Render 'Order history' page: a list of closed user orders in reverse chronological order"""
+
+    closed_user_orders = Order.objects.filter(
+        user=request.user,
+        delivery__order_deadline__lt=date.today()
+    ).order_by("-delivery__date")
+
+    deliveries_orders = [
+        {
+            "delivery": o.delivery,
+            "order": o
+        }
+        for o in closed_user_orders
+    ]
+
+    return render(request, "baskets/index.html", {
+        "title": "Order History",
         "deliveries_orders": deliveries_orders
     })
 

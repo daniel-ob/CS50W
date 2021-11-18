@@ -12,7 +12,7 @@
 
 {% block body %}
 
-    <h1>Opened Orders</h1>
+    <h1>{{title}}</h1>
 
     <div class="card" id="order-list">
         {% if deliveries_orders %}
@@ -38,7 +38,7 @@
                 </tbody>
             </table>
         {% else %}
-            <p>There are no opened deliveries yet</p>
+            <p>There are no orders in this section yet</p>
         {% endif %}
     </div>
 
@@ -71,7 +71,7 @@
             <button class="btn btn-secondary m-1 d-none" id="delete" title="Delete order">
                 <i class="bi bi-trash-fill"></i>
             </button>
-            <button class="btn btn-primary" id="save"></button>
+            <button class="btn btn-primary d-none" id="save"></button>
             <input type="hidden" id="create-order" data-url="{% url 'create_order' %}" />
         </div>
     </div>

@@ -424,6 +424,7 @@ class APITestCase(BasketsTestCase):
                 }
             ],
             "message": "delivery 1",
+            "is_open": False
         }
 
         response = self.c.get(reverse("delivery", args=[self.d1.id]))

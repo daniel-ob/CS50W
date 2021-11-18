@@ -6,6 +6,8 @@ from .forms import BasketsPasswordResetForm, BasketsSetPasswordForm
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("history/", views.order_history, name="order_history"),
+
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("register/", views.register, name="register"),
