@@ -1,4 +1,5 @@
-import datetime
+from datetime import date, datetime, timedelta
+
 import json
 
 from django.db.models import Max
@@ -26,10 +27,14 @@ class BasketsTestCase(TestCase):
         self.product3 = Product.objects.create(producer=self.producer2, name="product3", unit_price=1.15)
 
         # Create deliveries
-        self.d1 = Delivery.objects.create(date=datetime.date(2021, 11, 23), message="delivery 1")
+        today = date.today()
+        tomorrow = today + timedelta(days=1)
+        yesterday = today - timedelta(days=1)
+        # closed delivery
+        self.d1 = Delivery.objects.create(date=today, order_deadline=yesterday, message="delivery 1")
         self.d1.products.set([self.product1, self.product2])
-
-        self.d2 = Delivery.objects.create(date=datetime.date(2021, 12, 14), message="delivery 2")
+        # opened delivery
+        self.d2 = Delivery.objects.create(date=tomorrow, order_deadline=today, message="delivery 2")
         self.d2.products.set([self.product1, self.product3])
 
         # Create orders
@@ -63,12 +68,15 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.d1.orders.count(), 1)
 
     def test_delivery_deadline_auto(self):
-        self.assertEqual(self.d1.order_deadline,
-                         self.d1.date - datetime.timedelta(days=self.d1.ORDER_DEADLINE_DAYS_BEFORE))
+        """Check that delivery.order_deadline is set to ORDER_DEADLINE_DAYS_BEFORE days before delivery.date
+        when it's not specified at delivery creation"""
+
+        yesterday = date.today() - timedelta(days=1)
+        d = Delivery.objects.create(date=yesterday)
+        self.assertEqual(d.order_deadline, d.date - timedelta(days=self.d1.ORDER_DEADLINE_DAYS_BEFORE))
 
     def test_delivery_deadline_custom(self):
-        d = Delivery.objects.create(date=datetime.date.today(), order_deadline=datetime.date(2021, 11, 23))
-        self.assertEqual(d.order_deadline, datetime.date(2021, 11, 23))
+        self.assertEqual(self.d2.order_deadline, date.today())
 
     def test_order_items_count(self):
         self.assertEqual(self.o1.items.count(), 2)
@@ -190,15 +198,11 @@ class APITestCase(BasketsTestCase):
         - A 'Bad request' error is received
         - Order is not created"""
 
-        self.c.force_login(self.u1)
-        u1_initial_orders_count = self.u1.orders.count()
-
-        today = datetime.date.today()
-        yesterday = today - datetime.timedelta(days=1)
-        closed_delivery = Delivery.objects.create(date=today, order_deadline=yesterday)
+        self.c.force_login(self.u2)
+        u2_initial_orders_count = self.u1.orders.count()
 
         order_json = {
-            "delivery_id": closed_delivery.id,
+            "delivery_id": self.d1.id,
             "items": [
                 {
                     "product_id": self.product1.id,
@@ -209,22 +213,22 @@ class APITestCase(BasketsTestCase):
         response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(self.u1.orders.count(), u1_initial_orders_count)
+        self.assertEqual(self.u2.orders.count(), u2_initial_orders_count)
 
     def test_order_creation_second_order_for_delivery(self):
         """Check that user1 receives a 'Bad request' error when trying to create a second order for a given delivery"""
 
-        self.c.force_login(self.u1)
-        user1_orders_count_initial = self.u1.orders.count()
+        self.c.force_login(self.u2)
+        user2_orders_count_initial = self.u2.orders.count()
 
-        # user already has an order for d1
+        # user already has an order for d2
         order_json = {
-            "delivery_id": self.d1.id
+            "delivery_id": self.d2.id
         }
         response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
+        self.assertEqual(self.u2.orders.count(), user2_orders_count_initial)
 
     def test_order_creation_no_item(self):
         """Check that user receives a 'bad request' error when trying to create an order without items"""
@@ -402,9 +406,11 @@ class APITestCase(BasketsTestCase):
     def test_delivery_get(self):
         """Check that a delivery can be retrieved through API"""
 
+        today = date.today()
+        yesterday = today - timedelta(days=1)
         d1_expected_json = {
-            "date": "2021-11-23",
-            "order_deadline": "2021-11-19",
+            "date": today.isoformat(),
+            "order_deadline": yesterday.isoformat(),
             "products": [
                 {
                     "id": 1,
@@ -417,7 +423,7 @@ class APITestCase(BasketsTestCase):
                     "unit_price": "1.00"
                 }
             ],
-            "message": "delivery 1"
+            "message": "delivery 1",
         }
 
         response = self.c.get(reverse("delivery", args=[self.d1.id]))
@@ -430,9 +436,9 @@ class WebPageTestCase(TestCase):
     def test_index_opened_deliveries(self):
         """Check that index page contains only opened deliveries (deadline not passed)"""
 
-        today = datetime.date.today()
-        tomorrow = today + datetime.timedelta(days=1)
-        yesterday = today - datetime.timedelta(days=1)
+        today = date.today()
+        tomorrow = today + timedelta(days=1)
+        yesterday = today - timedelta(days=1)
 
         opened_delivery = Delivery.objects.create(date=tomorrow, order_deadline=today)
         closed_delivery = Delivery.objects.create(date=today, order_deadline=yesterday)
