@@ -148,9 +148,27 @@ async function saveOrder() {
   } else {
     showAlert('errorItems');
   }
+
+  function getOrderItems() {
+    // Get order items from order-view
+    let orderItems = []
+    orderViewItems = document.querySelectorAll('.order-item')
+    orderViewItems.forEach(orderViewItem => {
+      let quantity = orderViewItem.querySelector('.quantity').value;
+      // valid order items have quantity greater than 0
+      if (quantity > 0) {
+        orderItems.push({
+          'product_id': orderViewItem.dataset.productid,
+          'quantity': quantity
+        });
+      }
+    })
+    return orderItems;
+  }
 }
 
 async function deleteOrder() {
+  // delete selected order
   const selectedOrderListItem = document.querySelector('.table-active');
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const orderView = document.querySelector('#order-view');
@@ -170,23 +188,6 @@ async function deleteOrder() {
     hide(orderView);
     document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
   }
-}
-
-function getOrderItems() {
-  // Get order items from order view
-  let orderItems = []
-  orderViewItems = document.querySelectorAll('.order-item')
-  orderViewItems.forEach(orderViewItem => {
-    let quantity = orderViewItem.querySelector('.quantity').value;
-    // valid order items have quantity greater than 0
-    if (quantity > 0) {
-      orderItems.push({
-        'product_id': orderViewItem.dataset.productid,
-        'quantity': quantity
-      });
-    }
-  })
-  return orderItems;
 }
 
 async function requestGetDelivery(deliveryUrl) {
