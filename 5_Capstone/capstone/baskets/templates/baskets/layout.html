@@ -9,7 +9,7 @@
         {% block style %}{% endblock %}
         {% block script %}{% endblock %}
     </head>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
 
         <nav class="navbar navbar-expand-lg navbar-light" style="background-color: palegreen;">
             {% url 'index' as index_url %}
@@ -54,9 +54,13 @@
             </div>
         </nav>
 
-        <div class="body col-lg-8 offset-lg-2 col-10 offset-1 mt-4">
+        <div class="body col-lg-8 offset-lg-2 col-10 offset-1 my-3">
             {% block body %}
             {% endblock %}
         </div>
+
+        <footer class="mt-auto p-3 text-end bg-light">
+            <a class="text-muted" href="{% url 'contact' %}">Contact us</a>
+        </footer>
     </body>
 </html>

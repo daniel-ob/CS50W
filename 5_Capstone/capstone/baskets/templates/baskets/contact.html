@@ -1,0 +1,21 @@
+{% extends "baskets/layout.html" %}
+
+{% block body %}
+
+    <h2>Contact</h2>
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    <form action="{% url 'contact' %}" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3">
+                {{ field }}
+            </div>
+        {% endfor %}
+        <input class="btn btn-primary" type="submit" value="Send">
+    </form>
+
+{% endblock %}

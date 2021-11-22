@@ -1,6 +1,6 @@
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
-from django.forms import ModelForm, TextInput, EmailField, EmailInput, CharField, PasswordInput
+from django.forms import ModelForm, Form, TextInput, EmailField, EmailInput, CharField, PasswordInput, Textarea
 from django.utils.translation import gettext_lazy as _
 
 from .models import User
@@ -53,4 +53,19 @@ class BasketsSetPasswordForm(SetPasswordForm):
         widget=PasswordInput(attrs={"class": "form-control",
                                     "placeholder": _("New password confirmation"),
                                     "autocomplete": "new-password"}),
+    )
+
+
+class ContactForm(Form):
+    from_email = CharField(
+        required=True,
+        widget=TextInput(attrs={"class": "form-control", "placeholder": "Your email", "autocomplete": "email"})
+    )
+    subject = CharField(
+        required=True,
+        widget=TextInput(attrs={"class": "form-control", "placeholder": "Subject"})
+    )
+    message = CharField(
+        required=True,
+        widget=Textarea(attrs={"class": "form-control", "rows": 6, "placeholder": "Your message"})
     )

@@ -4,12 +4,13 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
+from django.core.mail import mail_admins, BadHeaderError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from . import utils
-from .forms import NewUserForm
+from .forms import NewUserForm, ContactForm
 from .models import Order, Delivery, Product, OrderItem
 
 
@@ -118,6 +119,35 @@ def register(request):
         return render(request, "baskets/register.html", {
             "form": NewUserForm()
         })
+
+
+def contact(request):
+    """Contact admins:
+    - GET: render 'Contact' page
+    - POST: submit contact form to admins by email"""
+
+    message = ""
+
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if not form.is_valid():
+            return render(request, "baskets/contact.html", {
+                "form": form
+            })
+
+        subject = "Contact: " + form.cleaned_data["subject"]
+        message_from_user = f"Message from {form.cleaned_data['from_email']}:\n" + form.cleaned_data["message"]
+        try:
+            mail_admins(subject, message_from_user)
+        except BadHeaderError:
+            return HttpResponse('Invalid header found.')
+        message = "Your message has been submitted."
+
+    default_data = {"from_email": request.user.email if request.user.is_authenticated else None}
+    return render(request, "baskets/contact.html", {
+        "message": message,
+        "form": ContactForm(default_data)
+    })
 
 
 def create_order(request):
