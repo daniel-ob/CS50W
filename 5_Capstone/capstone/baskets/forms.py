@@ -9,7 +9,7 @@ from .models import User
 class NewUserForm(ModelForm):
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "email", "phone", "address", "password"]
+        fields = ["username", "first_name", "last_name", "email", "phone", "address"]
         labels = ""
         help_texts = {
             "username": ""
@@ -21,7 +21,6 @@ class NewUserForm(ModelForm):
             "email":        TextInput(attrs={"class": "form-control", "placeholder": "Email"}),
             "phone":        TextInput(attrs={"class": "form-control", "placeholder": "Phone Number"}),
             "address":      TextInput(attrs={"class": "form-control", "placeholder": "Address"}),
-            "password":     TextInput(attrs={"class": "form-control", "type": "password", "placeholder": "Password"})
         }
 
 

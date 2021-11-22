@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from . import utils
-from .forms import NewUserForm, ContactForm, UpdateProfileForm
+from .forms import NewUserForm, ContactForm, UpdateProfileForm, BasketsSetPasswordForm
 from .models import Order, Delivery, Product, OrderItem, User
 
 
@@ -83,26 +83,19 @@ def logout_view(request):
 
 def register(request):
     if request.method == "POST":
-        form = NewUserForm(request.POST)
-        if not form.is_valid():
-            # render the same page adding existing form data, so users can see the errors they made
+        user_form = NewUserForm(request.POST)
+        password_form = BasketsSetPasswordForm(user=request.user, data=request.POST)
+        if not (user_form.is_valid() and password_form.is_valid()):
+            # render the same page adding existing forms data, so users can see the errors they made
             return render(request, "baskets/register.html", {
-                "form": form
-            })
-
-        # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
-        if password != confirmation:
-            return render(request, "baskets/register.html", {
-                "message": "Passwords must match.",
-                "form": form
+                "user_form": user_form,
+                "password_form": password_form
             })
 
         # Create new user
-        user = form.save(commit=False)
-        # save hashed password
-        password = form.cleaned_data['password']
+        user = user_form.save(commit=False)
+        # check that passwords matches and save hashed password
+        password = password_form.clean_new_password2()
         user.set_password(password)
         # user account will be activated by admin
         user.is_active = False
@@ -112,12 +105,14 @@ def register(request):
         return render(request, "baskets/register.html", {
             "message": "Your register request has been sent to the administrator for validation. "
                        "You will receive an email as soon as your account is activated.",
-            "form": form
+            "user_form": user_form,
+            "password_form": password_form
         })
     else:
-        # render empty form
+        # render empty forms
         return render(request, "baskets/register.html", {
-            "form": NewUserForm()
+            "user_form": NewUserForm(),
+            "password_form": BasketsSetPasswordForm(user=request.user)
         })
 
 

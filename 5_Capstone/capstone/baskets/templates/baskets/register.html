@@ -10,7 +10,7 @@
 
     <form action="{% url 'register' %}" method="post">
         {% csrf_token %}
-        {% for field in form %}
+        {% for field in user_form %}
             <div class="mb-3">
                 {% if field.errors %}
                     <div class="text-danger">
@@ -20,9 +20,16 @@
                 {{ field }}
             </div>
         {% endfor %}
-        <div class="mb-3">
-            <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
-        </div>
+        {% for field in password_form %}
+            <div class="mb-3">
+                {% if field.errors %}
+                    <div class="text-danger">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+                {{ field }}
+            </div>
+        {% endfor %}
         <input class="btn btn-primary" type="submit" value="Register">
     </form>
 
