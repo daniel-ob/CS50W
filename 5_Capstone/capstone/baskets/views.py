@@ -10,8 +10,8 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from . import utils
-from .forms import NewUserForm, ContactForm
-from .models import Order, Delivery, Product, OrderItem
+from .forms import NewUserForm, ContactForm, UpdateProfileForm
+from .models import Order, Delivery, Product, OrderItem, User
 
 
 @login_required
@@ -119,6 +119,32 @@ def register(request):
         return render(request, "baskets/register.html", {
             "form": NewUserForm()
         })
+
+
+@login_required
+def profile(request):
+    """User profile:
+    - GET: render 'User profile' page
+    - POST: update user profile"""
+
+    user = User.objects.get(username=request.user)
+    message = ""
+
+    if request.method == "POST":
+        form = UpdateProfileForm(instance=user, data=request.POST)
+        if not form.is_valid():
+            # render the same page adding existing form data, so users can see the errors they made
+            return render(request, "baskets/profile.html", {
+                "form": form
+            })
+        user.save()
+        message = "Your information has been correctly updated"
+
+    # render user information
+    return render(request, "baskets/profile.html", {
+        "message": message,
+        "form": UpdateProfileForm(instance=user)
+    })
 
 
 def contact(request):

@@ -32,6 +32,7 @@ urlpatterns = [
              template_name="baskets/password/password_reset_complete.html"),
          name="password_reset_complete"),
 
+    path("profile/", views.profile, name="profile"),
     path("contact/", views.contact, name="contact"),
 
     # API Routes

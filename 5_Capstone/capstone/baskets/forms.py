@@ -56,6 +56,20 @@ class BasketsSetPasswordForm(SetPasswordForm):
     )
 
 
+class UpdateProfileForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email", "phone", "address"]
+        widgets = {
+            "username":     TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
+            "first_name":   TextInput(attrs={"class": "form-control", "placeholder": "First Name"}),
+            "last_name":    TextInput(attrs={"class": "form-control", "placeholder": "Last Name"}),
+            "email":        TextInput(attrs={"class": "form-control", "placeholder": "Email"}),
+            "phone":        TextInput(attrs={"class": "form-control", "placeholder": "Phone Number"}),
+            "address":      TextInput(attrs={"class": "form-control", "placeholder": "Address"}),
+        }
+
+
 class ContactForm(Form):
     from_email = CharField(
         required=True,
