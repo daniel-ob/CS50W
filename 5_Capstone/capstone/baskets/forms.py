@@ -6,21 +6,19 @@ from django.utils.translation import gettext_lazy as _
 from .models import User
 
 
-class NewUserForm(ModelForm):
+class UserForm(ModelForm):
+    """User form for 'Register' and 'Profile' pages"""
+
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email", "phone", "address"]
-        labels = ""
-        help_texts = {
-            "username": ""
-        }
         widgets = {
-            "username":     TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
-            "first_name":   TextInput(attrs={"class": "form-control", "placeholder": "First Name"}),
-            "last_name":    TextInput(attrs={"class": "form-control", "placeholder": "Last Name"}),
-            "email":        TextInput(attrs={"class": "form-control", "placeholder": "Email"}),
-            "phone":        TextInput(attrs={"class": "form-control", "placeholder": "Phone Number"}),
-            "address":      TextInput(attrs={"class": "form-control", "placeholder": "Address"}),
+            "username": TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
+            "first_name": TextInput(attrs={"class": "form-control", "placeholder": "First Name"}),
+            "last_name": TextInput(attrs={"class": "form-control", "placeholder": "Last Name"}),
+            "email": TextInput(attrs={"class": "form-control", "placeholder": "Email"}),
+            "phone": TextInput(attrs={"class": "form-control", "placeholder": "Phone Number"}),
+            "address": TextInput(attrs={"class": "form-control", "placeholder": "Address"}),
         }
 
 
@@ -53,20 +51,6 @@ class BasketsSetPasswordForm(SetPasswordForm):
                                     "placeholder": _("New password confirmation"),
                                     "autocomplete": "new-password"}),
     )
-
-
-class UpdateProfileForm(ModelForm):
-    class Meta:
-        model = User
-        fields = ["username", "first_name", "last_name", "email", "phone", "address"]
-        widgets = {
-            "username":     TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
-            "first_name":   TextInput(attrs={"class": "form-control", "placeholder": "First Name"}),
-            "last_name":    TextInput(attrs={"class": "form-control", "placeholder": "Last Name"}),
-            "email":        TextInput(attrs={"class": "form-control", "placeholder": "Email"}),
-            "phone":        TextInput(attrs={"class": "form-control", "placeholder": "Phone Number"}),
-            "address":      TextInput(attrs={"class": "form-control", "placeholder": "Address"}),
-        }
 
 
 class ContactForm(Form):

@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from . import utils
-from .forms import NewUserForm, ContactForm, UpdateProfileForm, BasketsSetPasswordForm
+from .forms import UserForm, ContactForm, BasketsSetPasswordForm
 from .models import Order, Delivery, Product, OrderItem, User
 
 
@@ -83,7 +83,7 @@ def logout_view(request):
 
 def register(request):
     if request.method == "POST":
-        user_form = NewUserForm(request.POST)
+        user_form = UserForm(request.POST)
         password_form = BasketsSetPasswordForm(user=request.user, data=request.POST)
         if not (user_form.is_valid() and password_form.is_valid()):
             # render the same page adding existing forms data, so users can see the errors they made
@@ -111,7 +111,7 @@ def register(request):
     else:
         # render empty forms
         return render(request, "baskets/register.html", {
-            "user_form": NewUserForm(),
+            "user_form": UserForm(),
             "password_form": BasketsSetPasswordForm(user=request.user)
         })
 
@@ -126,7 +126,7 @@ def profile(request):
     message = ""
 
     if request.method == "POST":
-        form = UpdateProfileForm(instance=user, data=request.POST)
+        form = UserForm(instance=user, data=request.POST)
         if not form.is_valid():
             # render the same page adding existing form data, so users can see the errors they made
             return render(request, "baskets/profile.html", {
@@ -138,7 +138,7 @@ def profile(request):
     # render user information
     return render(request, "baskets/profile.html", {
         "message": message,
-        "form": UpdateProfileForm(instance=user)
+        "form": UserForm(instance=user)
     })
 
 
