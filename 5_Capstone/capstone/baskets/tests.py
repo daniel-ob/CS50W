@@ -149,10 +149,34 @@ class ModelsTestCase(BasketsTestCase):
 
 
 class APITestCase(BasketsTestCase):
+    def test_order_list_get(self):
+        """Check that user can get the list of all of its orders through API"""
+
+        # log-in user1
+        self.c.force_login(self.u1)
+
+        user_order_list_expected_json = [
+            {
+                "id": self.o1.id,
+                "delivery_id": self.o1.delivery.id
+            }
+        ]
+
+        response = self.c.get(reverse("orders"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), user_order_list_expected_json)
+
+    def test_order_list_get_not_authenticated(self):
+        """Check that a non authenticated user gets an "Unauthorized" error when trying to get order list through API"""
+
+        response = self.c.get(reverse("orders"))
+
+        self.assertEqual(response.status_code, 401)
+
     def test_order_creation(self):
         """Check that user can create an order through API"""
 
-        # log-in user1
         self.c.force_login(self.u1)
 
         user1_orders_count_initial = self.u1.orders.count()
@@ -165,13 +189,13 @@ class APITestCase(BasketsTestCase):
                     "quantity": 1
                 },
                 {
-                   "product_id": self.product3.id,
-                   "quantity": 2
+                    "product_id": self.product3.id,
+                    "quantity": 2
                 }
             ],
             "message": "One product1 and two product3"
         }
-        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(float(response.json()["amount"]), 2.80)
@@ -198,7 +222,7 @@ class APITestCase(BasketsTestCase):
                 }
             ]
         }
-        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(Order.objects.count(), orders_count_initial)
@@ -220,7 +244,7 @@ class APITestCase(BasketsTestCase):
                 }
             ]
         }
-        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u2.orders.count(), u2_initial_orders_count)
@@ -235,7 +259,7 @@ class APITestCase(BasketsTestCase):
         order_json = {
             "delivery_id": self.d2.id
         }
-        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u2.orders.count(), user2_orders_count_initial)
@@ -249,7 +273,7 @@ class APITestCase(BasketsTestCase):
         order_json = {
             "delivery_id": self.d2.id,
         }
-        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
@@ -269,12 +293,12 @@ class APITestCase(BasketsTestCase):
                     "quantity": 1
                 },
                 {
-                   "product_id": self.product2.id,
-                   "quantity": 1
+                    "product_id": self.product2.id,
+                    "quantity": 1
                 }
             ],
         }
-        response = self.c.post(reverse("create_order"), data=json.dumps(order_json), content_type="application/json")
+        response = self.c.post(reverse("orders"), data=json.dumps(order_json), content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.u1.orders.count(), user1_orders_count_initial)
@@ -412,6 +436,20 @@ class APITestCase(BasketsTestCase):
 
         self.assertEqual(response.status_code, 401)
         self.assertIn(self.o1, Order.objects.all())
+
+    def test_delivery_list_get(self):
+        """Check that next deliveries (opened) list can be retrieved through API"""
+
+        deliveries_list_expected_json = [
+            {
+                "id": self.d2.id,
+                "date": self.d2.date.isoformat()
+            }
+        ]
+        response = self.c.get(reverse("deliveries"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), deliveries_list_expected_json)
 
     def test_delivery_get(self):
         """Check that a delivery can be retrieved through API"""

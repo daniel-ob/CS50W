@@ -120,7 +120,8 @@ def register(request):
 def profile(request):
     """User profile:
     - GET: render 'User profile' page
-    - POST: update user profile"""
+    - POST: update user profile
+    """
 
     user = User.objects.get(username=request.user)
     message = ""
@@ -145,7 +146,8 @@ def profile(request):
 def contact(request):
     """Contact admins:
     - GET: render 'Contact' page
-    - POST: submit contact form to admins by email"""
+    - POST: submit contact form to admins by email
+    """
 
     message = ""
 
@@ -171,78 +173,92 @@ def contact(request):
     })
 
 
-def create_order(request):
-    """POST: Create order for given delivery"""
+def orders(request):
+    """Orders API:
+    - GET: Get the list of user orders
+    - POST: Create order for given delivery
+    """
 
-    # Order creation must be via POST
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
-
-    # User must be authenticated to create orders
+    # User must be authenticated to create/retrieve orders
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
 
-    data = json.loads(request.body)
+    if request.method == "GET":
+        order_list = [
+            {
+                "id": o.id,
+                "delivery_id": o.delivery.id,
+            }
+            for o in request.user.orders.all()
+        ]
+        return JsonResponse(order_list, safe=False)
 
-    # Attempt to retrieve delivery
-    d_id = data["delivery_id"]
-    try:
-        d = Delivery.objects.get(id=d_id)
-    except Delivery.DoesNotExist:
-        return JsonResponse({"error": f"Delivery with id {d_id} does not exist"}, status=404)
+    if request.method == "POST":
+        data = json.loads(request.body)
 
-    # Orders for given delivery can only be created until deadline
-    if date.today() > d.order_deadline:
-        return JsonResponse({"error": "Order deadline is passed for this delivery"}, status=400)
+        # Attempt to retrieve delivery
+        d_id = data["delivery_id"]
+        try:
+            d = Delivery.objects.get(id=d_id)
+        except Delivery.DoesNotExist:
+            return JsonResponse({"error": f"Delivery with id {d_id} does not exist"}, status=404)
 
-    # User can only have one order per delivery
-    if d.orders.filter(user=request.user):
-        return JsonResponse({"error": "User already has an order for this delivery"}, status=400)
+        # Orders for given delivery can only be created until deadline
+        if date.today() > d.order_deadline:
+            return JsonResponse({"error": "Order deadline is passed for this delivery"}, status=400)
 
-    o = Order.objects.create(
-        user=request.user,
-        delivery=d,
-        message=data.get("message", "")
-    )
+        # User can only have one order per delivery
+        if d.orders.filter(user=request.user):
+            return JsonResponse({"error": "User already has an order for this delivery"}, status=400)
 
-    # Add order items
-    if data.get("items") is None:
-        o.delete()
-        return JsonResponse({"error": "Order must contain at least one item"}, status=400)
+        o = Order.objects.create(
+            user=request.user,
+            delivery=d,
+            message=data.get("message", "")
+        )
+
+        # Add order items
+        if data.get("items") is None:
+            o.delete()
+            return JsonResponse({"error": "Order must contain at least one item"}, status=400)
+        else:
+            for item in data["items"]:
+                # Attempt to retrieve product
+                try:
+                    product = Product.objects.get(id=item["product_id"])
+                except Product.DoesNotExist:
+                    o.delete()
+                    return JsonResponse({"error": f"Product with id {item['product_id']} does not exist"}, status=404)
+
+                order_item = OrderItem.objects.create(
+                    order=o,
+                    product=product,
+                    quantity=int(item["quantity"])
+                )
+
+                if not order_item.is_valid():
+                    # Delete order with related items
+                    o.delete()
+                    return JsonResponse({"error": "Invalid order. All products must be available in the delivery and "
+                                                  "quantities must be greater than zero"}, status=400)
+            o.save()
+
+        return JsonResponse({
+            "message": "Order has been successfully created",
+            "url": reverse("order", args=[o.id]),
+            "amount": "{:.2f}".format(o.amount)
+        }, status=201)
+
     else:
-        for item in data["items"]:
-            # Attempt to retrieve product
-            try:
-                product = Product.objects.get(id=item["product_id"])
-            except Product.DoesNotExist:
-                o.delete()
-                return JsonResponse({"error": f"Product with id {item['product_id']} does not exist"}, status=404)
-
-            order_item = OrderItem.objects.create(
-                order=o,
-                product=product,
-                quantity=int(item["quantity"])
-            )
-
-            if not order_item.is_valid():
-                # Delete order with related items
-                o.delete()
-                return JsonResponse({"error": "Invalid order. All products must be available in the delivery and "
-                                              "quantities must be greater than zero"}, status=400)
-        o.save()
-
-    return JsonResponse({
-        "message": "Order has been successfully created",
-        "url": reverse("order", args=[o.id]),
-        "amount": "{:.2f}".format(o.amount)
-    }, status=201)
+        return HttpResponseNotAllowed(["GET", "POST"])
 
 
 def order(request, order_id):
-    """Order:
+    """Order API:
     - GET: Get Order details
     - PUT: Update existing Order (items, message)
-    - DELETE: Delete Order"""
+    - DELETE: Delete Order
+    """
 
     # User must be authenticated to access orders
     if not request.user.is_authenticated:
@@ -314,8 +330,22 @@ def order(request, order_id):
         return HttpResponseNotAllowed(["GET", "PUT", "DELETE"])
 
 
+def deliveries(request):
+    """Deliveries API: GET the list of opened deliveries"""
+
+    opened_deliveries = Delivery.objects.filter(order_deadline__gte=date.today()).order_by("date")
+    d_list = [
+        {
+            "id": d.id,
+            "date": d.date
+        }
+        for d in opened_deliveries
+    ]
+    return JsonResponse(d_list, safe=False)
+
+
 def delivery(request, delivery_id):
-    """GET Delivery details"""
+    """Delivery API: GET Delivery details"""
 
     # Attempt to retrieve delivery
     d = get_object_or_404(Delivery, id=delivery_id)
