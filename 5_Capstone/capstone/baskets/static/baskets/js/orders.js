@@ -82,7 +82,7 @@ async function updateOrderView(selectedOrderListItem) {
       orderViewItem.className = "order-item";
       orderViewItem.dataset.productid = product.id;
       orderViewItem.innerHTML = `
-        <td>${product.name}</td>
+        <td class="product-name">${product.name}</td>
         <td><span class="unit-price">${product.unit_price}</span> €</td>
         <td><input type="number" class="quantity form-control" value="0" min="0"></td>
         <td><span class="amount">0.00</span> €</td>`;
@@ -117,7 +117,7 @@ async function updateOrderView(selectedOrderListItem) {
       orderViewItem.className = "order-item";
       orderViewItem.dataset.productid = item.product.id;
       orderViewItem.innerHTML = `
-        <td>${item.product.name}</td>
+        <td class="product-name">${item.product.name}</td>
         <td><span class="unit-price">${item.product.unit_price}</span> €</td>
         <td>${item.quantity}</td>
         <td><span class="amount">${item.amount}</span> €</td>`;
