@@ -32,9 +32,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'baskets',
     'django.contrib.admin',
     'django.contrib.auth',
+    'baskets',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',

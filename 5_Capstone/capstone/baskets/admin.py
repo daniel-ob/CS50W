@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from django.db.models import Count, Sum
 from django.urls import reverse
 from django.utils.html import format_html
@@ -11,17 +12,6 @@ from . import utils
 
 class ProductInline(admin.TabularInline):
     model = Product
-
-
-class OrderItemInline(admin.TabularInline):
-    model = OrderItem
-    fields = ["product", "unit_price", "quantity", "amount"]
-    readonly_fields = ["unit_price", "amount"]
-    extra = 0
-
-    def unit_price(self, obj):
-        p = obj.product
-        return p.unit_price
 
 
 class DeliveryProductInline(admin.TabularInline):
@@ -48,7 +38,22 @@ class DeliveryProductInline(admin.TabularInline):
         )
 
 
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    fields = ["product", "unit_price", "quantity", "amount"]
+    readonly_fields = ["unit_price", "amount"]
+    extra = 0
+
+    def unit_price(self, obj):
+        p = obj.product
+        return p.unit_price
+
+
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    list_display = ("username", "is_active")
+    exclude = ("user_permissions",)
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         # notify user when its account is activated
@@ -56,10 +61,12 @@ class UserAdmin(admin.ModelAdmin):
             utils.email_user_account_activated(obj)
 
 
+@admin.register(Producer)
 class ProducerAdmin(admin.ModelAdmin):
     inlines = [ProductInline]
 
 
+@admin.register(Delivery)
 class DeliveryAdmin(admin.ModelAdmin):
     list_display = ("date", "orders_count", "export")
     ordering = ["date"]
@@ -88,6 +95,7 @@ class DeliveryAdmin(admin.ModelAdmin):
             return "-"
 
 
+@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "delivery", "amount", "creation_date")
     list_filter = ("user", "delivery")
@@ -95,6 +103,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 
+@admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ("id", "delivery", "product", "user", "quantity")
     list_editable = ("quantity", )
@@ -105,11 +114,26 @@ class OrderItemAdmin(admin.ModelAdmin):
 
     @admin.display(ordering="order__user")
     def user(self, obj):
-        return obj.order.user
+        user = obj.order.user
+        user_admin_url = reverse("admin:baskets_user_change", args=[user.id])
+        return format_html(
+            f"<a href='{user_admin_url}'>{user.username}</a>"
+        )
 
 
-admin.site.register(User, UserAdmin)
-admin.site.register(Producer, ProducerAdmin)
-admin.site.register(Delivery, DeliveryAdmin)
-admin.site.register(Order, OrderAdmin)
-admin.site.register(OrderItem, OrderItemAdmin)
+# Custom Group admin
+admin.site.unregister(Group)
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ("name", "email")
+    exclude = ("permissions",)
+
+    def email(self, obj):
+        group_users = obj.user_set.all()
+        emails = [user.email for user in group_users]
+        emails_str = ", ".join(emails)
+        return format_html(
+            f"<a href='mailto:?bcc={emails_str}'>send email to {obj.name} group</a>"
+        )
