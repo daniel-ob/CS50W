@@ -373,9 +373,38 @@ class APITestCase(BasketsTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(float(response.json()['amount']), 2.30)
 
-        updated_order = self.u1.orders.last()
-        self.assertEqual(updated_order.message, "order updated")
-        self.assertEqual(updated_order.items.count(), 1)
+        order.refresh_from_db()
+        self.assertEqual(order.message, "order updated")
+        self.assertEqual(order.items.count(), 1)
+
+    def test_order_update_deadline_passed(self):
+        """Check that when a user tries to update an order for a delivery which deadline is passed:
+        - A 'Bad request' error is received
+        - Order is not updated"""
+
+        self.c.force_login(self.u2)
+
+        # Create an order for this test
+        order = Order.objects.create(user=self.u2, delivery=self.d1, message="test order")
+        order_item1 = OrderItem.objects.create(order=order, product=self.product1, quantity=1)
+        order_item2 = OrderItem.objects.create(order=order, product=self.product2, quantity=1)
+
+        updated_order_json = {
+            "items": [
+                {
+                    "product_id": self.product1.id,
+                    "quantity": 2
+                }
+            ],
+            "message": "order updated"
+        }
+        response = self.c.put(reverse("order", args=[order.id]),
+                              data=json.dumps(updated_order_json),
+                              content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)
+        order.refresh_from_db()
+        self.assertEqual(order.items.first().quantity, order_item1.quantity)
 
     def test_order_update_invalid_product(self):
         """Check that, when trying to update an order with a non existing product:
@@ -405,6 +434,7 @@ class APITestCase(BasketsTestCase):
                               content_type="application/json")
 
         self.assertEqual(response.status_code, 404)
+        order.refresh_from_db()
         self.assertEqual(order.items.count(), 2)
         self.assertEqual(order.items.all()[0].product.id, self.product1.id)
         self.assertEqual(order.items.all()[0].quantity, 1)
