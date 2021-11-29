@@ -39,7 +39,7 @@ async function updateOrderView(selectedOrderListItem) {
 
   orderViewItemsContainer.innerHTML = '';
   if (order) {
-      orderView.classList.replace('border-light', 'border-dark');
+      orderView.classList.add('shadow');
       orderViewTitle.innerText = `Order for ${delivery.date} delivery`;
       if (delivery.is_open) {
         // order can be updated and deleted
@@ -59,7 +59,7 @@ async function updateOrderView(selectedOrderListItem) {
       orderAmountSpan.innerText = parseFloat(order.amount).toFixed(2);
   } else {
     // new order
-    orderView.classList.replace('border-dark', 'border-light');
+    orderView.classList.remove('shadow');
     orderViewTitle.innerText = `New order for ${delivery.date} delivery`;
     orderViewSubtitle.innerText = `Last day to order: ${delivery.order_deadline}`;
     newOrderViewItems(delivery);
