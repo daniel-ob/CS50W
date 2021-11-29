@@ -42,14 +42,14 @@ async function updateOrderView(selectedOrderListItem) {
   orderViewItemsContainer.innerHTML = '';
   if (order) {
       orderView.classList.add('shadow');
-      orderViewTitle.innerText = `Order for ${delivery.date} delivery`;
+      orderViewTitle.innerText = `Order for ${delivery.date}`;
       if (delivery.is_open) {
         // order can be updated and deleted
         orderViewSubtitle.innerText = `Can be updated until ${delivery.order_deadline}`;
         newOrderViewItems(delivery);
         updateOrderViewItems(order);
         show(deleteIcon);
-        saveIcon.innerText = 'Update Order'
+        saveIcon.innerText = 'Update'
         show(saveIcon);
       } else {
         // order in view-only mode
@@ -62,11 +62,11 @@ async function updateOrderView(selectedOrderListItem) {
   } else {
     // new order
     orderView.classList.remove('shadow');
-    orderViewTitle.innerText = `New order for ${delivery.date} delivery`;
+    orderViewTitle.innerText = `New order for ${delivery.date}`;
     orderViewSubtitle.innerText = `Last day to order: ${delivery.order_deadline}`;
     newOrderViewItems(delivery);
     hide(deleteIcon);
-    saveIcon.innerText = 'Save Order'
+    saveIcon.innerText = 'Create'
     show(saveIcon);
     orderAmountSpan.innerText = parseFloat(0).toFixed(2);
   }
