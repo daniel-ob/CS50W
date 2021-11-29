@@ -1,10 +1,11 @@
 from datetime import date
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.models import Group
 from django.db.models import Count, Sum
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from .models import User, Producer, Product, Delivery, Order, OrderItem
 from . import utils
@@ -119,6 +120,21 @@ class OrderItemAdmin(admin.ModelAdmin):
         return format_html(
             f"<a href='{user_admin_url}'>{user.username}</a>"
         )
+
+    def save_model(self, request, obj, form, change):
+        if "quantity" in form.changed_data:
+            order = obj.order
+            user = obj.order.user
+            order_admin_url = reverse("admin:baskets_order_change", args=[order.id])
+            messages.add_message(
+                request,
+                messages.WARNING,
+                mark_safe(
+                    f"{user}'s <a href='{order_admin_url}'>order</a> has been updated, remember to prevent user: "
+                    f"<a href='mailto:{user.email}'>{user.email}</a>, <a href='tel:{user.phone}'>{user.phone}</a>"
+                )
+            )
+        super().save_model(request, obj, form, change)
 
 
 # Custom Group admin
