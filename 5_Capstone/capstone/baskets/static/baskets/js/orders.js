@@ -5,10 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Manage clicks on order list items
   document.querySelectorAll('.order-list-item').forEach(orderListItem => {
     orderListItem.addEventListener('click', () => {
-      // highlight selected order list item
-      document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
-      orderListItem.classList.add('table-active');
-
+      highlightOrderListItem(orderListItem);
       clearAlert();
       updateOrderView(orderListItem);
     })
@@ -21,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 })
 
 async function updateOrderView(selectedOrderListItem) {
-  // Update order view with selected order information. If no order exists, display an empty order form.
+  // Load selected order-list-item in order view. If item has no order, display an empty order form.
 
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
@@ -161,11 +158,11 @@ async function saveOrder() {
 
     // if order amount sent by back-end matches front-end one, order has been successfully created/updated
     if (result.amount === orderAmount) {
-      showAlert('successSave');
       updateSelectedOrderListItem(orderAmount, orderUrl);
-      hide(orderView);
-      document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
+      highlightOrderListItem(null);
       restartAnimation(selectedOrderListItem.querySelector('.order'));
+      showAlert('successSave');
+      hide(orderView);
     } else {
       showAlert('errorSave');
     }
@@ -201,16 +198,10 @@ async function deleteOrder() {
   const result = await requestDeleteOrder(orderUrl);
 
   if (result.message) {
-    showAlert('successRemove');
-
-    // reset items quantities
-    document.querySelectorAll('.order-item').forEach(orderViewItem => {
-      orderViewItem.querySelector('.quantity').value = 0;
-    });
-
     updateSelectedOrderListItem(null, '');
+    highlightOrderListItem(null);
+    showAlert('successRemove');
     hide(orderView);
-    document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
   }
 }
 
@@ -285,37 +276,42 @@ function updateSelectedOrderListItem(orderAmount, orderUrl) {
   selectedOrder.dataset.url = orderUrl;
 }
 
+function highlightOrderListItem(orderListItem) {
+  document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
+  if (orderListItem) {
+    orderListItem.classList.add('table-active');
+  }
+}
+
 function showAlert(alertType) {
   alert = document.querySelector('#alert');
-  show(alert);
-
+  clearAlert();
   switch(alertType) {
     case 'successSave':
-      alert.classList.remove('text-danger');
       alert.classList.add('text-success');
       alert.innerText = 'Order has been successfully saved';
       break;
     case 'successRemove':
-      alert.classList.remove('text-danger');
       alert.classList.add('text-success');
       alert.innerText = 'Order has been successfully removed';
       break;
     case 'errorSave':
-      alert.classList.remove('text-success');
       alert.classList.add('text-danger');
       alert.innerText = 'An error occurred when trying to save order. Please reload page and try again';
       break;
     case 'errorItems':
-      alert.classList.remove('text-success');
       alert.classList.add('text-danger');
       alert.innerText = 'At least one item must have quantity greater than 0';
       break;
   }
+  show(alert);
 }
 
 function clearAlert() {
   alert = document.querySelector('#alert');
   hide(alert);
+  alert.classList.remove('text-success');
+  alert.classList.remove('text-danger');
   alert.innerText = '';
 }
 
