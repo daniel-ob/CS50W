@@ -305,6 +305,7 @@ function showAlert(alertType) {
       break;
   }
   show(alert);
+  window.scrollTo(0, 0);
 }
 
 function clearAlert() {
