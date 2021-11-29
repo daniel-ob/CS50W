@@ -159,12 +159,13 @@ async function saveOrder() {
       result = await requestUpdateOrder(orderUrl, orderItems);
     }
 
-    // if order amount sent by back-end matches front-end one, order has been successfully created
+    // if order amount sent by back-end matches front-end one, order has been successfully created/updated
     if (result.amount === orderAmount) {
       showAlert('successSave');
       updateSelectedOrderListItem(orderAmount, orderUrl);
       hide(orderView);
       document.querySelectorAll('.order-list-item').forEach(order => order.classList.remove('table-active'));
+      restartAnimation(selectedOrderListItem.querySelector('.order'));
     } else {
       showAlert('errorSave');
     }
@@ -324,6 +325,12 @@ function show(element) {
 
 function hide(element) {
   element.classList.replace('block', 'd-none');
+}
+
+function restartAnimation(element) {
+  element.classList.remove('run-animation');
+  element.offsetWidth;  // trigger reflow
+  element.classList.add('run-animation');
 }
 
 // from https://docs.djangoproject.com/en/3.2/ref/csrf/
