@@ -22,6 +22,7 @@ async function updateOrderView(selectedOrderListItem) {
 
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
+  const spinner = document.querySelector('#spinner');
   const orderView = document.querySelector('#order-view');
   const orderViewTitle = document.querySelector('#order-view-title');
   const orderViewSubtitle = document.querySelector('#order-view-subtitle');
@@ -32,6 +33,7 @@ async function updateOrderView(selectedOrderListItem) {
 
   // hide order-view while updating
   hide(orderView);
+  show(spinner);
 
   // get selected delivery and order
   const delivery = await requestGetDelivery(deliveryUrl);
@@ -70,6 +72,7 @@ async function updateOrderView(selectedOrderListItem) {
   }
 
   // Finally show order-view
+  hide(spinner);
   show(orderView);
 
   function newOrderViewItems(delivery) {
