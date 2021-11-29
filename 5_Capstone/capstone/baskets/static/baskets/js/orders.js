@@ -208,6 +208,7 @@ async function deleteOrder() {
 async function requestGetDelivery(deliveryUrl) {
   // Send 'GET' request to get delivery details
   const response = await fetch(deliveryUrl)
+  .catch(error => showAlert(error.message));
   const responseJSON = await response.json();
   console.log('delivery', responseJSON);
   return responseJSON;
@@ -216,6 +217,7 @@ async function requestGetDelivery(deliveryUrl) {
 async function requestGetOrder(orderUrl) {
   // Send 'GET' request to get order details
   const response = await fetch(orderUrl)
+  .catch(error => showAlert(error.message));
   const responseJSON = await response.json();
   console.log('order', responseJSON);
   return responseJSON;
@@ -234,6 +236,7 @@ async function requestCreateOrder(deliveryId, orderItems) {
       'items': orderItems,
     })
   })
+  .catch(error => showAlert(error.message));
   const responseJSON = await response.json();
   console.log(responseJSON);
   return responseJSON;
@@ -250,6 +253,7 @@ async function requestUpdateOrder(orderUrl, orderItems) {
       'items': orderItems,
     })
   })
+  .catch(error => showAlert(error.message));
   const responseJSON = await response.json();
   console.log(responseJSON);
   return responseJSON;
@@ -263,6 +267,7 @@ async function requestDeleteOrder(orderUrl) {
       'X-CSRFToken': csrftoken
     }
   })
+  .catch(error => showAlert(error.message));
   const responseJSON = await response.json();
   console.log(responseJSON);
   return responseJSON;
@@ -303,6 +308,9 @@ function showAlert(alertType) {
       alert.classList.add('text-danger');
       alert.innerText = 'At least one item must have quantity greater than 0';
       break;
+    default:
+      alert.classList.add('text-danger');
+      alert.innerText = alertType;
   }
   show(alert);
   window.scrollTo(0, 0);
