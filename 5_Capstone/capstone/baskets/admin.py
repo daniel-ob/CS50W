@@ -17,7 +17,7 @@ class ProductInline(admin.TabularInline):
 
 class DeliveryProductInline(admin.TabularInline):
     model = Delivery.products.through
-    readonly_fields = ["producer", "product", "total_ordered_quantity", "modify_quantities"]
+    readonly_fields = ["producer", "product", "total_ordered_quantity"]
     extra = 0
 
     def producer(self, obj):
@@ -25,18 +25,19 @@ class DeliveryProductInline(admin.TabularInline):
 
     def total_ordered_quantity(self, obj):
         d = obj.delivery
-        d_items = obj.product.order_items.filter(order__delivery=d)
-        total_quantity = d_items.aggregate(Sum("quantity"))["quantity__sum"]
-        return total_quantity if total_quantity else 0
-
-    def modify_quantities(self, obj):
-        order_item_admin_url = reverse("admin:baskets_orderitem_changelist")
-        d = obj.delivery
         p = obj.product
-        return format_html(
-            f"<a href='{order_item_admin_url}?order__delivery__id__exact={d.id}&product__id__exact={p.id}'>"
-            "Modify ordered quantities</a>"
-        )
+        order_items = p.order_items.filter(order__delivery=d)
+        total_quantity = order_items.aggregate(Sum("quantity"))["quantity__sum"]
+
+        order_item_admin_url = reverse("admin:baskets_orderitem_changelist")
+        modify_quantity_url = order_item_admin_url + f"?order__delivery__id__exact={d.id}&product__id__exact={p.id}"
+
+        if total_quantity:
+            return format_html(
+                f"{total_quantity} <a href='{modify_quantity_url}'>(Modify)</a>"
+            )
+        else:
+            return 0
 
 
 class OrderItemInline(admin.TabularInline):
@@ -107,7 +108,7 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ("id", "delivery", "product", "user", "quantity")
-    list_editable = ("quantity", )
+    list_editable = ("quantity",)
     list_filter = ("order__delivery", "product")
 
     def delivery(self, obj):
