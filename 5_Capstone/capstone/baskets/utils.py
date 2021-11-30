@@ -19,32 +19,30 @@ def get_order_forms_xlsx(delivery):
     # Add formats
     bold = workbook.add_format({'bold': True})
     money = workbook.add_format({'num_format': '#.## €'})
-    wrap = workbook.add_format({'text_wrap': True})
 
     for order in delivery.orders.all():
         worksheet = workbook.add_worksheet(order.user.last_name)
+
+        # order header
         row = 0
         col = 0
+        worksheet.write(row, col, "Basket Order", bold)
+        worksheet.write(row + 1, col, "Delivery date")
+        worksheet.write(row + 1, col + 1, str(delivery.date))
 
-        # order headers
-        main_headers = (
-            ["Basket Order", ""],
-            ["Delivery date:", str(delivery.date)],
-            ["", ""],
-            ["User:", f"{order.user.first_name} {order.user.last_name}"],
-            ["Group:", order.user.groups.first().name if order.user.groups.first() else ""],
-            ["Address:", order.user.address],
-            ["Phone:", order.user.phone],
-            ["", ""],
-        )
-        for title, value in main_headers:
-            worksheet.write(row, col, title)
-            worksheet.merge_range(row, col + 1, row, col + 3, value, wrap)  # values takes up 3 cols
-            row += 1
-        # set height for 'address' row
-        worksheet.set_row(5, 50)
+        # user info
+        row = 3
+        worksheet.write(row, col, "User:")
+        worksheet.write(row, col + 1, f"{order.user.first_name} {order.user.last_name}")
+        worksheet.write(row + 1, col, "Group:")
+        worksheet.write(row + 1, col + 1, order.user.groups.first().name if order.user.groups.first() else "")
+        worksheet.write(row + 2, col, "Address:")
+        worksheet.write(row + 2, col + 1, order.user.address)
+        worksheet.write(row + 3, col, "Phone:")
+        worksheet.write(row + 3, col + 1, order.user.phone)
 
         # order items headers
+        row = 8
         worksheet.write(row, col, "Product", bold)
         worksheet.write(row, col + 1, "Unit price", bold)
         worksheet.write(row, col + 2, "Quantity", bold)
@@ -59,11 +57,11 @@ def get_order_forms_xlsx(delivery):
             worksheet.write_number(row, col + 3, item.amount, money)
             row += 1
 
-        # set width of 'product' column
+        # adjust width of 'product' column to maximum length of product.name
         max_column_size = max([len(item.product.name) for item in order.items.all()])
         worksheet.set_column('A:A', max_column_size)
-        # set width of other order items columns
-        worksheet.set_column(1, 3, 10)
+        # set width of other columns
+        worksheet.set_column('B:D', 10)
 
         # order total
         row += 1  # one empty row
