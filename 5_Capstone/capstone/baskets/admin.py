@@ -58,9 +58,14 @@ class UserAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
+
         # notify user when its account is activated
-        if obj.is_active:
-            utils.email_user_account_activated(obj)
+        user = obj
+        if "is_active" in form.changed_data and user.is_active:
+            utils.email_user_account_activated(user)
+            messages.add_message(request,
+                                 messages.INFO,
+                                 f"An email has been sent to '{user}' to notify him of the activation of his account")
 
 
 @admin.register(Producer)
