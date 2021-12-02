@@ -1,6 +1,6 @@
 # CS50’s Web Programming with Python and JavaScript
 
-These are the projects I built during the [course](https://cs50.harvard.edu/web/2020/)
+These are the projects I built during the [course](https://cs50.harvard.edu/web/2020/):
 
 0. [**Search**](0_Search/): Front-end for Google Search, Google Image Search, and Google Advanced Search ([video](https://youtu.be/Ctzon7Vx5Zohttps://youtu.be/Ctzon7Vx5Zo))
 
@@ -12,4 +12,4 @@ These are the projects I built during the [course](https://cs50.harvard.edu/web/
 
 4. [**Network**](4_Network/project4): A Twitter-like social network website built using *Django, JavaScript, HTML and CSS* ([video](https://youtu.be/LSnRNnF0ZiU))
 
-(:warning: work in progress)
+5. [**Capstone - Baskets**](5_Capstone/capstone): A website to manage orders for local food baskets. Built using *Django*, *JavaScript* and *Bootstrap* ([video](https://youtu.be/9pwA2rNG7Do))
