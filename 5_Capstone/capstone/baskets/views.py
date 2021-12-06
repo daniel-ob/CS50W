@@ -1,8 +1,9 @@
 from datetime import date
 import json
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins, BadHeaderError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, HttpResponse, FileResponse
@@ -354,11 +355,7 @@ def delivery(request, delivery_id):
         return JsonResponse(d.serialize())
 
 
-def admin_check(user):
-    return user.is_superuser
-
-
-@user_passes_test(admin_check)
+@staff_member_required
 def delivery_export(request, delivery_id):
     """Download delivery related orders forms"""
 
