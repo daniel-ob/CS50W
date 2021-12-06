@@ -5,7 +5,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.core.mail import mail_admins, BadHeaderError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -102,9 +101,9 @@ def register(request):
         user.is_active = False
         user.save()
 
-        utils.email_admin_ask_account_activation(user)
+        utils.email_staff_ask_account_activation(user)
         return render(request, "baskets/register.html", {
-            "message": "Your register request has been sent to the administrator for validation. "
+            "message": "Your register request has been sent to staff for validation. "
                        "You will receive an email as soon as your account is activated.",
             "user_form": user_form,
             "password_form": password_form
@@ -159,12 +158,11 @@ def contact(request):
                 "form": form
             })
 
-        subject = "Contact: " + form.cleaned_data["subject"]
-        message_from_user = f"Message from {form.cleaned_data['from_email']}:\n" + form.cleaned_data["message"]
-        try:
-            mail_admins(subject, message_from_user)
-        except BadHeaderError:
-            return HttpResponse('Invalid header found.')
+        utils.email_staff_contact(
+            from_email=form.cleaned_data["from_email"],
+            subject=form.cleaned_data["subject"],
+            message=form.cleaned_data["message"]
+        )
         message = "Your message has been submitted."
 
     default_data = {"from_email": request.user.email if request.user.is_authenticated else None}

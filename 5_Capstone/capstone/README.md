@@ -46,7 +46,7 @@ A number of new functionalities have been implemented in this project, for insta
   - In "Login" page, a link allows users to request password reset entering an email address. 
   - If an account exists for that email address, a mail is sent with a link to a page to set a new password.
 - **Profile** page: clicking on username loads a page where user can view and update its profile information.
-- **Contact us** page: a link on footer loads a page to email admins.
+- **Contact us** page: a link on footer loads a page with a contact form. The message will be sent to all staff members.
 
 All functionalities except "contact" requires authentication.
 
@@ -70,8 +70,8 @@ Also:
 ### Other
 
 - **Account validation**:
-  - For sake of security, an admin validation is needed to activate user accounts.
-  - When a new user registers, account is set as "inactive" (user cannot log-in yet) and a notification email is sent to admins.
+  - For sake of security, a staff validation is needed to activate user accounts.
+  - When a new user registers, account is set as "inactive" (user cannot log-in yet) and a notification email is sent to all staff members.
   - As soon as account is set as 'active', a notification email is sent to user.
 - **API**: User orders can be managed using an API. See [API reference](#api-section) for further details.
 - **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive. 
@@ -140,17 +140,16 @@ The versions used can be found in `requirements.txt`
 
 Set the following environment variables at the end of `env/bin/activate` file:
 
-    export SECRET_KEY="django-insecure-(...)"  # set to a unique, unpredictable value
-    export ADMIN_EMAIL="admin@email.com"  # additional admins can be set on settings.py 
+    export SECRET_KEY="(...)"  # set to a unique, unpredictable value
     
     # SMTP server settings
-    export SERVER_EMAIL="server@email.com"
     export EMAIL_HOST="mail.server.com"
-    export EMAIL_USE_TLS=true
     export EMAIL_PORT=587  # For starttls
-    export EMAIL_HOST_USER="user@email.com"
+    export EMAIL_HOST_USER="email@server.com"
     export EMAIL_HOST_PASSWORD="password"
-    export DEFAULT_FROM_EMAIL="from@email.com"
+    export EMAIL_USE_TLS=true
+
+    export DEFAULT_FROM_EMAIL="Baskets <email@server.com>"
 
 Or set values directly on `settings.py` file.
 

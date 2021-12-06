@@ -1,9 +1,10 @@
 import io
 
-from django.core.mail import mail_admins, send_mail
+from django.core.mail import send_mail
 from django.urls import reverse
 from xlsxwriter.workbook import Workbook
 
+from baskets.models import User
 from capstone import settings
 
 
@@ -74,22 +75,41 @@ def get_order_forms_xlsx(delivery):
     return buffer
 
 
-def email_admin_ask_account_activation(user):
-    """Send email to admin to ask for user account activation"""
+def email_staff_ask_account_activation(user):
+    """Send email to staff members to ask for user account activation"""
 
+    staff_emails = [staff.email for staff in User.objects.filter(is_staff=True)]
     user_admin_url = settings.SERVER_URL + reverse("admin:baskets_user_change", args=[user.id])
 
-    subject = f"New user {user.username} account requires validation"
+    subject = f"[Baskets] New user {user.username} account requires validation"
     message = f"New user {user.username} has registered to Baskets app." \
               f"Its account needs to be activated. Please go to its user profile, check 'Active' and save."
     html_message = f"New user <strong>{user.username}</strong> has registered to <strong>Baskets app</strong>. " \
                    f"Its account needs to be activated.<br>" \
                    f"Please go to its <a href='{user_admin_url}'>user profile</a>, check 'Active' and save."
 
-    mail_admins(
+    send_mail(
         subject=subject,
         message=message,
         html_message=html_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=staff_emails,
+    )
+
+
+def email_staff_contact(from_email, subject, message):
+    """Send email to staff with 'Contact' form data"""
+
+    staff_emails = [staff.email for staff in User.objects.filter(is_staff=True)]
+
+    subject_ = "[Baskets] Contact: " + subject
+    message_ = f"Message from {from_email}:\n" + message
+
+    send_mail(
+        subject=subject_,
+        message=message_,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=staff_emails,
     )
 
 
@@ -109,6 +129,6 @@ def email_user_account_activated(user):
         subject=subject,
         message=message,
         html_message=html_message,
-        from_email=settings.SERVER_EMAIL,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
     )
