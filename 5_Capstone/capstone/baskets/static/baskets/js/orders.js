@@ -19,14 +19,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function updateOrderView(selectedOrderListItem) {
   // Load selected order-list-item in order view. If item has no order, display an empty order form.
-
   const deliveryUrl = selectedOrderListItem.querySelector('.delivery').dataset.url;
   const orderUrl = selectedOrderListItem.querySelector('.order').dataset.url;
   const spinner = document.querySelector('#spinner');
   const orderView = document.querySelector('#order-view');
   const orderViewTitle = document.querySelector('#order-view-title');
   const orderViewSubtitle = document.querySelector('#order-view-subtitle');
-  const orderViewItemsContainer = document.querySelector('#order-items');
+  const orderViewItemsContainer = document.querySelector('#order-view-items');
   const orderAmountSpan = document.querySelector('#order-amount');
   const saveIcon = document.querySelector('#save');
   const deleteIcon = document.querySelector('#delete');
@@ -79,7 +78,7 @@ async function updateOrderView(selectedOrderListItem) {
     // add a new order-view-item for each delivery product
     delivery.products.forEach(product => {
       const orderViewItem = document.createElement('tr');
-      orderViewItem.className = "order-item";
+      orderViewItem.className = "order-view-item";
       orderViewItem.dataset.productid = product.id;
       orderViewItem.innerHTML = `
         <td class="product-name">${product.name}</td>
@@ -97,7 +96,7 @@ async function updateOrderView(selectedOrderListItem) {
 
   function updateOrderViewItems(order) {
     // update existing order-view-items with quantities and amounts from order
-    const orderViewItems = orderViewItemsContainer.querySelectorAll('.order-item');
+    const orderViewItems = document.querySelectorAll('.order-view-item');
     orderViewItems.forEach(orderViewItem => {
       productId = orderViewItem.dataset.productid;
       orderItem = order.items.find(item => item.product.id == productId)
@@ -114,7 +113,7 @@ async function updateOrderView(selectedOrderListItem) {
     // add a new order-view-item for each order item. 'View-only' mode
     order.items.forEach(item => {
       const orderViewItem = document.createElement('tr');
-      orderViewItem.className = "order-item";
+      orderViewItem.className = "order-view-item";
       orderViewItem.dataset.productid = item.product.id;
       orderViewItem.innerHTML = `
         <td class="product-name">${item.product.name}</td>
@@ -127,8 +126,7 @@ async function updateOrderView(selectedOrderListItem) {
 
   function updateOrderViewAmounts() {
     // Re-calculate order-view amounts (items and total) according to items quantities
-
-    const orderViewItems = orderViewItemsContainer.querySelectorAll('.order-item');
+    const orderViewItems = document.querySelectorAll('.order-view-item');
     let orderAmount = 0;
     orderViewItems.forEach(orderViewItem => {
       const unitPrice = orderViewItem.querySelector('.unit-price').innerText;
@@ -176,7 +174,7 @@ async function saveOrder() {
   function getOrderItems() {
     // Get order items from order-view
     let orderItems = []
-    orderViewItems = document.querySelectorAll('.order-item')
+    orderViewItems = document.querySelectorAll('.order-view-item')
     orderViewItems.forEach(orderViewItem => {
       let quantity = orderViewItem.querySelector('.quantity').value;
       // valid order items have quantity greater than 0

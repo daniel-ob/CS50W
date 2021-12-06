@@ -593,7 +593,7 @@ class EndToEndWebPageTestCase(StaticLiveServerTestCase):
         time.sleep(self.SLEEP_TIME)
 
         # Check available products
-        items = self.driver.find_elements(By.CLASS_NAME, "order-item")
+        items = self.driver.find_elements(By.CLASS_NAME, "order-view-item")
         self.assertEqual(len(items), self.d2.products.count())
 
         quantity = 2
