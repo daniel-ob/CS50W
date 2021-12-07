@@ -1,5 +1,5 @@
 {% extends "baskets/layout.html" %}
-{% load static %}
+{% load i18n static %}
 
 {% block style %}
     <link href="{% static 'baskets/css/orders.css' %}" rel="stylesheet">
@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block script %}
+    <script src="{% url 'javascript-catalog' %}"></script>
     <script src="{% static 'baskets/js/orders.js' %}"></script>
 {% endblock %}
 
@@ -19,8 +20,8 @@
             <table class="table table-hover table-sm table-fixed-head">
                 <thead>
                     <tr>
-                        <th scope="col">Delivery Date</th>
-                        <th scope="col">Total</th>
+                        <th scope="col">{% translate 'Delivery Date' %}</th>
+                        <th scope="col">{% translate 'Total' %}</th>
                     </tr>
                 </thead>
                 <tbody title="click on a row to see details">
@@ -32,14 +33,14 @@
                                 <td class="order"
                                     data-url="{% url 'order' item.order.id %}">{{ item.order.amount }} €</td>
                             {% else %}
-                                <td class="order" data-url="">No order recorded</td>
+                                <td class="order" data-url="">{% translate 'Click to order' %}</td>
                             {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <p>There are no orders in this section yet</p>
+            <p>{% translate 'There are no orders in this section yet' %}</p>
         {% endif %}
     </div>
 
@@ -52,10 +53,10 @@
         <table class="table align-middle table-sm">
             <thead>
                 <tr>
-                    <th scope="col">Product name</th>
-                    <th scope="col">Unit Price</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Amount</th>
+                    <th scope="col">{% translate 'Product name' %}</th>
+                    <th scope="col">{% translate 'Unit Price' %}</th>
+                    <th scope="col">{% translate 'Quantity' %}</th>
+                    <th scope="col">{% translate 'Amount' %}</th>
                 </tr>
             </thead>
             <tbody id="order-view-items">
@@ -70,7 +71,7 @@
             </tfoot>
         </table>
         <div class="d-flex justify-content-end align-items-center">
-            <button class="btn btn-secondary m-1 d-none" id="delete" title="Delete order">
+            <button class="btn btn-secondary m-1 d-none" id="delete" title="{% translate 'Delete order' %}">
                 <i class="bi bi-trash-fill"></i>
             </button>
             <button class="btn btn-primary d-none" id="save"></button>

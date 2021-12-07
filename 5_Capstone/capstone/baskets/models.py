@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum, UniqueConstraint
+from django.utils.translation import gettext_lazy as _
 
 # FR phone numbers regex
 PHONE_REGEX = RegexValidator(regex=r"^"
@@ -15,30 +16,38 @@ PHONE_REGEX = RegexValidator(regex=r"^"
 
 class User(AbstractUser):
     # make last_name and email mandatory
-    last_name = models.CharField(max_length=150, blank=False)
-    email = models.EmailField(blank=False)
+    last_name = models.CharField(_("last name"), max_length=150, blank=False)
+    email = models.EmailField(_("email address"), blank=False)
 
     # add new fields
-    phone = models.CharField(blank=True, validators=[PHONE_REGEX], max_length=18)
-    address = models.CharField(blank=True, max_length=128)
+    phone = models.CharField(_("phone"), blank=True, validators=[PHONE_REGEX], max_length=18)
+    address = models.CharField(_("address"), blank=True, max_length=128)
 
     def __str__(self):
         return f"{self.username}"
 
 
 class Producer(models.Model):
-    name = models.CharField(blank=False, max_length=64)
-    phone = models.CharField(blank=True, validators=[PHONE_REGEX], max_length=18)
-    email = models.EmailField(blank=True)
+    name = models.CharField(_("name"), blank=False, max_length=64)
+    phone = models.CharField(_("phone"), blank=True, validators=[PHONE_REGEX], max_length=18)
+    email = models.EmailField(_("email address"), blank=True)
+
+    class Meta:
+        verbose_name = _("producer")
+        verbose_name_plural = _("producers")
 
     def __str__(self):
         return f"{self.name}"
 
 
 class Product(models.Model):
-    producer = models.ForeignKey(Producer, on_delete=models.CASCADE, related_name="products")
-    name = models.CharField(blank=False, max_length=64)
-    unit_price = models.DecimalField(blank=False, max_digits=8, decimal_places=2)
+    producer = models.ForeignKey(Producer, verbose_name=_("producer"), on_delete=models.CASCADE, related_name="products")
+    name = models.CharField(_("name"), blank=False, max_length=64)
+    unit_price = models.DecimalField(_("unit price"), blank=False, max_digits=8, decimal_places=2)
+
+    class Meta:
+        verbose_name = _("product")
+        verbose_name_plural = _("products")
 
     def serialize(self):
         return {
@@ -53,13 +62,17 @@ class Product(models.Model):
 
 class Delivery(models.Model):
     ORDER_DEADLINE_DAYS_BEFORE = 4
-    ORDER_DEADLINE_HELP_TEXT = f"Last day to order. If left blank, it will be automatically set to " \
-                               f"{ORDER_DEADLINE_DAYS_BEFORE} days before Delivery date"
+    ORDER_DEADLINE_HELP_TEXT = _("Last day to order. If left blank, it will be automatically set to "
+                                 "{} days before Delivery date").format(ORDER_DEADLINE_DAYS_BEFORE)
 
     date = models.DateField(blank=False)
-    order_deadline = models.DateField(blank=True, unique=True, help_text=ORDER_DEADLINE_HELP_TEXT)
-    products = models.ManyToManyField(Product, related_name="deliveries")
+    order_deadline = models.DateField(_("order deadline"), blank=True, unique=True, help_text=ORDER_DEADLINE_HELP_TEXT)
+    products = models.ManyToManyField(Product, verbose_name=_("products"), related_name="deliveries")
     message = models.CharField(blank=True, max_length=128)
+
+    class Meta:
+        verbose_name = _("delivery")
+        verbose_name_plural = _("deliveries")
 
     def serialize(self):
         return {
@@ -85,16 +98,18 @@ class Delivery(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="orders")
-    delivery = models.ForeignKey(Delivery, on_delete=models.PROTECT, related_name="orders")
-    creation_date = models.DateTimeField(auto_now_add=True)
-    amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
-    message = models.CharField(blank=True, max_length=128)
+    user = models.ForeignKey(User, verbose_name=_("user"), on_delete=models.PROTECT, related_name="orders")
+    delivery = models.ForeignKey(Delivery, verbose_name=_("delivery"), on_delete=models.PROTECT, related_name="orders")
+    creation_date = models.DateTimeField(_("creation date"), auto_now_add=True)
+    amount = models.DecimalField(_("amount"), default=0.00, max_digits=8, decimal_places=2, editable=False)
+    message = models.CharField(_("message"), blank=True, max_length=128)
 
     class Meta:
         constraints = [
             UniqueConstraint(fields=["delivery", "user"], name="user can only place one order per delivery")
         ]
+        verbose_name = _("order")
+        verbose_name_plural = _("orders")
 
     def serialize(self):
         return {
@@ -112,14 +127,18 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"From {self.user} for {self.delivery.date}"
+        return _("From {} for {}").format(self.user, self.delivery.date)
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
-    quantity = models.PositiveIntegerField(null=False, default=1, validators=[MinValueValidator(1)])
-    amount = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, editable=False)
+    order = models.ForeignKey(Order, verbose_name=_("order"), on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, verbose_name=_("product"), on_delete=models.PROTECT, related_name="order_items")
+    quantity = models.PositiveIntegerField(_("quantity"), null=False, default=1, validators=[MinValueValidator(1)])
+    amount = models.DecimalField(_("amount"), default=0.00, max_digits=8, decimal_places=2, editable=False)
+
+    class Meta:
+        verbose_name = _("order item")
+        verbose_name_plural = _("order items")
 
     def serialize(self):
         return {

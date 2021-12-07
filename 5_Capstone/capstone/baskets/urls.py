@@ -1,5 +1,6 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.i18n import JavaScriptCatalog
 
 from . import views
 from .forms import BasketsPasswordResetForm, BasketsSetPasswordForm
@@ -41,5 +42,8 @@ urlpatterns = [
     path("deliveries", views.deliveries, name="deliveries"),
     path("deliveries/<int:delivery_id>", views.delivery, name="delivery"),
 
-    path("deliveries/<int:delivery_id>/export", views.delivery_export, name="delivery_export")
+    path("deliveries/<int:delivery_id>/export", views.delivery_export, name="delivery_export"),
+
+    # Javascript internationalization
+    path("jsi18n/", JavaScriptCatalog.as_view(), name='javascript-catalog')
 ]

@@ -71,10 +71,11 @@ Also:
 
 - **Account validation**:
   - For sake of security, a staff validation is needed to activate user accounts.
-  - When a new user registers, account is set as "inactive" (user cannot log-in yet) and a notification email is sent to all staff members.
+  - When a new user registers, account is set as "inactive" (user cannot log in yet) and a notification email is sent to all staff members.
   - As soon as account is set as 'active', a notification email is sent to user.
 - **API**: User orders can be managed using an API. See [API reference](#api-section) for further details.
-- **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive. 
+- **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive.
+- **UI Translation**: Translation strings were used for all UI messages in order to facilitate translation. See [UI Translation](#ui-translation-section).
 
 ## <a name="domain-model-section"></a> Domain Model
 
@@ -382,3 +383,18 @@ delete /orders/{order_id}
     "message": "Order has been successfully deleted"
 }
 ```
+
+## <a name="ui-translation-section"></a> UI Translation
+
+This project has been prepared for translation. 
+
+**Translation strings** has been used for all user-interface text, 
+so all of them can be extracted into a single message file (`.po`) to facilitate translation.
+
+See [locale README](baskets/locale/README.md) to know how to generate and compile message files.
+
+Set language in `settings.py`, for example:
+
+    LANGUAGE_CODE = 'fr-fr'
+
+And restart server.

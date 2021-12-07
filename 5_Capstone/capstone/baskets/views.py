@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from . import utils
 from .forms import UserForm, ContactForm, BasketsSetPasswordForm
@@ -29,7 +30,7 @@ def index(request):
     ]
 
     return render(request, "baskets/index.html", {
-        "title": "Next Orders",
+        "title": _("Next Orders"),
         "deliveries_orders": deliveries_orders
     })
 
@@ -52,7 +53,7 @@ def order_history(request):
     ]
 
     return render(request, "baskets/index.html", {
-        "title": "Order History",
+        "title": _("Order History"),
         "deliveries_orders": deliveries_orders
     })
 
@@ -70,7 +71,7 @@ def login_view(request):
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "baskets/login.html", {
-                "message": "Invalid username and/or password."
+                "message": _("Invalid username and/or password.")
             })
     else:
         return render(request, "baskets/login.html")
@@ -103,8 +104,8 @@ def register(request):
 
         utils.email_staff_ask_account_activation(user)
         return render(request, "baskets/register.html", {
-            "message": "Your register request has been sent to staff for validation. "
-                       "You will receive an email as soon as your account is activated.",
+            "message": _("Your register request has been sent to staff for validation. "
+                         "You will receive an email as soon as your account is activated."),
             "user_form": user_form,
             "password_form": password_form
         })
@@ -134,7 +135,7 @@ def profile(request):
                 "form": form
             })
         user.save()
-        message = "Your information has been correctly updated"
+        message = _("Your information has been correctly updated")
 
     # render user information
     return render(request, "baskets/profile.html", {
@@ -163,7 +164,7 @@ def contact(request):
             subject=form.cleaned_data["subject"],
             message=form.cleaned_data["message"]
         )
-        message = "Your message has been submitted."
+        message = _("Your message has been submitted.")
 
     default_data = {"from_email": request.user.email if request.user.is_authenticated else None}
     return render(request, "baskets/contact.html", {

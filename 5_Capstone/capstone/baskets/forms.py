@@ -13,12 +13,12 @@ class UserForm(ModelForm):
         model = User
         fields = ["username", "first_name", "last_name", "email", "phone", "address"]
         widgets = {
-            "username": TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
-            "first_name": TextInput(attrs={"class": "form-control", "placeholder": "First Name"}),
-            "last_name": TextInput(attrs={"class": "form-control", "placeholder": "Last Name"}),
-            "email": TextInput(attrs={"class": "form-control", "placeholder": "Email"}),
-            "phone": TextInput(attrs={"class": "form-control", "placeholder": "Phone Number"}),
-            "address": TextInput(attrs={"class": "form-control", "placeholder": "Address"}),
+            "username": TextInput(attrs={"class": "form-control", "placeholder": _("Username")}),
+            "first_name": TextInput(attrs={"class": "form-control", "placeholder": _("First name")}),
+            "last_name": TextInput(attrs={"class": "form-control", "placeholder": _("Last name")}),
+            "email": TextInput(attrs={"class": "form-control", "placeholder": _("Email")}),
+            "phone": TextInput(attrs={"class": "form-control", "placeholder": _("Phone")}),
+            "address": TextInput(attrs={"class": "form-control", "placeholder": _("Address")}),
         }
 
 
@@ -56,13 +56,13 @@ class BasketsSetPasswordForm(SetPasswordForm):
 class ContactForm(Form):
     from_email = EmailField(
         required=True,
-        widget=TextInput(attrs={"class": "form-control", "placeholder": "Your email", "autocomplete": "email"})
+        widget=TextInput(attrs={"class": "form-control", "placeholder": _("Your email"), "autocomplete": "email"})
     )
     subject = CharField(
         required=True,
-        widget=TextInput(attrs={"class": "form-control", "placeholder": "Subject"})
+        widget=TextInput(attrs={"class": "form-control", "placeholder": _("Subject")})
     )
     message = CharField(
         required=True,
-        widget=Textarea(attrs={"class": "form-control", "rows": 6, "placeholder": "Your message"})
+        widget=Textarea(attrs={"class": "form-control", "rows": 6, "placeholder": _("Your message")})
     )

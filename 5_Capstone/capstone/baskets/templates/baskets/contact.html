@@ -1,4 +1,5 @@
 {% extends "baskets/layout.html" %}
+{% load i18n %}
 
 {% block body %}
 
@@ -13,7 +14,7 @@
         {% for field in form %}
             {% include 'baskets/field.html' %}
         {% endfor %}
-        <input class="btn btn-primary" type="submit" value="Send">
+        <input class="btn btn-primary" type="submit" value="{% translate 'Send' %}">
     </form>
 
 {% endblock %}

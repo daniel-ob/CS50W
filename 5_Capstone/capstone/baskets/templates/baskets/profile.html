@@ -1,8 +1,9 @@
 {% extends "baskets/layout.html" %}
+{% load i18n %}
 
 {% block body %}
 
-    <h2>Profile</h2>
+    <h2>{% translate 'Profile' %}</h2>
 
     {% if message %}
         <div>{{ message }}</div>
@@ -13,7 +14,7 @@
         {% for field in form %}
             {% include 'baskets/field.html' %}
         {% endfor %}
-        <input class="btn btn-primary" type="submit" value="Update">
+        <input class="btn btn-primary" type="submit" value="{% translate 'Update' %}">
     </form>
 
 {% endblock %}

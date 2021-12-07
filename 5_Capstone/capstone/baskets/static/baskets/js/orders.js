@@ -41,14 +41,14 @@ async function updateOrderView(selectedOrderListItem) {
   orderViewItemsContainer.innerHTML = '';
   if (order) {
       orderView.classList.add('shadow');
-      orderViewTitle.innerText = `Order for ${delivery.date}`;
+      orderViewTitle.innerText = gettext('Order for ') + delivery.date;
       if (delivery.is_open) {
         // order can be updated and deleted
-        orderViewSubtitle.innerText = `Can be updated until ${delivery.order_deadline}`;
+        orderViewSubtitle.innerText = gettext('Can be updated until: ') + delivery.order_deadline;
         newOrderViewItems(delivery);
         updateOrderViewItems(order);
         show(deleteIcon);
-        saveIcon.innerText = 'Update'
+        saveIcon.innerText = gettext('Update');
         show(saveIcon);
       } else {
         // order in view-only mode
@@ -61,11 +61,11 @@ async function updateOrderView(selectedOrderListItem) {
   } else {
     // new order
     orderView.classList.remove('shadow');
-    orderViewTitle.innerText = `New order for ${delivery.date}`;
-    orderViewSubtitle.innerText = `Last day to order: ${delivery.order_deadline}`;
+    orderViewTitle.innerText = gettext('New order for ') + delivery.date;
+    orderViewSubtitle.innerText = gettext('Last day to order: ') + delivery.order_deadline;
     newOrderViewItems(delivery);
     hide(deleteIcon);
-    saveIcon.innerText = 'Create'
+    saveIcon.innerText = gettext('Create');
     show(saveIcon);
     orderAmountSpan.innerText = parseFloat(0).toFixed(2);
   }
@@ -278,7 +278,7 @@ function updateSelectedOrderListItem(orderAmount, orderUrl) {
   const selectedOrderListItem = document.querySelector('.table-active');
   const selectedOrder = selectedOrderListItem.querySelector('.order');
 
-  selectedOrder.innerText = orderAmount ? orderAmount + ' €' : 'No order recorded';
+  selectedOrder.innerText = orderAmount ? orderAmount + ' €' : gettext('Click to order');
   selectedOrder.dataset.url = orderUrl;
 }
 
@@ -295,19 +295,19 @@ function showAlert(alertType) {
   switch(alertType) {
     case 'successSave':
       alert.classList.add('text-success');
-      alert.innerText = 'Order has been successfully saved';
+      alert.innerText = gettext('Order has been successfully saved');
       break;
     case 'successRemove':
       alert.classList.add('text-success');
-      alert.innerText = 'Order has been successfully removed';
+      alert.innerText = gettext('Order has been successfully removed');
       break;
     case 'errorSave':
       alert.classList.add('text-danger');
-      alert.innerText = 'An error occurred when trying to save order. Please reload page and try again';
+      alert.innerText = gettext('An error occurred when trying to save order. Please reload page and try again');
       break;
     case 'errorItems':
       alert.classList.add('text-danger');
-      alert.innerText = 'At least one item must have quantity greater than 0';
+      alert.innerText = gettext('At least one item must have quantity greater than 0');
       break;
     default:
       alert.classList.add('text-danger');
