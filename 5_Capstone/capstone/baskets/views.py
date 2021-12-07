@@ -168,7 +168,7 @@ def contact(request):
     default_data = {"from_email": request.user.email if request.user.is_authenticated else None}
     return render(request, "baskets/contact.html", {
         "message": message,
-        "form": ContactForm(default_data)
+        "form": ContactForm(initial=default_data)
     })
 
 

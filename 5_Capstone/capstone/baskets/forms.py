@@ -54,7 +54,7 @@ class BasketsSetPasswordForm(SetPasswordForm):
 
 
 class ContactForm(Form):
-    from_email = CharField(
+    from_email = EmailField(
         required=True,
         widget=TextInput(attrs={"class": "form-control", "placeholder": "Your email", "autocomplete": "email"})
     )
