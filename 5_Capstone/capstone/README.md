@@ -106,6 +106,7 @@ An additional constraint has been implemented into model:
           - `password_reset_confirm.html` template for "Set new password" page
           - `password_reset_done.html` template for "Password reset request done" page
         - `contact.html` template for "Contact us" page.
+        - `field.html` template for each form field (included in "contact", "profile" and "register" templates)
         - `index.html` template for "Next Orders" and "Order history" pages
         - `layout.html` layout template, including navbar and footer, that other app templates will extend   
         - `login.html` template for "Login" page

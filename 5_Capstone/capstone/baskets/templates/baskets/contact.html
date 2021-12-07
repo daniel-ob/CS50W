@@ -11,14 +11,7 @@
     <form action="{% url 'contact' %}" method="post">
         {% csrf_token %}
         {% for field in form %}
-            <div class="mb-3">
-                {% if field.errors %}
-                    <div class="text-danger">
-                        {{ field.errors }}
-                    </div>
-                {% endif %}
-                {{ field }}
-            </div>
+            {% include 'baskets/field.html' %}
         {% endfor %}
         <input class="btn btn-primary" type="submit" value="Send">
     </form>
