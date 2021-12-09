@@ -6,7 +6,21 @@ Project built using [Django](https://www.djangoproject.com/), [Bootstrap](https:
 
 ![Baskets screenshot](screenshot.png)
 
-## Background and goal
+## Table of contents
+
+1. [Background and goal](#background)
+2. [Distinctiveness and Complexity](#distinctiveness)
+3. [Features](#features)
+4. [Domain model](#domain-model)
+5. [Files content overview](#files-content)
+6. [Dependencies](#dependencies)
+7. [Install and Configure using a virtual environment](#install)
+8. [Run](#run)
+9. [Tests run](#tests-run)
+10. [API Reference](#api-ref)
+11. [UI Translation](#ui-translation)
+
+## Background and goal <a name="background"></a> 
 
 This project has been developed to meet a real need for a local association.
 
@@ -19,7 +33,7 @@ Before the deployment of this application, administrators got orders from users 
 
 Payments will be managed outside this application.
 
-## Distinctiveness and Complexity:
+## Distinctiveness and Complexity <a name="distinctiveness"></a>  
 
 As long as this application will actually go into "production", several meetings were needed to define, show and adjust functionalities. 
 This aspect was an additional source of complexity.
@@ -29,7 +43,7 @@ A number of new functionalities have been implemented in this project, for insta
 - "Password reset" and "Account validation" flows with email sending.
 - A complete API with data validation.
 
-## Features
+## Features <a name="features"></a> 
 
 ### User interface
 
@@ -73,11 +87,11 @@ Also:
   - For sake of security, a staff validation is needed to activate user accounts.
   - When a new user registers, account is set as "inactive" (user cannot log in yet) and a notification email is sent to all staff members.
   - As soon as account is set as 'active', a notification email is sent to user.
-- **API**: User orders can be managed using an API. See [API reference](#api-section) for further details.
+- **API**: User orders can be managed using an API. See [API reference](#api-ref) for further details.
 - **Mobile-responsiveness**: This has been achieved using Bootstrap framework in user interface. Moreover, Django admin interface is also mobile responsive.
-- **UI Translation**: Translation strings were used for all UI messages in order to facilitate translation. See [UI Translation](#ui-translation-section).
+- **UI Translation**: Translation strings were used for all UI messages in order to facilitate translation. See [UI Translation](#ui-translation).
 
-## <a name="domain-model-section"></a> Domain Model
+## Domain Model <a name="domain-model"></a> 
 
 ![Baskets domain model](domain_model.png)
 
@@ -87,7 +101,7 @@ In the same way a Producer can also have zero Products.
 An additional constraint has been implemented into model: 
 - one user can only place one order per delivery.
 
-## Files content overview
+## Files content overview <a name="files-content"></a>
 
 `capstone/`
   - `baskets/`
@@ -115,7 +129,7 @@ An additional constraint has been implemented into model:
         - `register.html` template for "Register" page
     - `admin.py` set-up for all Django admin pages. Each app **model** has its related Admin class
     - `forms.py` back-end generated forms. Some forms are created from models (ModelForms)
-    - `models.py` app **models**: classes specified on [Domain model](#domain-model-section)
+    - `models.py` app **models**: classes specified on [Domain model](#domain-model)
     - `tests.py ` app tests: Model tests (`ModelsTestCase` class), API tests (`APITestCase` class) and Webpage tests (`WebPageTestCase` and `EndToEndWebPageTestCase` classes) 
     - `urls.py` app URLS: mapping between **URL paths** and **views** (Python functions on `views.py`). Note that reverse URLs are used in whole project, so in order to change a URL, we must only update this file.
     - `utils.py` "utilities" functions including generation of spreadsheet user forms  
@@ -123,9 +137,9 @@ An additional constraint has been implemented into model:
   - `capstone/`
     - `settings.py` project settings
     - `urls.py` project urls, includes 'admin' and 'baskets' apps urls.
-  - `requirements.txt` python packages required to run the project (see [Dependencies](#dependencies-section)) 
+  - `requirements.txt` python packages required to run the project (see [Dependencies](#dependencies)) 
 
-## <a name="dependencies-section"></a> Dependencies
+## Dependencies <a name="dependencies"></a>
 
 In addition to **Django**, the following libraries has been used:
 
@@ -134,7 +148,7 @@ In addition to **Django**, the following libraries has been used:
 
 The versions used can be found in `requirements.txt`
 
-## Install and Configure using a virtual environment
+## Install and Configure using a virtual environment <a name="install"></a>
 
     $ git clone https://github.com/daniel-ob/CS50W.git
     $ cd CS50W/5_Capstone/capstone/
@@ -167,7 +181,7 @@ Finally, create a superuser:
 
     (env)$ python3 manage.py createsuperuser
 
-## Run
+## Run <a name="run"></a>
 
 Start Django server:
 
@@ -176,13 +190,13 @@ Start Django server:
 - User interface: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - Admin interface: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
 
-## Tests run
+## Tests run <a name="tests-run"></a>
 
 All tests:
 
     (env)$ python3 manage.py test baskets.tests
 
-## <a name="api-section"></a> API Reference
+## API Reference <a name="api-ref"></a>
 
 ### List open deliveries
 
@@ -384,7 +398,7 @@ delete /orders/{order_id}
 }
 ```
 
-## <a name="ui-translation-section"></a> UI Translation
+## UI Translation <a name="ui-translation"></a> 
 
 This project has been prepared for translation. 
 
