@@ -127,10 +127,12 @@ An additional constraint has been implemented into model:
         - `login.html` template for "Login" page
         - `profile.html` template for "Profile" page
         - `register.html` template for "Register" page
+    - `tests/`
+      - `pageobjects.py ` *page objects* to abstract interactions with pages in functional tests 
+      - `tests.py ` app tests: Models, API, Webpage and Functional tests 
     - `admin.py` set-up for all Django admin pages. Each app **model** has its related Admin class
     - `forms.py` back-end generated forms. Some forms are created from models (ModelForms)
     - `models.py` app **models**: classes specified on [Domain model](#domain-model)
-    - `tests.py ` app tests: Model tests (`ModelsTestCase` class), API tests (`APITestCase` class) and Webpage tests (`WebPageTestCase` and `EndToEndWebPageTestCase` classes) 
     - `urls.py` app URLS: mapping between **URL paths** and **views** (Python functions on `views.py`). Note that reverse URLs are used in whole project, so in order to change a URL, we must only update this file.
     - `utils.py` "utilities" functions including generation of spreadsheet user forms  
     - `views.py` Python functions that takes web requests and returns web responses. Response can be a web page, a redirection, an HTTP error, a JSON (for API requests) or a file.
@@ -195,6 +197,10 @@ Start Django server:
 All tests:
 
     (env)$ python3 manage.py test baskets.tests
+
+Functional tests only:
+
+    (env)$ python3 manage.py test baskets.tests.tests.FunctionalTestCase
 
 ## API Reference <a name="api-ref"></a>
 

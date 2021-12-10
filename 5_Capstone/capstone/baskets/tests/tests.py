@@ -1,16 +1,15 @@
-from decimal import Decimal
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 import json
-import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.db.models import Max
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 
-from .models import User, Producer, Product, Delivery, Order, OrderItem
+from baskets.models import User, Producer, Product, Delivery, Order, OrderItem
+from baskets.tests.pageobjects import LoginPage
 
 
 class BasketsTestCase(TestCase):
@@ -554,12 +553,12 @@ class WebPageTestCase(BasketsTestCase):
         self.assertEqual(response.context["form"].initial["address"], self.u1.address)
 
 
-class EndToEndWebPageTestCase(StaticLiveServerTestCase):
+class FunctionalTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.driver = webdriver.Chrome()
-        cls.SLEEP_TIME = 0.1
+        cls.driver.implicitly_wait(10)
 
     @classmethod
     def tearDownClass(cls):
@@ -570,116 +569,111 @@ class EndToEndWebPageTestCase(StaticLiveServerTestCase):
         BasketsTestCase.setUp(self)
 
     def test_end_to_end(self):
-        """End to end test: Login, Create order, Update order, Delete order"""
+        """End-to-end test: Login, Create order, Update order, Delete order"""
 
-        login_url = self.live_server_url + reverse("login")
-        index_url = self.live_server_url + reverse("index")
-
-        # Log-in
+        # Log in
         # ------
-        self.driver.get(login_url)
-        username_input = self.driver.find_element(By.NAME, "username")
-        username_input.send_keys("user1")
-        password_input = self.driver.find_element(By.NAME, "password")
-        password_input.send_keys("secret")
-        login_button = self.driver.find_element(By.CLASS_NAME, "btn")
-        login_button.click()
+        login_page = LoginPage(self.driver, self.live_server_url)
+        login_page.load()
+        self.assertEqual(login_page.title, _("Login"))
+        login_page.set_username("user1")
+        login_page.set_password("secret")
+        next_orders_page = login_page.submit()  # next_orders_page is from type IndexPage
 
-        self.assertEqual(self.driver.current_url, index_url)
-        self.assertEqual(self.driver.find_element(By.ID, "username").text, self.u1.username)
+        # Check that 'Next orders' page is correctly loaded
+        self.assertEqual(next_orders_page.title, _("Next Orders"))
+        self.assertEqual(next_orders_page.username, self.u1.username)
 
         # Create order
         # ------------
-        # 'Next orders' page (index). Check date of first delivery
-        first_delivery = self.driver.find_element(By.CLASS_NAME, "delivery")
-        first_delivery_date = first_delivery.text
-        self.assertEqual(first_delivery_date, self.d2.date.isoformat())
-
-        # Check that first delivery has no order
-        first_order = self.driver.find_element(By.CLASS_NAME, "order")
-        first_order_url = first_order.get_attribute("data-url")
-        self.assertEqual(first_order_url, "")
+        selected_order_index = 0
+        # Check that delivery has no order
+        order_url = next_orders_page.get_order_url(selected_order_index)
+        order_amount = next_orders_page.get_order_amount(selected_order_index)
+        self.assertIsNone(order_url)
+        self.assertIsNone(order_amount)
 
         # Open new order view
-        first_delivery.click()
-        time.sleep(self.SLEEP_TIME)
+        next_orders_page.open_order(selected_order_index)
+        delivery_date = next_orders_page.get_order_delivery_date(selected_order_index)
+        order_view_title = next_orders_page.get_order_view_title()
+        self.assertIn(delivery_date, order_view_title)
 
-        # Check available products
-        items = self.driver.find_elements(By.CLASS_NAME, "order-view-item")
-        self.assertEqual(len(items), self.d2.products.count())
+        # Check available products count
+        items_count = next_orders_page.get_items_count()
+        self.assertEqual(items_count, self.d2.products.count())
 
-        quantity = 2
         expected_order_amount = 0
-        for idx, item in enumerate(items):
-            name = item.find_element(By.CLASS_NAME, "product-name")
-            unit_price = item.find_element(By.CLASS_NAME, "unit-price")
-            quantity_input = item.find_element(By.CLASS_NAME, "quantity")
-            amount = item.find_element(By.CLASS_NAME, "amount")
-            expected_product_name = self.d2.products.all()[idx].name
-            expected_unit_price = self.d2.products.all()[idx].unit_price
+        for index in range(items_count):
+            expected_product_name = self.d2.products.all()[index].name
+            expected_unit_price = self.d2.products.all()[index].unit_price
+
+            item_name = next_orders_page.get_item_name(index)
+            item_unit_price = next_orders_page.get_item_unit_price(index)
 
             # check product details
-            self.assertEqual(name.text, expected_product_name)
-            self.assertEqual(unit_price.text, str(expected_unit_price))
-            self.assertEqual(amount.text, "0.00")
+            self.assertEqual(item_name, expected_product_name)
+            self.assertEqual(item_unit_price, expected_unit_price)
 
-            # set item quantity and check item amount
-            quantity_input.clear()
-            quantity_input.send_keys(quantity)
-            expected_amount = quantity * expected_unit_price
-            self.assertEqual(amount.text, str(expected_amount))
+            # check item initial amount
+            item_amount = next_orders_page.get_item_amount(index)
+            self.assertEqual(item_amount, 0.00)
 
-            expected_order_amount += expected_amount
+            # set item quantity and check new amount
+            quantity = 2
+            self.assertEqual(next_orders_page.item_quantity_is_writable(index), True)
+            next_orders_page.set_item_quantity(index, quantity)
+            expected_amount = quantity * item_unit_price
+            item_amount = next_orders_page.get_item_amount(index)
+            self.assertEqual(item_amount, expected_amount)
+
+            expected_order_amount += item_amount
 
         # Check total order amount
-        order_amount = self.driver.find_element(By.ID, "order-amount")
-        self.assertEqual(order_amount.text, str(expected_order_amount))
+        order_view_amount = next_orders_page.get_order_view_amount()
+        self.assertEqual(order_view_amount, expected_order_amount)
 
         # Save order and check that order list is updated
-        save_button = self.driver.find_element(By.ID, "save")
-        save_button.click()
-        time.sleep(self.SLEEP_TIME)
-        self.assertEqual(first_order.text, str(expected_order_amount) + " €")
+        next_orders_page.save_order()
+        order_url = next_orders_page.get_order_url(selected_order_index)
+        order_amount = next_orders_page.get_order_amount(selected_order_index)
+        self.assertIsNotNone(order_url)
+        self.assertEqual(order_amount, order_view_amount)
 
         # Check that order has been created in database
-        self.assertEqual(self.u1.orders.last().amount, expected_order_amount)
-        first_order_url = first_order.get_attribute("data-url")
-        self.assertNotEqual(first_order_url, "")
+        self.assertEqual(self.u1.orders.last().amount, order_amount)
 
         # Update order
         # ------------
-        first_delivery.click()
-        time.sleep(self.SLEEP_TIME)
+        next_orders_page.open_order(selected_order_index)
 
-        first_item_unit_price = Decimal(self.driver.find_element(By.CLASS_NAME, "unit-price").text)
-        first_item_quantity_input = self.driver.find_element(By.CLASS_NAME, "quantity")
-        first_item_amount = self.driver.find_element(By.CLASS_NAME, "amount")
-        order_amount = self.driver.find_element(By.ID, "order-amount")
-
-        initial_first_item_quantity = int(first_item_quantity_input.get_attribute("value"))
-        initial_order_amount = Decimal(order_amount.text)
+        item_index = 0
+        item_unit_price = next_orders_page.get_item_unit_price(item_index)
+        initial_item_quantity = next_orders_page.get_item_quantity(item_index)
+        initial_order_view_amount = next_orders_page.get_order_view_amount()
 
         # Increase by 1 item quantity
-        new_quantity = initial_first_item_quantity + 1
-        first_item_quantity_input.clear()
-        first_item_quantity_input.send_keys(new_quantity)
+        new_quantity = initial_item_quantity + 1
+        next_orders_page.set_item_quantity(item_index, new_quantity)
 
-        expected_amount = new_quantity * first_item_unit_price
-        self.assertEqual(first_item_amount.text, str(expected_amount))
-        expected_order_amount = initial_order_amount + first_item_unit_price
-        self.assertEqual(order_amount.text, str(expected_order_amount))
+        expected_amount = new_quantity * item_unit_price
+        item_amount = next_orders_page.get_item_amount(item_index)
+        self.assertEqual(item_amount, expected_amount)
+        expected_order_amount = initial_order_view_amount + item_unit_price
+        order_view_amount = next_orders_page.get_order_view_amount()
+        self.assertEqual(order_view_amount, expected_order_amount)
 
-        # Update order and check that it has been updated in database
-        save_button.click()
-        time.sleep(self.SLEEP_TIME)
-        self.assertEqual(self.u1.orders.last().amount, expected_order_amount)
+        # Update order and check that it has been correctly updated in order list and database
+        next_orders_page.save_order()
+        order_amount = next_orders_page.get_order_amount(selected_order_index)
+        self.assertEqual(order_amount, order_view_amount)
+        self.assertEqual(self.u1.orders.last().amount, order_amount)
 
         # Delete order
         # ------------
-        first_delivery.click()
-        time.sleep(self.SLEEP_TIME)
-        delete_button = self.driver.find_element(By.ID, "delete")
-        delete_button.click()
-        time.sleep(self.SLEEP_TIME)
-        first_order_url = first_order.get_attribute("data-url")
-        self.assertEqual(first_order_url, "")
+        next_orders_page.open_order(selected_order_index)
+        next_orders_page.delete_order()
+        order_url = next_orders_page.get_order_url(selected_order_index)
+        order_amount = next_orders_page.get_order_amount(selected_order_index)
+        self.assertIsNone(order_url)
+        self.assertIsNone(order_amount)

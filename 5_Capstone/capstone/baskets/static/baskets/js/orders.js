@@ -118,7 +118,7 @@ async function updateOrderView(selectedOrderListItem) {
       orderViewItem.innerHTML = `
         <td class="product-name">${item.product.name}</td>
         <td><span class="unit-price">${item.product.unit_price}</span> €</td>
-        <td>${item.quantity}</td>
+        <td class="quantity">${item.quantity}</td>
         <td><span class="amount">${item.amount}</span> €</td>`;
       orderViewItemsContainer.append(orderViewItem);
     })
