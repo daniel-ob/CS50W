@@ -23,6 +23,8 @@ class BasketsTestCase(TestCase):
             first_name="test",
             last_name="user",
             email="user1@baskets.com",
+            phone="0123456789",
+            address="my street, my city",
             password="secret"
         )
         self.u2 = User.objects.create(username="user2")
@@ -548,6 +550,8 @@ class WebPageTestCase(BasketsTestCase):
         self.assertEqual(response.context["form"].initial["first_name"], self.u1.first_name)
         self.assertEqual(response.context["form"].initial["last_name"], self.u1.last_name)
         self.assertEqual(response.context["form"].initial["email"], self.u1.email)
+        self.assertEqual(response.context["form"].initial["phone"], self.u1.phone)
+        self.assertEqual(response.context["form"].initial["address"], self.u1.address)
 
 
 class EndToEndWebPageTestCase(StaticLiveServerTestCase):
