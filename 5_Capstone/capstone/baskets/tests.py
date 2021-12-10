@@ -39,13 +39,16 @@ class BasketsTestCase(TestCase):
         # Create deliveries
         today = date.today()
         tomorrow = today + timedelta(days=1)
+        after_tomorrow = today + timedelta(days=2)
         yesterday = today - timedelta(days=1)
         # closed delivery
         self.d1 = Delivery.objects.create(date=today, order_deadline=yesterday, message="delivery 1")
         self.d1.products.set([self.product1, self.product2])
-        # opened delivery
+        # opened deliveries
         self.d2 = Delivery.objects.create(date=tomorrow, order_deadline=today, message="delivery 2")
         self.d2.products.set([self.product1, self.product3])
+        self.d3 = Delivery.objects.create(date=after_tomorrow, order_deadline=tomorrow, message="delivery 3")
+        self.d3.products.set([self.product1, self.product3])
 
         # Create orders
         self.o1 = Order.objects.create(user=self.u1, delivery=self.d1, message="order 1")  # closed
@@ -69,7 +72,7 @@ class ModelsTestCase(BasketsTestCase):
         self.assertEqual(self.producer2.products.count(), 1)
 
     def test_product_deliveries_count(self):
-        self.assertEqual(self.product1.deliveries.count(), 2)
+        self.assertEqual(self.product1.deliveries.count(), 3)
 
     def test_user_orders_count(self):
         self.assertEqual(self.u1.orders.count(), 1)
@@ -474,6 +477,10 @@ class APITestCase(BasketsTestCase):
             {
                 "id": self.d2.id,
                 "date": self.d2.date.isoformat()
+            },
+            {
+                "id": self.d3.id,
+                "date": self.d3.date.isoformat()
             }
         ]
         response = self.c.get(reverse("deliveries"))
@@ -513,13 +520,14 @@ class APITestCase(BasketsTestCase):
 
 class WebPageTestCase(BasketsTestCase):
     def test_index_opened_deliveries(self):
-        """Check that 'index' page contains only opened deliveries (deadline not passed)"""
+        """Check that 'index' page contains only opened deliveries (deadline not passed) in chronological order"""
 
         self.c.force_login(self.u1)
         response = self.c.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["deliveries_orders"]), 1)
+        self.assertEqual(len(response.context["deliveries_orders"]), 2)
         self.assertEqual(response.context["deliveries_orders"][0]["delivery"], self.d2)
+        self.assertEqual(response.context["deliveries_orders"][1]["delivery"], self.d3)
 
     def test_order_history_closed_deliveries(self):
         """Check that 'order history' page contains only closed deliveries (deadline passed)"""
