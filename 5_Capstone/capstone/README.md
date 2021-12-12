@@ -321,7 +321,7 @@ post /orders
 
 Request must follow this rules:
 
-- delivery must be opened for orders (delivery.order_deadline >= today)
+- delivery must be opened for orders (delivery.is_open == true)
 - a user can only post an order per delivery
 - order must contain at least one item
 - all item products must be available in delivery.products

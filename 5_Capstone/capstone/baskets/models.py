@@ -90,7 +90,7 @@ class Delivery(models.Model):
 
     @property
     def is_open(self):
-        """Delivery is open until order_deadline is passed"""
+        """Delivery is open (accepts orders) until its order_deadline"""
         return date.today() <= self.order_deadline
 
     def __str__(self):

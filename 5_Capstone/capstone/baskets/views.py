@@ -203,9 +203,9 @@ def orders(request):
         except Delivery.DoesNotExist:
             return JsonResponse({"error": f"Delivery with id {d_id} does not exist"}, status=404)
 
-        # Orders for given delivery can only be created until deadline
-        if date.today() > d.order_deadline:
-            return JsonResponse({"error": "Order deadline is passed for this delivery"}, status=400)
+        # Delivery must be opened (still accepting orders)
+        if not d.is_open:
+            return JsonResponse({"error": "The order deadline for this delivery has passed"}, status=400)
 
         # User can only have one order per delivery
         if d.orders.filter(user=request.user):
@@ -275,9 +275,9 @@ def order(request, order_id):
         return JsonResponse(o.serialize())
 
     elif request.method == "PUT":
-        # Orders can only be updated until its delivery deadline
-        if date.today() > o.delivery.order_deadline:
-            return JsonResponse({"error": "Related delivery is closed. Order can't be updated"}, status=400)
+        # Orders can only be updated if their related delivery is open
+        if not o.delivery.is_open:
+            return JsonResponse({"error": "Related delivery is closed. Order can no longer be updated"}, status=400)
 
         data = json.loads(request.body)
 

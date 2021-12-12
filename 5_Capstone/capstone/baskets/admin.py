@@ -1,5 +1,3 @@
-from datetime import date
-
 from django.contrib import admin, messages
 from django.contrib.auth.models import Group
 from django.db.models import Count, Sum
@@ -102,7 +100,7 @@ class DeliveryAdmin(admin.ModelAdmin):
     def export(self, obj):
         d = obj
         delivery_export_url = reverse("delivery_export", args=[d.id])
-        if date.today() > d.order_deadline and d.orders.count():
+        if d.orders.count() and not d.is_open:
             link_text = _("Export order forms")
             return format_html(
                 f"<a href='{delivery_export_url}'>{link_text}</a>"
