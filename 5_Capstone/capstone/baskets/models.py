@@ -155,6 +155,12 @@ class OrderItem(models.Model):
         # Recalculate order.amount with this item
         self.order.save()
 
+    def delete(self, *args, **kwargs):
+        # Delete item
+        super().delete(*args, **kwargs)
+        # Recalculate related order.amount
+        self.order.save()
+
     def is_valid(self):
         """Order item is valid if product is available in related delivery and quantity is greater than 0"""
         return self.product in self.order.delivery.products.all() and self.quantity > 0
