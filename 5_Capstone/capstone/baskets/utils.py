@@ -23,7 +23,7 @@ def get_order_forms_xlsx(delivery):
 
     # Add formats
     bold = workbook.add_format({'bold': True})
-    money = workbook.add_format({'num_format': '#.## €'})
+    money = workbook.add_format({'num_format': '0.00 €'})
 
     for order in delivery.orders.all():
         worksheet = workbook.add_worksheet(order.user.last_name)
