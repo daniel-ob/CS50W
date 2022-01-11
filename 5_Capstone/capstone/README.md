@@ -293,6 +293,38 @@ get /orders
 ]
 ```
 
+### Get order details
+
+Requires authentication
+
+```
+get /orders/{order_id}
+```
+
+**Response**
+
+```
+ Status: 200 OK
+```
+```
+{
+    "delivery_id": 3,
+    "items": [
+        {
+            "product": {
+                "id": 2,
+                "name": "Big vegetables basket",
+                "unit_price": "17.00"
+            },
+            "quantity": 2,
+            "amount": "34.00"
+        }
+    ],
+    "amount": "34.00",
+    "message": "API test order"
+}
+```
+
 ### Create an order
 
 Requires authentication
